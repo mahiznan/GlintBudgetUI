@@ -9,6 +9,13 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+# Opt JavaScript actions into Node 24 ahead of the June 2026 default switch.
+# Silences the Node 20 deprecation warning for actions/checkout@v4,
+# actions/setup-node@v4, and SamKirkland/FTP-Deploy-Action@v4.3.5.
+# Remove this env block once those actions ship Node-24-native versions.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   build-and-deploy:
     name: Build and deploy
