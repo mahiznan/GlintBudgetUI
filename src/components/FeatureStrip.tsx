@@ -26,7 +26,7 @@ function FeatureStrip() {
               <div className="text-4xl" aria-hidden="true">
                 {feature.emoji}
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">{feature.title}</h3>
+              <h3 className="mt-4 text-lg font-semibold text-brand">{feature.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{feature.description}</p>
             </div>
           ))}

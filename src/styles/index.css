@@ -1,9 +1,11 @@
 @import 'tailwindcss';
 
 @theme {
-  /* GlintBudget brand palette */
-  --color-brand: #f59e0b; /* amber-500 - the "glint" */
-  --color-brand-dark: #b45309; /* amber-700 */
+  /* GlintBudget brand palette — green spectrum (owner-specified core: #007836, #1fa32e, #96bf0d) */
+  --color-brand: #007836; /* deep forest — primary CTA, key fills */
+  --color-brand-dark: #005c2a; /* darker hover/active state */
+  --color-accent: #1fa32e; /* mid green — interactive accents, wordmark dot */
+  --color-highlight: #96bf0d; /* lime — text highlights, secondary energy */
   --color-text: #0f172a; /* slate-900 */
   --color-text-muted: #475569; /* slate-600 */
   --color-surface: #ffffff;
@@ -23,7 +25,7 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), serif;
   color: var(--color-text);
   background: var(--color-surface);
   -webkit-font-smoothing: antialiased;

@@ -5,7 +5,7 @@ function Hero() {
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
           Track every dollar.
           <br />
-          <span className="text-amber-500">Across every currency.</span>
+          <span className="text-highlight">Across every currency.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
           GlintBudget brings the simplicity of your iPhone expense tracker to every screen you own.
@@ -15,7 +15,7 @@ function Hero() {
           <button
             type="button"
             disabled
-            className="rounded-full bg-amber-500 px-6 py-3 text-base font-semibold text-white shadow-sm opacity-60"
+            className="rounded-full bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm opacity-60 transition-colors hover:bg-brand-dark"
           >
             Coming soon
           </button>

@@ -43,16 +43,16 @@
 
 ### 2.1 Stack
 
-| Layer | Choice | Why |
-|---|---|---|
-| UI framework | **React** (latest stable) | Largest ecosystem; matches likely future hires; same mental model as SwiftUI's declarative views. |
-| Language | **TypeScript (strict)** | Catches errors at build time; pairs with iOS Swift's strictness. |
-| Build tool | **Vite** (latest stable) | Fastest dev server; Rollup-based production builds with great tree-shaking; content-hashed asset filenames out of the box. |
-| Styling | **Tailwind CSS v4** | JIT generates only used classes; landing-page CSS typically < 5 KB gzipped; scales to forms/charts in later stages. |
-| Package manager | **npm** | Universal; ships with Node; no extra CI install step. |
-| Node version | Latest **LTS** (pinned in `.nvmrc`) | CI/local parity. |
-| Hosting | **cPanel shared hosting** via FTP/FTPS | Owner's existing setup. |
-| CI/CD | **GitHub Actions** | Native to the repo; free for public/private repos under the included minutes. |
+| Layer           | Choice                                 | Why                                                                                                                        |
+| --------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| UI framework    | **React** (latest stable)              | Largest ecosystem; matches likely future hires; same mental model as SwiftUI's declarative views.                          |
+| Language        | **TypeScript (strict)**                | Catches errors at build time; pairs with iOS Swift's strictness.                                                           |
+| Build tool      | **Vite** (latest stable)               | Fastest dev server; Rollup-based production builds with great tree-shaking; content-hashed asset filenames out of the box. |
+| Styling         | **Tailwind CSS v4**                    | JIT generates only used classes; landing-page CSS typically < 5 KB gzipped; scales to forms/charts in later stages.        |
+| Package manager | **npm**                                | Universal; ships with Node; no extra CI install step.                                                                      |
+| Node version    | Latest **LTS** (pinned in `.nvmrc`)    | CI/local parity.                                                                                                           |
+| Hosting         | **cPanel shared hosting** via FTP/FTPS | Owner's existing setup.                                                                                                    |
+| CI/CD           | **GitHub Actions**                     | Native to the repo; free for public/private repos under the included minutes.                                              |
 
 ### 2.2 SPA shape — single-page with HTML5 history routing (Approach A)
 
@@ -62,13 +62,13 @@ Single `index.html` entry point; in Stage 2 we add React Router using real URLs 
 
 ### 2.3 Performance budget (Stage 1)
 
-| Metric | Target |
-|---|---|
+| Metric                                             | Target      |
+| -------------------------------------------------- | ----------- |
 | Initial payload (HTML + critical CSS + JS) gzipped | **< 50 KB** |
-| Largest Contentful Paint (fast connection) | **< 1.0 s** |
-| Lighthouse Performance score | **≥ 95** |
-| Lighthouse Best Practices score | **≥ 95** |
-| Lighthouse Accessibility score | **≥ 95** |
+| Largest Contentful Paint (fast connection)         | **< 1.0 s** |
+| Lighthouse Performance score                       | **≥ 95**    |
+| Lighthouse Best Practices score                    | **≥ 95**    |
+| Lighthouse Accessibility score                     | **≥ 95**    |
 
 These are gates the implementation plan should verify before claiming Stage 1 done.
 
@@ -76,10 +76,12 @@ These are gates the implementation plan should verify before claiming Stage 1 do
 
 Two-tier caching, hard requirement from owner:
 
-1. **Hashed assets (`/assets/*.{js,css,png,svg,woff2,…}`)**: Vite writes content-hashed filenames (e.g., `index-Bx9aK2c3.js`). The filename *is* the cache key. Server sends:
+1. **Hashed assets (`/assets/*.{js,css,png,svg,woff2,…}`)**: Vite writes content-hashed filenames (e.g., `index-Bx9aK2c3.js`). The filename _is_ the cache key. Server sends:
+
    ```
    Cache-Control: public, max-age=31536000, immutable
    ```
+
    Browser caches for one year; never re-validates. When content changes, the filename changes, so a new URL is fetched — stale assets are mathematically impossible.
 
 2. **`index.html` and `.htaccess`**: server sends:
@@ -140,13 +142,13 @@ GlintBudgetUI/
 
 1. **Header** — `GlintBudget` wordmark left, placeholder nav right (visual only).
 2. **Hero**
-   - Tagline (draft): *"Track every dollar. Across every currency."*
+   - Tagline (draft): _"Track every dollar. Across every currency."_
    - Subhead: short value prop, 1-2 lines.
    - Single CTA: `Coming soon` (disabled button) — copy refinable in implementation.
 3. **Feature strip — 3 items** mirroring what the iOS app actually does:
-   - **Multi-currency** — *"Default currency with per-transaction overrides."*
-   - **Smart reports** — *"Pie and bar charts filtered by category, vendor, account."*
-   - **iOS + Web sync** — *"Your data, anywhere. Offline-first."* (forward-looking; honest about web sync coming with Stage 2+.)
+   - **Multi-currency** — _"Default currency with per-transaction overrides."_
+   - **Smart reports** — _"Pie and bar charts filtered by category, vendor, account."_
+   - **iOS + Web sync** — _"Your data, anywhere. Offline-first."_ (forward-looking; honest about web sync coming with Stage 2+.)
 4. **Footer** — copyright, link to iOS App Store (placeholder), Privacy Policy link (placeholder URL — same one the iOS app's Settings → Legal needs).
 
 ### Visual direction
@@ -223,6 +225,7 @@ Note: if cPanel supports Brotli (`mod_brotli`), the implementation should add an
 ### 6.1 Workflow file: `.github/workflows/deploy.yml`
 
 **Triggers:**
+
 - `push` to `main`
 - `workflow_dispatch` (manual re-deploy button)
 
@@ -250,14 +253,15 @@ If typecheck, lint, or build fails, the FTP step is skipped (the failed step sho
 
 Owner must add these in `github.com/mahiznan/GlintBudgetUI` → **Settings → Secrets and variables → Actions**:
 
-| Secret | Example value | Notes |
-|---|---|---|
-| `FTP_HOST` | `ftp.learnerandtutor.com` or `learnerandtutor.com` | Confirm in cPanel → FTP Accounts. |
-| `FTP_USERNAME` | e.g., `budget@learnerandtutor.com` | Use a **scoped FTP account** restricted to the subdomain directory, not the main cPanel user. |
-| `FTP_PASSWORD` | (strong random password) | Generated when creating the scoped FTP account. |
-| `FTP_SERVER_DIR` | `/budget.learnerandtutor.com/` | Auto-created subdomain document root. Trailing slash required. |
+| Secret           | Example value                                      | Notes                                                                                         |
+| ---------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `FTP_HOST`       | `ftp.learnerandtutor.com` or `learnerandtutor.com` | Confirm in cPanel → FTP Accounts.                                                             |
+| `FTP_USERNAME`   | e.g., `budget@learnerandtutor.com`                 | Use a **scoped FTP account** restricted to the subdomain directory, not the main cPanel user. |
+| `FTP_PASSWORD`   | (strong random password)                           | Generated when creating the scoped FTP account.                                               |
+| `FTP_SERVER_DIR` | `/budget.learnerandtutor.com/`                     | Auto-created subdomain document root. Trailing slash required.                                |
 
 Optional (Stage 2+):
+
 - `VITE_FIREBASE_*` for Firebase web config, injected at build time.
 
 ### 6.3 One-time manual setup (outside the repo)
@@ -293,14 +297,14 @@ The implementation plan must verify all of these before marking Stage 1 complete
 
 ## 8. Future stages roadmap (so we know where Stage 1 plugs in)
 
-| Stage | Scope | Notes |
-|---|---|---|
-| **Stage 1** *(this spec)* | Landing page + CI/CD + cache strategy. | Foundation for everything below. |
-| Stage 2 | Firebase Auth (Email + Google + Anonymous); React Router; protected routes; `.htaccess` SPA fallback already shipped. | Drop Apple Sign-In on web for now (extra Apple Developer setup; not blocking). |
-| Stage 3 | Transactions CRUD: list (paginated 50/page, mirroring iOS), filter, create, edit, delete. | Share Firestore schema with iOS — same `transactions` collection, same field names (snake_case in Firestore, camelCase via `CodingKeys`-equivalent in TS). |
-| Stage 4 | Preferences sync: categories, vendors, accounts, payments, currencies. | Same `preference/{userId}` doc as iOS. |
-| Stage 5 | Reports with pie / bar charts. | Pick chart lib by bundle size — likely Recharts or visx. Mirror iOS `Report` model. |
-| Stage 6 | PWA polish: service worker, install prompt, manifest, offline support. | Matches iOS app's offline-first behavior. |
+| Stage                     | Scope                                                                                                                 | Notes                                                                                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Stage 1** _(this spec)_ | Landing page + CI/CD + cache strategy.                                                                                | Foundation for everything below.                                                                                                                           |
+| Stage 2                   | Firebase Auth (Email + Google + Anonymous); React Router; protected routes; `.htaccess` SPA fallback already shipped. | Drop Apple Sign-In on web for now (extra Apple Developer setup; not blocking).                                                                             |
+| Stage 3                   | Transactions CRUD: list (paginated 50/page, mirroring iOS), filter, create, edit, delete.                             | Share Firestore schema with iOS — same `transactions` collection, same field names (snake_case in Firestore, camelCase via `CodingKeys`-equivalent in TS). |
+| Stage 4                   | Preferences sync: categories, vendors, accounts, payments, currencies.                                                | Same `preference/{userId}` doc as iOS.                                                                                                                     |
+| Stage 5                   | Reports with pie / bar charts.                                                                                        | Pick chart lib by bundle size — likely Recharts or visx. Mirror iOS `Report` model.                                                                        |
+| Stage 6                   | PWA polish: service worker, install prompt, manifest, offline support.                                                | Matches iOS app's offline-first behavior.                                                                                                                  |
 
 Each stage will have its own design doc + implementation plan in `docs/superpowers/`.
 
@@ -312,11 +316,11 @@ Reproduced here so future sessions don't need to re-derive it from the iOS repo.
 
 ### Firestore collections
 
-| Collection | Doc ID | Notes |
-|---|---|---|
-| `transactions` | UUID | User's transactions. Composite index `(user_id ASC, date DESC)` required for the paginated query. |
-| `preference` | userId (= Firebase Auth UID) | User's categories, vendors, accounts, payments, currencies, reports. |
-| `users` | userId (= Firebase Auth UID) | User profile. |
+| Collection     | Doc ID                       | Notes                                                                                             |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| `transactions` | UUID                         | User's transactions. Composite index `(user_id ASC, date DESC)` required for the paginated query. |
+| `preference`   | userId (= Firebase Auth UID) | User's categories, vendors, accounts, payments, currencies, reports.                              |
+| `users`        | userId (= Firebase Auth UID) | User profile.                                                                                     |
 
 ### Transaction schema (snake_case in Firestore)
 
@@ -341,13 +345,13 @@ Firestore security rules (`/Users/rajeshkumar/workspace/GlintBudget/firestore.ru
 
 ## 10. Risks and mitigations
 
-| Risk | Mitigation |
-|---|---|
-| FTPS unsupported on this cPanel host | Fall back to plain FTP via workflow input; document in README. Note: plain FTP transmits credentials in clear — acceptable for a personal project, revisit if it becomes commercial. |
-| FTP_SERVER_DIR mismatch silently uploads to wrong folder | First deploy is manually verified by owner before merging to main; workflow has `workflow_dispatch` for safe re-runs. |
-| Lighthouse score targets not met on shared hosting | Most likely cause is host-level latency, not our code. If host TTFB is the bottleneck, document it; consider Cloudflare in front later. |
-| Owner forgets to set GitHub secrets before first push to main | First deploy will fail loudly in Actions; workflow logs name the missing secret. README lists all four. |
-| Future domain migration breaks deploys | All host-specific values (`FTP_HOST`, `FTP_SERVER_DIR`) live in GitHub secrets, not in code. Migration = update two secrets, done. |
+| Risk                                                          | Mitigation                                                                                                                                                                           |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| FTPS unsupported on this cPanel host                          | Fall back to plain FTP via workflow input; document in README. Note: plain FTP transmits credentials in clear — acceptable for a personal project, revisit if it becomes commercial. |
+| FTP_SERVER_DIR mismatch silently uploads to wrong folder      | First deploy is manually verified by owner before merging to main; workflow has `workflow_dispatch` for safe re-runs.                                                                |
+| Lighthouse score targets not met on shared hosting            | Most likely cause is host-level latency, not our code. If host TTFB is the bottleneck, document it; consider Cloudflare in front later.                                              |
+| Owner forgets to set GitHub secrets before first push to main | First deploy will fail loudly in Actions; workflow logs name the missing secret. README lists all four.                                                                              |
+| Future domain migration breaks deploys                        | All host-specific values (`FTP_HOST`, `FTP_SERVER_DIR`) live in GitHub secrets, not in code. Migration = update two secrets, done.                                                   |
 
 ---
 
