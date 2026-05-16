@@ -1,9 +1,18 @@
+import Header from './components/Header';
+import Hero from './components/Hero';
+import FeatureStrip from './components/FeatureStrip';
+import Footer from './components/Footer';
+
 function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-8">
-      <h1 className="text-5xl font-bold tracking-tight text-slate-900">GlintBudget</h1>
-      <p className="mt-4 text-lg text-slate-600">Coming soon.</p>
-    </main>
+    <div className="flex min-h-screen flex-col bg-white">
+      <Header />
+      <main className="flex-1">
+        <Hero />
+        <FeatureStrip />
+      </main>
+      <Footer />
+    </div>
   );
 }
 
