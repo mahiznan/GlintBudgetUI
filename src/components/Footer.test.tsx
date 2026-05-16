@@ -17,4 +17,12 @@ describe('Footer', () => {
     render(<Footer />);
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
+
+  it('renders the build commit hash and timestamp injected at build time', () => {
+    render(<Footer />);
+    const buildInfo = screen.getByTestId('build-info');
+    // commit hash and the literal "Build" / "UTC" labels are always present
+    expect(buildInfo.textContent).toMatch(/Build/);
+    expect(buildInfo.textContent).toMatch(/UTC|\d{4}-\d{2}-\d{2}/);
+  });
 });
