@@ -1,19 +1,44 @@
-import Header from './components/Header';
-import Hero from './components/Hero';
-import FeatureStrip from './components/FeatureStrip';
-import Footer from './components/Footer';
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthProvider';
+import { RequireAuth } from './auth/RequireAuth';
+import Landing from './routes/Landing';
 
-function App() {
+const SignIn = lazy(() => import('./routes/SignIn'));
+const AppShell = lazy(() => import('./routes/AppShell'));
+
+const RouteFallback = () => (
+  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+    Loading…
+  </div>
+);
+
+const router = createBrowserRouter([
+  { path: '/', element: <Landing /> },
+  {
+    path: '/signin',
+    element: (
+      <Suspense fallback={<RouteFallback />}>
+        <SignIn />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/app',
+    element: (
+      <Suspense fallback={<RouteFallback />}>
+        <RequireAuth>
+          <AppShell />
+        </RequireAuth>
+      </Suspense>
+    ),
+  },
+]);
+
+export default function App() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <FeatureStrip />
-      </main>
-      <Footer />
-    </div>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
-
-export default App;
