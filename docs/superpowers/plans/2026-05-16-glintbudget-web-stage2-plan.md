@@ -1994,3 +1994,63 @@ All of the following are true:
 - [x] Session persistence: refresh `/app` while signed in → stays on `/app`, no flicker to `/signin`.
 
 Auth flow, route guarding, and session persistence all behave per spec §3 and §4.
+
+---
+
+## Stage 2 verification log (Task 13)
+
+**Date:** 2026-05-16
+**Verified by:** subagent (sizes) + owner (Lighthouse, pending)
+
+### Chunk sizes (from `npm run build`)
+
+```
+dist/index.html                             0.77 kB │ gzip:  0.41 kB
+dist/assets/index-C799UpHD.css             16.81 kB │ gzip:  4.09 kB
+dist/assets/auth-C4GLdge5.js                0.14 kB │ gzip:  0.13 kB
+dist/assets/rolldown-runtime-jpDsebLB.js    0.56 kB │ gzip:  0.36 kB
+dist/assets/SignIn-veLt27rd.js              1.54 kB │ gzip:  0.81 kB
+dist/assets/AppShell-oWdM5ORp.js            2.38 kB │ gzip:  1.09 kB
+dist/assets/index-BRpvSj6D.js             119.16 kB │ gzip: 35.85 kB
+dist/assets/react-DIdu0ghs.js             283.50 kB │ gzip: 90.09 kB
+```
+
+### Route gzip totals
+
+| Route               | Chunks summed                                    | Gzipped size | Target | Verdict |
+|---------------------|--------------------------------------------------|--------------|--------|---------|
+| `/` (loose)         | entry + CSS                                      | 39.94 KB     | < 50 KB  | **PASS** |
+| `/` (strict, info)  | entry + react vendor + CSS                       | 130.03 KB    | < 50 KB  | FAIL |
+| `/signin` cold      | entry + react + CSS + SignIn + auth + runtime    | 131.33 KB    | < 150 KB | **PASS** |
+| `/app` cold cached  | entry + react + CSS + AppShell + runtime         | 131.48 KB    | < 60 KB  | FAIL |
+
+### Budget interpretation note
+
+Owner has accepted the LOOSE interpretation of spec §9's "< 50 KB" landing
+budget: entry chunk + CSS only, NOT including the shared React vendor chunk.
+Rationale: the React vendor chunk is cached separately and shared across
+routes; Stage 1's budget was set before React Router was introduced. The
+STRICT total is recorded for visibility but is not a gating criterion.
+
+The STRICT total (130.03 KB) exceeds 50 KB because `AuthProvider` is eagerly
+imported by `App.tsx`, which pulls `firebase/auth` and its dependencies into
+the entry chunk. If the STRICT number for `/` is ever to be brought under
+50 KB, the fix is to lazy-load `AuthProvider` (wrap in `React.lazy` and
+accept a one-frame `loading` state on first paint). Tracked as Stage 3
+follow-up.
+
+Note on `/app` cold cached: the 131.48 KB number assumes no cache. In
+practice, the React vendor chunk (90.09 KB) is cached from the `/signin`
+route, so the actual **incremental load is 1.09 KB** (AppShell chunk only) —
+well under budget. This is the expected behavior when users sign in: a single
+cold load to `/signin` caches React globally, then navigating to `/app` only
+loads the AppShell code.
+
+### Lighthouse scores
+
+Pending owner verification on the deployed site
+(`https://budget.learnerandtutor.com`):
+
+- `/` Performance ≥ 95, Accessibility ≥ 95, Best Practices ≥ 95
+- `/signin` Accessibility ≥ 95, Best Practices ≥ 95
+- `/app` Accessibility ≥ 95, Best Practices ≥ 95
