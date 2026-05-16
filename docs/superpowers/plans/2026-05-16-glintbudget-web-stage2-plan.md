@@ -1974,3 +1974,23 @@ All of the following are true:
 4. Bundle budgets from spec §9 are met (recorded in plan verification log).
 5. Lighthouse scores from spec §9 are met (recorded in plan verification log).
 6. CLAUDE.md reflects Stage 2 completion.
+
+---
+
+## Stage 2 manual verification (Task 11)
+
+**Date:** 2026-05-16
+**Tester:** repo owner
+**Environment:** `npm run dev` at http://localhost:5173 with real Firebase web config in `.env.local`.
+
+**Checklist results — all PASS:**
+
+- [x] `/` loads landing; Header CTA reads "Sign in"; click jumps to `/signin`.
+- [x] `/signin` shows "Continue with Google" button; click opens Google popup.
+- [x] Successful Google sign-in → popup closes → URL becomes `/app` → "Welcome back, &lt;firstName&gt; 👋" renders with avatar in the top-right.
+- [x] Visiting `/` while signed in: Header CTA reads "Open dashboard"; click jumps to `/app`.
+- [x] UserMenu → "Sign out" → URL lands on `/signin`; CTA on `/` flips back to "Sign in".
+- [x] Visiting `/app` while signed out → instant redirect to `/signin`.
+- [x] Session persistence: refresh `/app` while signed in → stays on `/app`, no flicker to `/signin`.
+
+Auth flow, route guarding, and session persistence all behave per spec §3 and §4.
