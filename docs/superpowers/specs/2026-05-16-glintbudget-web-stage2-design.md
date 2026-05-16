@@ -1,6 +1,6 @@
 # GlintBudget Web — Stage 2 Design
 
-**Status:** Brainstorm in progress (started 2026-05-16). Decisions are being captured below as they are agreed; sections will be promoted to a final design once the brainstorm completes.
+**Status:** Design drafted 2026-05-16 — **awaiting owner review** before implementation planning.
 **Companion iOS project:** `/Users/rajeshkumar/workspace/GlintBudget` (SwiftUI + Firebase — source of truth for data models and Firestore schema)
 **This project (web):** `/Users/rajeshkumar/workspace/GlintBudgetUI`
 **Stage 1 spec:** `docs/superpowers/specs/2026-05-16-glintbudget-web-stage1-design.md`
@@ -78,6 +78,8 @@ This matches the Stage 1 cache strategy: hashed chunks get `Cache-Control: publi
 
 ### 8.1 Module layout
 
+The existing Stage 1 `App.tsx` (which composes Header + Hero + FeatureStrip + Footer) is **extracted into `src/routes/Landing.tsx`** unchanged. `App.tsx` becomes the router + `<AuthProvider>` wrapper. No component code changes inside Landing — only its file location and its CTA wiring (Header reads `useAuth()`).
+
 ```
 src/
 ├── main.tsx
@@ -125,6 +127,8 @@ type BudgetUser = {
 ```
 
 `AuthProvider` subscribes once to `onAuthStateChanged` on mount; the rest of the app reads `useAuth()`. No Zustand / Jotai / Redux — Context is sufficient for a single global value that changes infrequently.
+
+The web `BudgetUser` shape is **intentionally a subset** of the iOS `BudgetUser` (which includes `isAnonymous`, `createdDate`, `isPremium`, `preferences`, `favoriteMovie`). Stage 2 only needs identity fields that Firebase Auth gives us synchronously; the additional fields require Firestore reads from `/users/{uid}` and land with Stage 3 / Stage 4. Field names match the iOS `CodingKeys` (e.g., `user_id`, `photo_url`) when reading from Firestore later.
 
 ### 8.3 Data flow
 
