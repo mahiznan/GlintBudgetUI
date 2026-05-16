@@ -10,8 +10,9 @@ The companion iOS app lives at `/Users/rajeshkumar/workspace/GlintBudget` (Swift
 
 ## Where We Are
 
-- **Stage 1 (in progress / done):** Landing page, CI/CD, perfect-cache strategy.
-- **Stage 2+ (not started):** Firebase Auth, React Router, CRUD, preferences, reports, PWA.
+- **Stage 1 (done):** Landing page, CI/CD, perfect-cache strategy.
+- **Stage 2 (done):** Firebase Auth (Google), React Router v7, protected /app shell. Firebase lazy-loaded; / stays under 50 KB gzipped.
+- **Stage 3+ (not started):** CRUD, preferences, reports, PWA.
 
 See the specs and plans in `docs/superpowers/` for the canonical source of every decision and the session-resume cheat sheet.
 
@@ -19,6 +20,8 @@ See the specs and plans in `docs/superpowers/` for the canonical source of every
 
 - **Stage 1 design spec:** `docs/superpowers/specs/2026-05-16-glintbudget-web-stage1-design.md` (§12 = session-resume cheat sheet)
 - **Stage 1 implementation plan:** `docs/superpowers/plans/2026-05-16-glintbudget-web-stage1-plan.md`
+- **Stage 2 design spec:** `docs/superpowers/specs/2026-05-16-glintbudget-web-stage2-design.md`
+- **Stage 2 implementation plan:** `docs/superpowers/plans/2026-05-16-glintbudget-web-stage2-plan.md`
 - **iOS data model + Firestore rules:** `/Users/rajeshkumar/workspace/GlintBudget/firestore.rules` and `/Users/rajeshkumar/workspace/GlintBudget/GlintBudget/Model/`
 
 ## Build & Run Commands
@@ -26,6 +29,7 @@ See the specs and plans in `docs/superpowers/` for the canonical source of every
 ```bash
 nvm use            # activate Node version from .nvmrc
 npm install
+# Copy .env.example to .env.local and fill in Firebase web config before `npm run dev`.
 npm run dev        # http://localhost:5173
 npm run build      # production build to dist/
 npm run preview    # serve built dist/ on http://localhost:4173
@@ -59,15 +63,19 @@ GlintBudgetUI/
 │   └── robots.txt
 ├── src/
 │   ├── main.tsx                      # React root
-│   ├── App.tsx                       # Landing page composition (Stage 1)
-│   ├── components/{Header,Hero,FeatureStrip,Footer}.tsx + .test.tsx
+│   ├── App.tsx                       # Router + AuthProvider wrapper (Stage 2)
+│   ├── auth/                         # AuthContext, AuthProvider, RequireAuth, types
+│   ├── firebase/                     # client.ts (initializeApp + getAuth), auth.ts (Google sign-in wrappers)
+│   ├── routes/                       # Landing, SignIn, AppShell + co-located tests
+│   ├── components/{Header,Hero,FeatureStrip,Footer,UserMenu}.tsx + .test.tsx
 │   ├── styles/index.css              # Tailwind v4 entry + @theme brand tokens
-│   ├── setupTests.ts                 # Vitest + jest-dom matchers
-│   └── vite-env.d.ts
+│   ├── setupTests.ts                 # Vitest + jest-dom matchers (also stubs VITE_FIREBASE_* env)
+│   └── vite-env.d.ts                 # typed ImportMetaEnv for VITE_FIREBASE_* vars
 ├── index.html                        # Vite entry; preconnects, theme-color
 ├── vite.config.ts                    # build config + test config
 ├── tsconfig*.json                    # TS strict + bundler resolution
 ├── eslint.config.js                  # flat config; defers formatting to Prettier
+├── .env.example                      # required VITE_FIREBASE_* env var names (no values)
 ├── .prettierrc.json
 ├── .nvmrc
 ├── README.md
@@ -113,6 +121,16 @@ Secrets required (set in repo Settings → Secrets):
 - `FTP_PASSWORD`
 - `FTP_SERVER_DIR` (e.g., `/budget.learnerandtutor.com/` — trailing slash required)
 
+Stage 2 also requires Firebase web-config secrets (NOT actually secret — Firebase
+web config ships to every browser; the real security boundary is Firestore rules):
+
+- `FIREBASE_API_KEY`
+- `FIREBASE_AUTH_DOMAIN`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_APP_ID`
+- `FIREBASE_MESSAGING_SENDER_ID`
+- `FIREBASE_STORAGE_BUCKET`
+
 If a deploy fails before the FTP step (typecheck/lint/test/build error), no upload happens. Production never receives a broken build.
 
 ## Conventions
@@ -125,9 +143,10 @@ If a deploy fails before the FTP step (typecheck/lint/test/build error), no uplo
 
 ## What this repo does NOT do (yet)
 
-- No Firebase SDK is wired up. Stage 2 adds it.
-- No routing (only `/`). Stage 2 adds React Router; `.htaccess` already has the SPA fallback ready.
-- No auth, CRUD, reports, or charts. Stages 2-5.
+- No CRUD: transactions, categories, accounts come in Stage 3.
+- No preferences UI (currency, theme) — Stage 4.
+- No reports or charts — Stage 5.
+- No PWA / offline / push notifications — Stage 6+.
 
 ## When you start a fresh session
 
