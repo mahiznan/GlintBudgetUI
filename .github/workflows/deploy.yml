@@ -9,10 +9,12 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
-# Opt JavaScript actions into Node 24 ahead of the June 2026 default switch.
-# Silences the Node 20 deprecation warning for actions/checkout@v4,
-# actions/setup-node@v4, and SamKirkland/FTP-Deploy-Action@v4.3.5.
-# Remove this env block once those actions ship Node-24-native versions.
+# SamKirkland/FTP-Deploy-Action@v4.3.5 still targets Node 20. The env var
+# below opts it into Node 24 so it runs cleanly past the 2026-06-02 default
+# switch and the 2026-09-16 Node 20 removal. The GitHub-official actions
+# below (checkout, setup-node) are pinned to v5 which is natively Node 24,
+# so they don't need the override. Remove this block when FTP-Deploy-Action
+# ships a Node-24-native version.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
@@ -24,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
