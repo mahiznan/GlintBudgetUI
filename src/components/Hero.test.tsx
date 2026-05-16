@@ -17,11 +17,4 @@ describe('Hero', () => {
       screen.getByText(/GlintBudget brings the simplicity of your iPhone expense tracker/i),
     ).toBeInTheDocument();
   });
-
-  it('renders a disabled "Coming soon" CTA', () => {
-    render(<Hero />);
-    const cta = screen.getByRole('button', { name: /coming soon/i });
-    expect(cta).toBeInTheDocument();
-    expect(cta).toBeDisabled();
-  });
 });

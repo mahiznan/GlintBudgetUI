@@ -11,15 +11,6 @@ function Hero() {
           GlintBudget brings the simplicity of your iPhone expense tracker to every screen you own.
           iOS today. Web is on the way.
         </p>
-        <div className="mt-10 flex items-center justify-center gap-x-4">
-          <button
-            type="button"
-            disabled
-            className="rounded-full bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm opacity-60 transition-colors hover:bg-brand-dark"
-          >
-            Coming soon
-          </button>
-        </div>
       </div>
     </section>
   );
