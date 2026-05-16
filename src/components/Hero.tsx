@@ -9,7 +9,7 @@ function Hero() {
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
           GlintBudget brings the simplicity of your iPhone expense tracker to every screen you own.
-          iOS today. Web next.
+          iOS today. Web is on the way.
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-4">
           <button
