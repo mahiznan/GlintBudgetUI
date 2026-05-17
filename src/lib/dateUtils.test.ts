@@ -62,7 +62,7 @@ describe('groupByDay', () => {
       { date: new Date('2026-05-17'), amount: 100 },
       { date: new Date('2026-05-17'), amount: 200 },
       { date: new Date('2026-05-16'), amount: 50 },
-    ] as any[];
+    ];
     const result = groupByDay(txns);
     expect(result['2026-05-17']).toBe(300);
     expect(result['2026-05-16']).toBe(50);
@@ -74,7 +74,7 @@ describe('groupByMonth', () => {
     const txns = [
       { date: new Date('2026-05-17'), amount: 100 },
       { date: new Date('2026-04-10'), amount: 200 },
-    ] as any[];
+    ];
     const result = groupByMonth(txns);
     expect(result['2026-05']).toBe(100);
     expect(result['2026-04']).toBe(200);

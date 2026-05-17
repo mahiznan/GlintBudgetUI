@@ -67,8 +67,8 @@ export function formatCurrency(amount: number, symbol: string): string {
   })}`;
 }
 
-// Groups expense transactions by YYYY-MM-DD, summing amounts
-export function groupByDay(txns: Transaction[]): Record<string, number> {
+// Groups transactions by YYYY-MM-DD, summing amounts
+export function groupByDay(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
     const key = t.date.toISOString().slice(0, 10);
     acc[key] = (acc[key] ?? 0) + t.amount;
@@ -76,8 +76,8 @@ export function groupByDay(txns: Transaction[]): Record<string, number> {
   }, {});
 }
 
-// Groups expense transactions by YYYY-MM, summing amounts
-export function groupByMonth(txns: Transaction[]): Record<string, number> {
+// Groups transactions by YYYY-MM, summing amounts
+export function groupByMonth(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
     const key = t.date.toISOString().slice(0, 7);
     acc[key] = (acc[key] ?? 0) + t.amount;
