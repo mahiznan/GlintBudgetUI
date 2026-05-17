@@ -72,14 +72,22 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   const { mutate: addTx, loading: adding, error: addError } = useAddTransaction();
   const { mutate: updateTx, loading: updating, error: updateError } = useUpdateTransaction();
 
-  const [form, setForm] = useState<FormState>(() => ({
-    ...EMPTY,
-    currency: preference?.defaultCurrency.code ?? '',
-    account: preference?.defaultEntries?.['account'] ?? '',
-    payment: preference?.defaultEntries?.['payment'] ?? '',
-  }));
+  const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loadingTx, setLoadingTx] = useState(mode === 'edit');
+
+  // Seed defaults from preference once it loads (add mode only; never overwrite user-changed fields)
+  useEffect(() => {
+    if (mode !== 'add' || !preference) return;
+    setForm((prev) => ({
+      ...prev,
+      currency: prev.currency || preference.defaultCurrency.code,
+      account: prev.account || (preference.defaultEntries?.['account'] ?? ''),
+      payment: prev.payment || (preference.defaultEntries?.['payment'] ?? ''),
+      category: prev.category || (preference.defaultEntries?.['category'] ?? ''),
+      subCategory: prev.subCategory || (preference.defaultEntries?.['sub_category'] ?? ''),
+    }));
+  }, [preference, mode]);
 
   useEffect(() => {
     if (mode !== 'edit' || !id) return;
@@ -88,8 +96,8 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
         if (!snap.exists()) { navigate('/app/transactions'); return; }
         const d = snap.data();
         setForm({
-          type: (d['type'] as 'expense' | 'income') ?? 'expense',
-          amount: String(d['amount']),
+          type: (d['amount'] as number) < 0 ? 'expense' : 'income',
+          amount: String(Math.abs(d['amount'] as number)),
           currency: d['currency'] as string,
           category: d['category'] as string,
           subCategory: d['sub_category'] as string,
@@ -134,7 +142,9 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       payment: form.payment,
       currency: form.currency,
       notes: form.notes,
-      amount: parseFloat(form.amount),
+      amount: form.type === 'expense'
+        ? -Math.abs(parseFloat(form.amount))
+        : Math.abs(parseFloat(form.amount)),
       icon: categoryObj?.emoji ?? '',
     };
 

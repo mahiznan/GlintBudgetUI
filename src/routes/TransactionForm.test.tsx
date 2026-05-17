@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
@@ -17,7 +18,7 @@ vi.mock('firebase/firestore', () => ({
         user_id: 'u1', category: 'Food', sub_category: 'Groceries',
         date: { toDate: () => new Date('2026-05-17') },
         account: 'HDFC', vendor: 'Zepto', payment: 'UPI',
-        currency: 'INR', notes: '', amount: 500, icon: '🛒',
+        currency: 'INR', notes: '', amount: -500, icon: '🛒',
       }),
     }),
   ),
@@ -26,6 +27,7 @@ vi.mock('firebase/firestore', () => ({
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
 }));
 
+import { addDoc } from 'firebase/firestore';
 import TransactionForm from './TransactionForm';
 
 const authedCtx = {
@@ -63,6 +65,20 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+function EditWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthContext.Provider value={authedCtx}>
+      <PreferenceContext.Provider value={prefCtx}>
+        <MemoryRouter initialEntries={['/app/transactions/tx1/edit']}>
+          <Routes>
+            <Route path="/app/transactions/:id/edit" element={children} />
+          </Routes>
+        </MemoryRouter>
+      </PreferenceContext.Provider>
+    </AuthContext.Provider>
+  );
+}
+
 describe('TransactionForm (add mode)', () => {
   it('renders Amount and Category fields', async () => {
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
@@ -74,5 +90,35 @@ describe('TransactionForm (add mode)', () => {
     const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
     getByRole('button', { name: /save/i }).click();
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
+  });
+
+  it('saves expense as a negative amount', async () => {
+    vi.mocked(addDoc).mockClear();
+    const user = userEvent.setup();
+    render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
+
+    await user.type(screen.getByLabelText(/amount/i), '500');
+    await user.selectOptions(screen.getByLabelText(/currency/i), 'INR');
+    await user.selectOptions(screen.getByLabelText(/category/i), 'Food');
+    await user.type(screen.getByLabelText(/vendor/i), 'Zepto');
+    await user.selectOptions(screen.getByLabelText(/account/i), 'HDFC');
+    await user.selectOptions(screen.getByLabelText(/payment/i), 'UPI');
+    await user.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => {
+      expect(vi.mocked(addDoc)).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ amount: -500 }),
+      );
+    });
+  });
+});
+
+describe('TransactionForm (edit mode)', () => {
+  it('displays absolute amount and infers expense type from negative stored amount', async () => {
+    render(<TransactionForm mode="edit" />, { wrapper: EditWrapper as React.ComponentType });
+    const amountInput = await screen.findByLabelText(/amount/i);
+    expect(amountInput).toHaveValue(500);
+    expect(screen.getByRole('button', { name: /expense/i })).toHaveClass('bg-red-600');
   });
 });
