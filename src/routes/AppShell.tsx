@@ -36,6 +36,7 @@ export default function AppShell() {
           title={getTitle(location.pathname)}
           period={period}
           onPeriodChange={setPeriod}
+          showPeriodSwitch={location.pathname === '/app/dashboard'}
         />
         <main className="flex-1 overflow-y-auto bg-surface-alt">
           <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
