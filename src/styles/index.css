@@ -13,8 +13,8 @@
   --color-border: #e2e8f0; /* slate-200 */
 
   /* Typography */
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 html,
@@ -30,4 +30,31 @@ body {
   background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.sidebar-gradient {
+  background: linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(120deg, #003d1c 0%, #007836 40%, #1fa32e 70%, #e8f5e9 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #96bf0d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.income-gradient-text {
+  background: linear-gradient(135deg, #007836 0%, #1fa32e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-surface {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #d1fae5;
 }

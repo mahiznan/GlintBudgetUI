@@ -34,6 +34,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
+          if (id.includes('recharts') || id.includes('d3-') || id.includes('victory')) {
+            return 'charts';
+          }
           if (id.includes('react') || id.includes('react-dom')) {
             return 'react';
           }
