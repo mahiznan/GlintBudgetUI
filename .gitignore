@@ -28,3 +28,4 @@ coverage/
 
 # FTP deploy state (kept on server only)
 .ftp-deploy-sync-state.json
+.superpowers/
