@@ -15,10 +15,19 @@ describe('TopBar', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('renders period tabs', () => {
+  it('hides period tabs when showPeriodSwitch is omitted', () => {
     render(
       <MemoryRouter>
-        <TopBar title="Dashboard" period="month" onPeriodChange={vi.fn()} />
+        <TopBar title="Transactions" period="month" onPeriodChange={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByRole('button', { name: /month/i })).not.toBeInTheDocument();
+  });
+
+  it('shows period tabs when showPeriodSwitch is true', () => {
+    render(
+      <MemoryRouter>
+        <TopBar title="Dashboard" period="month" onPeriodChange={vi.fn()} showPeriodSwitch />
       </MemoryRouter>,
     );
     expect(screen.getByRole('button', { name: /month/i })).toBeInTheDocument();
@@ -29,17 +38,17 @@ describe('TopBar', () => {
     const onChange = vi.fn();
     render(
       <MemoryRouter>
-        <TopBar title="Dashboard" period="month" onPeriodChange={onChange} />
+        <TopBar title="Dashboard" period="month" onPeriodChange={onChange} showPeriodSwitch />
       </MemoryRouter>,
     );
     await userEvent.click(screen.getByRole('button', { name: /week/i }));
     expect(onChange).toHaveBeenCalledWith('week' as Period);
   });
 
-  it('renders + Add Transaction link', () => {
+  it('renders + Add Transaction link regardless of showPeriodSwitch', () => {
     render(
       <MemoryRouter>
-        <TopBar title="Dashboard" period="month" onPeriodChange={vi.fn()} />
+        <TopBar title="Transactions" period="month" onPeriodChange={vi.fn()} />
       </MemoryRouter>,
     );
     expect(screen.getByRole('link', { name: /add transaction/i })).toBeInTheDocument();
