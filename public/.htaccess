@@ -36,4 +36,7 @@
   Header set X-Content-Type-Options "nosniff"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header set X-Frame-Options "DENY"
+  # same-origin-allow-popups lets Firebase signInWithPopup detect the Google
+  # OAuth popup closing without triggering COOP mismatch warnings.
+  Header set Cross-Origin-Opener-Policy "same-origin-allow-popups"
 </IfModule>
