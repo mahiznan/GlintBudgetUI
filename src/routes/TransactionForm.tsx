@@ -86,10 +86,10 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
     setLoadingTx(true);
     getDoc(doc(db, 'transactions', id))
       .then((snap) => {
-        if (!snap.exists()) return;
+        if (!snap.exists()) { navigate('/app/transactions'); return; }
         const d = snap.data();
         setForm({
-          type: 'expense',
+          type: (d['type'] as 'expense' | 'income') ?? 'expense',
           amount: String(d['amount']),
           currency: d['currency'] as string,
           category: d['category'] as string,
@@ -139,12 +139,16 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       icon: categoryObj?.emoji ?? '',
     };
 
-    if (mode === 'add') {
-      await addTx(txData);
-    } else {
-      await updateTx(id!, txData);
+    try {
+      if (mode === 'add') {
+        await addTx(txData);
+      } else {
+        await updateTx(id!, txData);
+      }
+      navigate('/app/transactions');
+    } catch {
+      // mutateError state is already set by the hook
     }
-    navigate('/app/transactions');
   }
 
   const filteredSubCats: BudgetData[] =
