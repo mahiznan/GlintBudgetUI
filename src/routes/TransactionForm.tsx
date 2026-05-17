@@ -83,7 +83,6 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
 
   useEffect(() => {
     if (mode !== 'edit' || !id) return;
-    setLoadingTx(true);
     getDoc(doc(db, 'transactions', id))
       .then((snap) => {
         if (!snap.exists()) { navigate('/app/transactions'); return; }
@@ -102,7 +101,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
         });
       })
       .finally(() => setLoadingTx(false));
-  }, [mode, id]);
+  }, [mode, id, navigate]);
 
   function set(field: keyof FormState) {
     return (value: string) =>

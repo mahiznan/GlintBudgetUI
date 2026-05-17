@@ -12,7 +12,8 @@ The companion iOS app lives at `/Users/rajeshkumar/workspace/GlintBudget` (Swift
 
 - **Stage 1 (done):** Landing page, CI/CD, perfect-cache strategy.
 - **Stage 2 (done):** Firebase Auth (Google), React Router v7, protected /app shell. Firebase lazy-loaded; / stays under 50 KB gzipped.
-- **Stage 3+ (not started):** CRUD, preferences, reports, PWA.
+- **Stage 3 (done):** Dashboard (6 widgets + Recharts), transaction CRUD (add/edit/delete), Firestore data layer, PreferenceContext, period navigation, TransactionList, TransactionForm.
+- **Stage 4+ (not started):** Preferences UI (currency, theme), reports, PWA.
 
 See the specs and plans in `docs/superpowers/` for the canonical source of every decision and the session-resume cheat sheet.
 
@@ -22,6 +23,8 @@ See the specs and plans in `docs/superpowers/` for the canonical source of every
 - **Stage 1 implementation plan:** `docs/superpowers/plans/2026-05-16-glintbudget-web-stage1-plan.md`
 - **Stage 2 design spec:** `docs/superpowers/specs/2026-05-16-glintbudget-web-stage2-design.md`
 - **Stage 2 implementation plan:** `docs/superpowers/plans/2026-05-16-glintbudget-web-stage2-plan.md`
+- **Stage 3 design spec:** `docs/superpowers/specs/2026-05-17-glintbudget-web-stage3-design.md`
+- **Stage 3 implementation plan:** `docs/superpowers/plans/2026-05-17-glintbudget-web-stage3-plan.md`
 - **iOS data model + Firestore rules:** `/Users/rajeshkumar/workspace/GlintBudget/firestore.rules` and `/Users/rajeshkumar/workspace/GlintBudget/GlintBudget/Model/`
 
 ## Build & Run Commands
@@ -63,11 +66,20 @@ GlintBudgetUI/
 │   └── robots.txt
 ├── src/
 │   ├── main.tsx                      # React root
-│   ├── App.tsx                       # Router + AuthProvider wrapper (Stage 2)
+│   ├── App.tsx                       # Router + AuthProvider + PreferenceProvider wrapper
 │   ├── auth/                         # AuthContext, AuthProvider, RequireAuth, types
-│   ├── firebase/                     # client.ts (initializeApp + getAuth), auth.ts (Google sign-in wrappers)
-│   ├── routes/                       # Landing, SignIn, AppShell + co-located tests
-│   ├── components/{Header,Hero,FeatureStrip,Footer,UserMenu}.tsx + .test.tsx
+│   ├── firebase/                     # client.ts (initializeApp + getAuth), auth.ts, db.ts (Firestore)
+│   ├── firestore/                    # types.ts (Transaction, Preference, BudgetData)
+│   ├── context/                      # PreferenceContext, PreferenceProvider, usePreferenceContext
+│   ├── hooks/                        # useTransactions, useMutateTransaction (add/update/delete)
+│   ├── utils/                        # dateUtils.ts (getPeriodRange, formatDate)
+│   ├── routes/                       # Landing, SignIn, AppShell, Dashboard, TransactionList, TransactionForm + tests
+│   ├── components/
+│   │   ├── {Header,Hero,FeatureStrip,Footer,UserMenu}.tsx + .test.tsx  # landing
+│   │   ├── layout/                   # Sidebar, TopBar
+│   │   ├── dashboard/                # HeroStatsRow, SpendingChart, CategoryBreakdown, IncomeExpenseDonut, TodayTransactions, QuickStats
+│   │   ├── transactions/             # TransactionTable, TransactionRow, DateRangeFilter, DeleteConfirmDialog
+│   │   └── form/                     # AmountInput, TypeToggle, FieldPicker
 │   ├── styles/index.css              # Tailwind v4 entry + @theme brand tokens
 │   ├── setupTests.ts                 # Vitest + jest-dom matchers (also stubs VITE_FIREBASE_* env)
 │   └── vite-env.d.ts                 # typed ImportMetaEnv for VITE_FIREBASE_* vars
@@ -143,9 +155,8 @@ If a deploy fails before the FTP step (typecheck/lint/test/build error), no uplo
 
 ## What this repo does NOT do (yet)
 
-- No CRUD: transactions, categories, accounts come in Stage 3.
 - No preferences UI (currency, theme) — Stage 4.
-- No reports or charts — Stage 5.
+- No reports or charts beyond the Dashboard widgets — Stage 5.
 - No PWA / offline / push notifications — Stage 6+.
 
 ## When you start a fresh session

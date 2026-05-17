@@ -13,6 +13,13 @@ vi.mock('firebase/auth', () => ({
 
 vi.mock('./firebase/client', () => ({
   auth: { kind: 'mock-auth' },
+  app: {},
+}));
+
+vi.mock('./firebase/db', () => ({ db: {} }));
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(() => 'doc-ref'),
+  getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
 }));
 
 import App from './App';

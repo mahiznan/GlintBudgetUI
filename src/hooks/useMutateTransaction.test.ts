@@ -37,7 +37,7 @@ describe('useAddTransaction', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it('calls addDoc with snake_case sub_category and returns doc id', async () => {
-    vi.mocked(addDoc).mockResolvedValueOnce({ id: 'new-id' } as ReturnType<typeof addDoc>);
+    vi.mocked(addDoc).mockResolvedValueOnce({ id: 'new-id' } as unknown as Awaited<ReturnType<typeof addDoc>>);
     const { result } = renderHook(() => useAddTransaction());
 
     let id!: string;
@@ -77,7 +77,7 @@ describe('useUpdateTransaction', () => {
     });
 
     expect(updateDoc).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as Record<string, unknown>;
+    const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
     expect(callArgs['amount']).toBe(999);
     expect(callArgs['sub_category']).toBe('Dining');
   });

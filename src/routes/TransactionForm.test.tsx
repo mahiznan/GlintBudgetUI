@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
@@ -64,13 +65,13 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 
 describe('TransactionForm (add mode)', () => {
   it('renders Amount and Category fields', async () => {
-    render(<TransactionForm mode="add" />, { wrapper: Wrapper as any });
+    render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
   });
 
   it('shows validation error when amount is empty on submit', async () => {
-    const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as any });
+    const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
     getByRole('button', { name: /save/i }).click();
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
   });

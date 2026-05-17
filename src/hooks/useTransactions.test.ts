@@ -51,7 +51,7 @@ describe('useTransactions', () => {
     const { result } = renderHook(() => useTransactions({ uid: 'u1', limit: 10 }));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const tx = result.current.data[0];
+    const tx = result.current.data[0]!;
     expect(tx.subCategory).toBe('Groceries');
     expect(tx.date).toBeInstanceOf(Date);
     expect(tx.id).toBe('tx1');

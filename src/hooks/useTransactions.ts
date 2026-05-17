@@ -6,6 +6,7 @@ import {
   orderBy,
   limit,
   getDocs,
+  type QueryConstraint,
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase/db';
@@ -54,7 +55,7 @@ export function useTransactions(filter: TransactionFilter): UseTransactionsResul
     setError(null);
 
     const col = collection(db, 'transactions');
-    const constraints = [
+    const constraints: QueryConstraint[] = [
       where('user_id', '==', filter.uid),
       orderBy('date', 'desc'),
     ];

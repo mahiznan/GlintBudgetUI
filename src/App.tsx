@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
+import { PreferenceProvider } from './context/PreferenceContext';
 import Landing from './routes/Landing';
 
 const SignIn = lazy(() => import('./routes/SignIn'));
@@ -76,7 +77,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <PreferenceProvider>
+        <RouterProvider router={router} />
+      </PreferenceProvider>
     </AuthProvider>
   );
 }
