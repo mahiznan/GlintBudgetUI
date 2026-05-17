@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import HeroStatsRow from './HeroStatsRow';
 
 const stats = {
-  totalSpent: 12500,
+  totalExpenses: 12500,
   totalIncome: 50000,
   netBalance: 37500,
   txCount: 24,
@@ -13,7 +13,7 @@ const stats = {
 describe('HeroStatsRow', () => {
   it('renders all four stat labels', () => {
     render(<HeroStatsRow {...stats} />);
-    expect(screen.getByText(/total spent/i)).toBeInTheDocument();
+    expect(screen.getByText(/expenses/i)).toBeInTheDocument();
     expect(screen.getByText(/income/i)).toBeInTheDocument();
     expect(screen.getByText(/net balance/i)).toBeInTheDocument();
     expect(screen.getByText(/transactions/i)).toBeInTheDocument();

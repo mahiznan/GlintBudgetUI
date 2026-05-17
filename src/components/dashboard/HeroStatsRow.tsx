@@ -1,7 +1,7 @@
 import { formatCurrency } from '../../lib/dateUtils';
 
 interface HeroStatsRowProps {
-  totalSpent: number;
+  totalExpenses: number;
   totalIncome: number;
   netBalance: number;
   txCount: number;
@@ -34,7 +34,7 @@ function StatCard({ label, value, accent, highlight }: StatCardProps) {
 }
 
 export default function HeroStatsRow({
-  totalSpent,
+  totalExpenses,
   totalIncome,
   netBalance,
   txCount,
@@ -59,8 +59,8 @@ export default function HeroStatsRow({
         />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
         <StatCard
-          label="Total Spent"
-          value={formatCurrency(totalSpent, currencySymbol)}
+          label="Expenses"
+          value={formatCurrency(totalExpenses, currencySymbol)}
         />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
         <StatCard label="Transactions" value={txCount} />
