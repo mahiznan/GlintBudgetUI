@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext } from 'react';
 import type { Preference } from '../firestore/types';
 
@@ -8,3 +9,6 @@ export interface PreferenceContextValue {
 }
 
 export const PreferenceContext = createContext<PreferenceContextValue | null>(null);
+
+export { PreferenceProvider } from './PreferenceProvider';
+export { usePreferenceContext } from './usePreferenceContext';
