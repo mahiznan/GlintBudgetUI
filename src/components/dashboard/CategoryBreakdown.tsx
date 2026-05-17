@@ -13,10 +13,11 @@ const CATEGORY_COLORS = [
 
 export default function CategoryBreakdown({ transactions, currencySymbol }: CategoryBreakdownProps) {
   const categories = useMemo(() => {
-    const totals = transactions.reduce<Record<string, { total: number; icon: string }>>(
+    const expenseTxns = transactions.filter((t) => t.amount < 0);
+    const totals = expenseTxns.reduce<Record<string, { total: number; icon: string }>>(
       (acc, t) => {
         if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-        acc[t.category]!.total += t.amount;
+        acc[t.category]!.total += Math.abs(t.amount);
         return acc;
       },
       {},

@@ -24,15 +24,25 @@ describe('CategoryBreakdown', () => {
     expect(screen.getByText(/category/i)).toBeInTheDocument();
   });
 
-  it('shows top 5 categories by spend', () => {
+  it('shows top categories by expense spend (negative amounts)', () => {
     const txns = [
-      ...Array(3).fill(null).map(() => makeTx('Food', 500)),
-      ...Array(2).fill(null).map(() => makeTx('Transport', 200)),
-      makeTx('Health', 100),
+      ...Array(3).fill(null).map(() => makeTx('Food', -500)),
+      ...Array(2).fill(null).map(() => makeTx('Transport', -200)),
+      makeTx('Health', -100),
     ];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
     expect(screen.getByText('Food')).toBeInTheDocument();
     expect(screen.getByText('Transport')).toBeInTheDocument();
+  });
+
+  it('excludes income transactions (positive amounts) from breakdown', () => {
+    const txns = [
+      makeTx('Salary', 50000),
+      makeTx('Food', -500),
+    ];
+    render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
+    expect(screen.queryByText('Salary')).not.toBeInTheDocument();
+    expect(screen.getByText('Food')).toBeInTheDocument();
   });
 
   it('shows empty state when no transactions', () => {

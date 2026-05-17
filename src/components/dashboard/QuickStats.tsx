@@ -7,7 +7,9 @@ interface QuickStatsProps {
 }
 
 export default function QuickStats({ transactions, currencySymbol }: QuickStatsProps) {
-  const expenses = transactions.filter((t) => t.amount > 0);
+  const expenses = transactions
+    .filter((t) => t.amount < 0)
+    .map((t) => ({ ...t, amount: Math.abs(t.amount) }));
 
   const highest = expenses.reduce<Transaction | null>(
     (max, t) => (max === null || t.amount > max.amount ? t : max),

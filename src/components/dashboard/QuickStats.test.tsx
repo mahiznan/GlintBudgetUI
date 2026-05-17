@@ -14,9 +14,19 @@ describe('QuickStats', () => {
     expect(screen.getByText(/quick stats/i)).toBeInTheDocument();
   });
 
-  it('shows highest spend', () => {
-    const txns = [makeTx('A', 1000, 'UPI', 'Food'), makeTx('B', 500, 'UPI', 'Food')];
+  it('shows highest expense spend (negative amounts)', () => {
+    const txns = [makeTx('A', -1000, 'UPI', 'Food'), makeTx('B', -500, 'UPI', 'Food')];
     render(<QuickStats transactions={txns} currencySymbol="₹" />);
     expect(screen.getByText('₹1,000.00')).toBeInTheDocument();
+  });
+
+  it('excludes income (positive amounts) from quick stats', () => {
+    const txns = [
+      makeTx('Salary', 50000, 'Bank Transfer', 'Income'),
+      makeTx('Zepto', -300, 'UPI', 'Food'),
+    ];
+    render(<QuickStats transactions={txns} currencySymbol="₹" />);
+    expect(screen.queryByText(/₹50,000/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('₹300.00').length).toBeGreaterThan(0);
   });
 });

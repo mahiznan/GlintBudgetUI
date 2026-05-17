@@ -22,7 +22,9 @@ function buildChartData(
   txns: Transaction[],
   period: Period,
 ): { label: string; amount: number }[] {
-  const expenses = txns.filter((t) => t.amount > 0);
+  const expenses = txns
+    .filter((t) => t.amount < 0)
+    .map((t) => ({ ...t, amount: Math.abs(t.amount) }));
 
   if (period === 'day') {
     const buckets = Array.from({ length: 24 }, (_, h) => ({ label: `${h}h`, amount: 0 }));
