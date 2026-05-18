@@ -18,7 +18,7 @@ const mockPreferenceData = {
   payments: [{ name: 'UPI', emoji: null, type: 'payment', parent: null }],
   default_currency: { name: 'Indian Rupee', code: 'INR', symbol: '₹' },
   frequent_currencies: ['INR', 'USD'],
-  default_entries: { account: 'HDFC' },
+  default_entries: ['account', 'HDFC'],
 };
 
 describe('usePreferences', () => {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   collection,
   doc,
-  addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   Timestamp,
@@ -13,8 +13,9 @@ import type { Transaction } from '../firestore/types';
 type TxInput = Omit<Transaction, 'id'>;
 type TxPatch = Partial<Omit<Transaction, 'id'>>;
 
-function encodeTransaction(tx: TxInput): Record<string, unknown> {
+function encodeTransaction(id: string, tx: TxInput): Record<string, unknown> {
   return {
+    id,
     user_id: tx.user_id,
     category: tx.category,
     sub_category: tx.subCategory,
@@ -53,8 +54,9 @@ export function useAddTransaction() {
     setLoading(true);
     setError(null);
     try {
-      const ref = await addDoc(collection(db, 'transactions'), encodeTransaction(tx));
-      return ref.id;
+      const id = crypto.randomUUID();
+      await setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, tx));
+      return id;
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
       setError(e);

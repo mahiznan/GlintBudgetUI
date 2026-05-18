@@ -29,3 +29,6 @@ coverage/
 # FTP deploy state (kept on server only)
 .ftp-deploy-sync-state.json
 .superpowers/
+
+# Firebase service account key (migration scripts only — never commit)
+scripts/serviceAccount.json

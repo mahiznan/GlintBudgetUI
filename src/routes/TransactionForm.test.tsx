@@ -22,12 +22,12 @@ vi.mock('firebase/firestore', () => ({
       }),
     }),
   ),
-  addDoc: vi.fn(() => Promise.resolve({ id: 'new-id' })),
+  setDoc: vi.fn(() => Promise.resolve()),
   updateDoc: vi.fn(() => Promise.resolve()),
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
 }));
 
-import { addDoc } from 'firebase/firestore';
+import { setDoc } from 'firebase/firestore';
 import TransactionForm from './TransactionForm';
 
 const authedCtx = {
@@ -94,7 +94,7 @@ describe('TransactionForm (add mode)', () => {
   });
 
   it('saves expense as a negative amount', async () => {
-    vi.mocked(addDoc).mockClear();
+    vi.mocked(setDoc).mockClear();
     const user = userEvent.setup();
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
 
@@ -107,7 +107,7 @@ describe('TransactionForm (add mode)', () => {
     await user.click(screen.getByRole('button', { name: /save/i }));
 
     await waitFor(() => {
-      expect(vi.mocked(addDoc)).toHaveBeenCalledWith(
+      expect(vi.mocked(setDoc)).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({ amount: -500 }),
       );
