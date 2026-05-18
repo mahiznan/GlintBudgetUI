@@ -28,4 +28,22 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /transactions/i })).toBeInTheDocument();
   });
+
+  it('renders Settings nav link', () => {
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+  });
+
+  it('does not render any disabled items', () => {
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTitle('Coming soon')).not.toBeInTheDocument();
+  });
 });
