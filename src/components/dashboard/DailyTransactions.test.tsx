@@ -115,27 +115,37 @@ describe('DailyTransactions — week navigation', () => {
   });
 
   it('shows transactions for a different day after navigating to it', async () => {
-    const yesterday = daysAgo(1);
+    // Pick a day in the current week that is NOT today (always in the current strip, no navigation needed)
+    const today = new Date();
+    const targetDate = new Date(today);
+    if (today.getDay() !== 1) {
+      // Go to Monday of this week
+      const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
+      targetDate.setDate(today.getDate() + diff);
+    } else {
+      // Today is Monday — pick Tuesday instead
+      targetDate.setDate(today.getDate() + 1);
+    }
+    targetDate.setHours(12, 0, 0, 0);
+
     const { container } = render(
       <MemoryRouter>
         <DailyTransactions
-          transactions={[makeTx('tx1', 'YesterdayVendor', -300, yesterday)]}
+          transactions={[makeTx('tx1', 'TargetVendor', -300, targetDate)]}
           currencySymbol="₹"
           onDelete={vi.fn()}
         />
       </MemoryRouter>,
     );
 
-    // Navigate to previous week so yesterday is always visible regardless of current day
-    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
-
-    // Find and click yesterday's tile by date number
-    const yesterdayNum = yesterday.getDate().toString();
+    const targetNum = targetDate.getDate().toString();
     const allTiles = container.querySelectorAll('button[aria-pressed]');
-    const target = Array.from(allTiles).find((b) => b.textContent?.includes(yesterdayNum));
+    const target = Array.from(allTiles).find(
+      (b) => b.textContent?.includes(targetNum) && b.getAttribute('aria-pressed') === 'false',
+    );
     expect(target).toBeTruthy();
     await userEvent.click(target!);
 
-    expect(screen.getByText('YesterdayVendor')).toBeInTheDocument();
+    expect(screen.getByText('TargetVendor')).toBeInTheDocument();
   });
 });
