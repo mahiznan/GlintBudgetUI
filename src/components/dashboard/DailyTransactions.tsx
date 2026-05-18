@@ -9,6 +9,7 @@ import {
   formatCurrency,
   formatTime,
   formatDayHeading,
+  dayOfWeekOffset,
 } from '../../lib/dateUtils';
 
 interface DailyTransactionsProps {
@@ -31,10 +32,6 @@ export default function DailyTransactions({
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
-
-  function dayOfWeekOffset(d: Date): number {
-    return d.getDay() === 0 ? 6 : d.getDay() - 1;
-  }
 
   function goToPrevWeek() {
     const newMonday = new Date(weekStart);

@@ -135,3 +135,7 @@ export function formatDayHeading(date: Date): string {
     month: 'long',
   });
 }
+
+export function dayOfWeekOffset(d: Date): number {
+  return d.getDay() === 0 ? 6 : d.getDay() - 1;
+}

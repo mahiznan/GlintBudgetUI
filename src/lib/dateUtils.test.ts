@@ -9,6 +9,7 @@ import {
   isSameDay,
   isCurrentWeek,
   formatDayHeading,
+  dayOfWeekOffset,
 } from './dateUtils';
 
 describe('getPeriodRange', () => {
@@ -167,5 +168,22 @@ describe('formatDayHeading', () => {
     expect(result).toMatch(/Monday/);
     expect(result).toMatch(/18/);
     expect(result).toMatch(/May/);
+  });
+});
+
+describe('dayOfWeekOffset', () => {
+  it('returns 0 for Monday (getDay=1)', () => {
+    const mon = new Date(2026, 4, 18); // Monday
+    expect(dayOfWeekOffset(mon)).toBe(0);
+  });
+
+  it('returns 6 for Sunday (getDay=0)', () => {
+    const sun = new Date(2026, 4, 24); // Sunday
+    expect(dayOfWeekOffset(sun)).toBe(6);
+  });
+
+  it('returns 4 for Friday (getDay=5)', () => {
+    const fri = new Date(2026, 4, 22); // Friday
+    expect(dayOfWeekOffset(fri)).toBe(4);
   });
 });

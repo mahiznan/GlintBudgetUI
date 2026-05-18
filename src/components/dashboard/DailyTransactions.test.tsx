@@ -116,14 +116,26 @@ describe('DailyTransactions — week navigation', () => {
 
   it('shows transactions for a different day after navigating to it', async () => {
     const yesterday = daysAgo(1);
-    const { container } = renderDT([makeTx('tx1', 'YesterdayVendor', -300, yesterday)]);
+    const { container } = render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[makeTx('tx1', 'YesterdayVendor', -300, yesterday)]}
+          currencySymbol="₹"
+          onDelete={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
 
+    // Navigate to previous week so yesterday is always visible regardless of current day
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+
+    // Find and click yesterday's tile by date number
     const yesterdayNum = yesterday.getDate().toString();
-    const tiles = Array.from(container.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'));
-    const target = tiles.find((b) => b.textContent?.includes(yesterdayNum) && b.getAttribute('aria-pressed') === 'false');
-    if (target) {
-      await userEvent.click(target);
-      expect(screen.getByText('YesterdayVendor')).toBeInTheDocument();
-    }
+    const allTiles = container.querySelectorAll('button[aria-pressed]');
+    const target = Array.from(allTiles).find((b) => b.textContent?.includes(yesterdayNum));
+    expect(target).toBeTruthy();
+    await userEvent.click(target!);
+
+    expect(screen.getByText('YesterdayVendor')).toBeInTheDocument();
   });
 });
