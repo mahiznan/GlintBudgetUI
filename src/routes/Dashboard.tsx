@@ -24,18 +24,29 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
+  const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
+  const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
 
   const periodTxns = useMemo(() => filterByPeriod(allTxns, period), [allTxns, period]);
 
+  const heroTxns = useMemo(
+    () =>
+      periodTxns.filter(
+        (t) =>
+          t.currency === defaultCurrencyCode &&
+          (defaultAccount === '' || t.account === defaultAccount),
+      ),
+    [periodTxns, defaultCurrencyCode, defaultAccount],
+  );
+
   const totalIncome = useMemo(
-    () => periodTxns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
-    [periodTxns],
+    () => heroTxns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
+    [heroTxns],
   );
   const totalExpenses = useMemo(
-    () => Math.abs(periodTxns.filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)),
-    [periodTxns],
+    () => Math.abs(heroTxns.filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)),
+    [heroTxns],
   );
-  const netBalance = totalIncome - totalExpenses;
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -65,8 +76,6 @@ export default function Dashboard() {
       <HeroStatsRow
         totalExpenses={totalExpenses}
         totalIncome={totalIncome}
-        netBalance={netBalance}
-        txCount={periodTxns.length}
         currencySymbol={currencySymbol}
       />
 
@@ -74,7 +83,7 @@ export default function Dashboard() {
         <div className="col-span-2">
           <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
         </div>
-        <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
+        <CategoryBreakdown transactions={heroTxns} currencySymbol={currencySymbol} />
 
         <div className="col-span-2 flex flex-col gap-4">
           <DailyTransactions
