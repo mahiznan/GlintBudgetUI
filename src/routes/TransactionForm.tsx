@@ -79,6 +79,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   // Seed defaults from preference once it loads (add mode only; never overwrite user-changed fields)
   useEffect(() => {
     if (mode !== 'add' || !preference) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((prev) => ({
       ...prev,
       currency: prev.currency || preference.defaultCurrency.code,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
 import type { Period } from '../../lib/dateUtils';
@@ -29,15 +29,12 @@ export default function PeriodTransactions({
   currencySymbol,
   onDelete,
 }: PeriodTransactionsProps) {
-  const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    setPage(1);
-  }, [transactions, period]);
+  const [rawPage, setPage] = useState(1);
 
   const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
   const paginated = PAGINATED_PERIODS.includes(period);
   const totalPages = paginated ? Math.max(1, Math.ceil(sorted.length / PAGE_SIZE)) : 1;
+  const page = Math.min(rawPage, totalPages);
   const visible = paginated ? sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : sorted;
   const heading = PERIOD_HEADINGS[period];
 
