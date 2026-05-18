@@ -10,7 +10,7 @@ import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
 import CategoryBreakdown from '../components/dashboard/CategoryBreakdown';
 import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
-import PeriodTransactions from '../components/dashboard/PeriodTransactions';
+import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 
@@ -77,9 +77,8 @@ export default function Dashboard() {
         <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
 
         <div className="col-span-2 flex flex-col gap-4">
-          <PeriodTransactions
-            transactions={periodTxns}
-            period={period}
+          <DailyTransactions
+            transactions={allTxns}
             currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
           />
