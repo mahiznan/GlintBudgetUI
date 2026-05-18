@@ -3,30 +3,21 @@ import { formatCurrency } from '../../lib/dateUtils';
 interface HeroStatsRowProps {
   totalExpenses: number;
   totalIncome: number;
-  netBalance: number;
-  txCount: number;
   currencySymbol: string;
 }
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  accent?: boolean;
-  highlight?: boolean;
 }
 
-function StatCard({ label, value, accent, highlight }: StatCardProps) {
+function StatCard({ label, value }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
         {label}
       </span>
-      <span
-        className={[
-          'text-3xl font-bold leading-none',
-          highlight ? 'gradient-text' : accent ? 'income-gradient-text' : 'text-white',
-        ].join(' ')}
-      >
+      <span className="text-3xl font-bold leading-none text-white">
         {value}
       </span>
     </div>
@@ -36,8 +27,6 @@ function StatCard({ label, value, accent, highlight }: StatCardProps) {
 export default function HeroStatsRow({
   totalExpenses,
   totalIncome,
-  netBalance,
-  txCount,
   currencySymbol,
 }: HeroStatsRowProps) {
   return (
@@ -47,23 +36,14 @@ export default function HeroStatsRow({
     >
       <div className="flex items-center gap-12 flex-wrap">
         <StatCard
-          label="Net Balance"
-          value={formatCurrency(netBalance, currencySymbol)}
-          highlight
-        />
-        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
           label="Income"
           value={formatCurrency(totalIncome, currencySymbol)}
-          accent
         />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
         <StatCard
           label="Expenses"
           value={formatCurrency(totalExpenses, currencySymbol)}
         />
-        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard label="Transactions" value={txCount} />
       </div>
     </div>
   );
