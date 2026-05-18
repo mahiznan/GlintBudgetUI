@@ -11,14 +11,14 @@ export interface AppShellOutletContext {
 }
 
 const TITLE_MAP: Record<string, string> = {
-  '/app/dashboard': 'Dashboard',
   '/app/transactions': 'Transactions',
   '/app/transactions/new': 'New Transaction',
   '/app/settings': 'Settings',
 };
 
-function getTitle(pathname: string): string {
+function getTitle(pathname: string, firstName: string): string {
   if (pathname.endsWith('/edit')) return 'Edit Transaction';
+  if (pathname === '/app/dashboard') return `Hello, ${firstName}`;
   return TITLE_MAP[pathname] ?? 'GlintBudget';
 }
 
@@ -29,12 +29,14 @@ export default function AppShell() {
 
   if (auth.status !== 'authenticated') return null;
 
+  const firstName = auth.user.name?.split(' ')[0] ?? 'there';
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar
-          title={getTitle(location.pathname)}
+          title={getTitle(location.pathname, firstName)}
           period={period}
           onPeriodChange={setPeriod}
           showPeriodSwitch={location.pathname === '/app/dashboard'}

@@ -56,6 +56,17 @@ describe('AppShell title map', () => {
     );
     expect(screen.getAllByText('Settings').length).toBeGreaterThan(0);
   });
+
+  it('shows personalised greeting on /app/dashboard', () => {
+    render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(screen.getByRole('heading', { name: /hello, rajesh/i })).toBeInTheDocument();
+  });
 });
 
 describe('AppShell period switch visibility', () => {
