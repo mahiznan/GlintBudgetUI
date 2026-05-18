@@ -285,7 +285,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
             type="submit"
             disabled={loading}
             className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
-            style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+            style={{ background: 'var(--brand-gradient)' }}
           >
             {loading ? 'Saving…' : 'Save'}
           </button>

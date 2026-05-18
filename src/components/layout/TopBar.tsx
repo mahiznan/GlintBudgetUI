@@ -18,7 +18,7 @@ interface TopBarProps {
 
 export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch = false }: TopBarProps) {
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-border bg-surface px-6 py-3">
+    <header className="flex items-center justify-between gap-4 border-b border-white/50 bg-white/75 backdrop-blur-md px-6 py-3">
       <h1 className="text-lg font-semibold text-text">{title}</h1>
 
       {showPeriodSwitch && (
@@ -36,7 +36,7 @@ export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch
               ].join(' ')}
               style={
                 period === value
-                  ? { background: 'linear-gradient(135deg, #007836, #1fa32e)' }
+                  ? { background: 'var(--brand-gradient)' }
                   : undefined
               }
             >
@@ -49,7 +49,7 @@ export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch
       <Link
         to="/app/transactions/new"
         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-        style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+        style={{ background: 'var(--brand-gradient)' }}
         aria-label="Add transaction"
       >
         <span aria-hidden="true">+</span> Add Transaction

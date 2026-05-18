@@ -124,7 +124,7 @@ export default function CurrencyTab({
               onClick={handleAddBookmark}
               disabled={saving || !selectedAdd}
               className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+              style={{ background: 'var(--brand-gradient)' }}
             >
               Add
             </button>

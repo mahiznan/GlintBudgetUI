@@ -104,7 +104,7 @@ export default function Settings() {
               ].join(' ')}
               style={
                 activeTab === key
-                  ? { background: 'linear-gradient(135deg, #007836, #1fa32e)' }
+                  ? { background: 'var(--brand-gradient)' }
                   : undefined
               }
             >

@@ -29,7 +29,7 @@ export default function DateRangeFilter({ period, onPeriodChange }: DateRangeFil
           ].join(' ')}
           style={
             period === value
-              ? { background: 'linear-gradient(135deg, #007836, #1fa32e)' }
+              ? { background: 'var(--brand-gradient)' }
               : undefined
           }
         >

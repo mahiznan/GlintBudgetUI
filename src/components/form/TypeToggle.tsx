@@ -23,7 +23,7 @@ export default function TypeToggle({ value, onChange }: TypeToggleProps) {
           ].join(' ')}
           style={
             value === type && type === 'income'
-              ? { background: 'linear-gradient(135deg, #007836, #1fa32e)' }
+              ? { background: 'var(--brand-gradient)' }
               : undefined
           }
         >

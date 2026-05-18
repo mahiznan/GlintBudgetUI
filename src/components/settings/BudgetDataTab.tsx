@@ -153,7 +153,7 @@ export default function BudgetDataTab({
                         onClick={handleSaveEdit}
                         disabled={saving}
                         className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50"
-                        style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+                        style={{ background: 'var(--brand-gradient)' }}
                       >
                         Save
                       </button>
@@ -220,7 +220,7 @@ export default function BudgetDataTab({
               onClick={handleAdd}
               disabled={saving || !addName.trim()}
               className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+              style={{ background: 'var(--brand-gradient)' }}
             >
               Add
             </button>

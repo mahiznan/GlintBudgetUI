@@ -152,7 +152,7 @@ export default function SubcategoriesTab({
                     <div className="flex items-center gap-2">
                       <input type="text" value={editEmoji} onChange={(e) => setEditEmoji(e.target.value.slice(0, 2))} className="w-10 text-center border border-border rounded-lg p-1.5 text-sm" placeholder="😀" aria-label="Emoji" maxLength={2} />
                       <input type="text" value={editName} onChange={(e) => { setEditName(e.target.value); setEditError(''); }} className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm" aria-label="Name" />
-                      <button type="button" onClick={() => handleSaveEdit(item)} disabled={saving} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}>Save</button>
+                      <button type="button" onClick={() => handleSaveEdit(item)} disabled={saving} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'var(--brand-gradient)' }}>Save</button>
                       <button type="button" onClick={cancelEdit} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border text-text-muted hover:text-text">Cancel</button>
                     </div>
                     {editError && <p className="text-xs text-red-600 mt-1">{editError}</p>}
@@ -180,7 +180,7 @@ export default function SubcategoriesTab({
               <option value="">Category</option>
               {categories.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
             </select>
-            <button type="button" onClick={handleAdd} disabled={saving || !addName.trim() || !addParent} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}>Add</button>
+            <button type="button" onClick={handleAdd} disabled={saving || !addName.trim() || !addParent} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'var(--brand-gradient)' }}>Add</button>
           </div>
           {addError && <p className="text-xs text-red-600">{addError}</p>}
         </div>

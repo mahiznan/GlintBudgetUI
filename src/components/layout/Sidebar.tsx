@@ -11,7 +11,7 @@ export default function Sidebar() {
     <aside
       className="flex h-screen w-[220px] flex-shrink-0 flex-col py-6"
       style={{
-        background: 'linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%)',
+        background: 'var(--sidebar-gradient)',
         position: 'relative',
         overflow: 'hidden',
       }}
