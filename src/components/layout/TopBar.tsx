@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import type { Period } from '../../lib/dateUtils';
 
 const PERIODS: { label: string; value: Period }[] = [
@@ -46,14 +45,6 @@ export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch
         </div>
       )}
 
-      <Link
-        to="/app/transactions/new"
-        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-        style={{ background: 'var(--brand-gradient)' }}
-        aria-label="Add transaction"
-      >
-        <span aria-hidden="true">+</span> Add Transaction
-      </Link>
     </header>
   );
 }

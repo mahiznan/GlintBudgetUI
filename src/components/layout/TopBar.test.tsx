@@ -45,12 +45,12 @@ describe('TopBar', () => {
     expect(onChange).toHaveBeenCalledWith('week' as Period);
   });
 
-  it('renders + Add Transaction link regardless of showPeriodSwitch', () => {
+  it('does not render Add Transaction link', () => {
     render(
       <MemoryRouter>
-        <TopBar title="Transactions" period="month" onPeriodChange={vi.fn()} />
+        <TopBar title="Dashboard" period="month" onPeriodChange={vi.fn()} />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('link', { name: /add transaction/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /add transaction/i })).not.toBeInTheDocument();
   });
 });
