@@ -165,6 +165,15 @@ describe('DailyTransactions — week navigation', () => {
   });
 });
 
+describe('DailyTransactions — Add link', () => {
+  it('renders an Add link pointing to /app/transactions/new', () => {
+    renderDT([]);
+    const link = screen.getByRole('link', { name: /add/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/app/transactions/new');
+  });
+});
+
 describe('DailyTransactions — Today button', () => {
   it('Today button is present', () => {
     renderDT([]);

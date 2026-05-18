@@ -91,18 +91,28 @@ export default function DailyTransactions({
             Today
           </button>
         </div>
-        <Link
-          to="/app/transactions"
-          className="text-xs font-medium"
-          style={{
-            background: 'var(--brand-gradient-text)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          See all →
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/app/transactions"
+            className="text-xs font-medium"
+            style={{
+              background: 'var(--brand-gradient-text)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            See all →
+          </Link>
+          <Link
+            to="/app/transactions/new"
+            className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+            style={{ background: 'var(--brand-gradient)' }}
+            aria-label="Add transaction"
+          >
+            + Add
+          </Link>
+        </div>
       </div>
 
       {/* Week navigation */}
