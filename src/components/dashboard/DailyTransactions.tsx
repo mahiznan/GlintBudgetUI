@@ -72,7 +72,7 @@ export default function DailyTransactions({
           to="/app/transactions"
           className="text-xs font-medium"
           style={{
-            background: 'linear-gradient(135deg, rgb(150,191,13), #22c55e)',
+            background: 'var(--brand-gradient-text)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -113,8 +113,8 @@ export default function DailyTransactions({
                 style={
                   isSelected
                     ? {
-                        background: 'linear-gradient(135deg, rgb(150,191,13), #22c55e)',
-                        boxShadow: '0 3px 12px rgba(150,191,13,0.45)',
+                        background: 'var(--brand-gradient)',
+                        boxShadow: '0 3px 12px var(--brand-glow)',
                       }
                     : undefined
                 }
@@ -136,7 +136,7 @@ export default function DailyTransactions({
                 <span
                   className="w-1 h-1 rounded-full mt-1"
                   style={{
-                    background: isSelected ? 'rgba(255,255,255,0.75)' : '#22c55e',
+                    background: isSelected ? 'rgba(255,255,255,0.75)' : 'var(--color-accent)',
                     visibility: hasTxns ? 'visible' : 'hidden',
                   }}
                 />
