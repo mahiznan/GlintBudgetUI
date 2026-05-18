@@ -15,6 +15,13 @@ export interface FirestorePreferencePartial {
   default_currency?: Currency;
   frequent_currencies?: string[];
   default_entries?: Record<string, string>;
+  theme?: string;
+}
+
+// Swift Codable encodes [BudgetDataType:String] (non-String enum key) as a flat alternating array:
+// { account: "Monthly Budget" } → ["account", "Monthly Budget"]
+function encodeDefaultEntries(entries: Record<string, string>): string[] {
+  return Object.entries(entries).flatMap(([k, v]) => [k, v]);
 }
 
 interface UseUpdatePreferenceResult {
@@ -31,7 +38,11 @@ export function useUpdatePreference(uid: string): UseUpdatePreferenceResult {
     setLoading(true);
     setError(null);
     try {
-      await setDoc(doc(db, 'preference', uid), partial, { merge: true });
+      const firestoreData: Record<string, unknown> = { ...partial };
+      if (partial.default_entries !== undefined) {
+        firestoreData['default_entries'] = encodeDefaultEntries(partial.default_entries);
+      }
+      await setDoc(doc(db, 'preference', uid), firestoreData, { merge: true });
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
