@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
 import type { Transaction } from '../../firestore/types';
 import { formatCurrency } from '../../lib/dateUtils';
+import { useTheme } from '../../context/ThemeContext';
+import { getTheme } from '../../lib/themes';
 
 interface CategoryBreakdownProps {
   transactions: Transaction[];
   currencySymbol: string;
 }
 
-const CATEGORY_COLORS = [
-  '#007836', '#1fa32e', '#96bf0d', '#059669', '#0d9488',
-];
-
 export default function CategoryBreakdown({ transactions, currencySymbol }: CategoryBreakdownProps) {
+  const { themeId } = useTheme();
+  const theme = getTheme(themeId);
   const categories = useMemo(() => {
     const expenseTxns = transactions.filter((t) => t.amount < 0);
     const totals = expenseTxns.reduce<Record<string, { total: number; icon: string }>>(
@@ -52,7 +52,7 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
                 <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }}
+                    style={{ width: `${pct}%`, background: theme.categoryColors[i % theme.categoryColors.length]! }}
                   />
                 </div>
               </div>

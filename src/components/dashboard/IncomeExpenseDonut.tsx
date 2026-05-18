@@ -1,5 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { formatCurrency } from '../../lib/dateUtils';
+import { useTheme } from '../../context/ThemeContext';
+import { getTheme } from '../../lib/themes';
 
 interface IncomeExpenseDonutProps {
   income: number;
@@ -7,13 +9,14 @@ interface IncomeExpenseDonutProps {
   currencySymbol: string;
 }
 
-const COLORS = ['#007836', '#dc2626'];
-
 export default function IncomeExpenseDonut({
   income,
   expenses,
   currencySymbol,
 }: IncomeExpenseDonutProps) {
+  const { themeId } = useTheme();
+  const theme = getTheme(themeId);
+  const CHART_COLORS = [theme.chartColor, '#dc2626'] as const;
   const data = [
     { name: 'Income', value: income },
     { name: 'Expenses', value: expenses },
@@ -38,7 +41,7 @@ export default function IncomeExpenseDonut({
               strokeWidth={0}
             >
               {data.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
               ))}
             </Pie>
             <Tooltip

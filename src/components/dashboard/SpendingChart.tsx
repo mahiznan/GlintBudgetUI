@@ -11,6 +11,8 @@ import { useMemo } from 'react';
 import type { Transaction } from '../../firestore/types';
 import type { Period } from '../../lib/dateUtils';
 import { groupByDay, groupByMonth, formatCurrency } from '../../lib/dateUtils';
+import { useTheme } from '../../context/ThemeContext';
+import { getTheme } from '../../lib/themes';
 
 interface SpendingChartProps {
   transactions: Transaction[];
@@ -77,6 +79,8 @@ const CustomTooltip = ({
 };
 
 export default function SpendingChart({ transactions, period, currencySymbol }: SpendingChartProps) {
+  const { themeId } = useTheme();
+  const theme = getTheme(themeId);
   const data = useMemo(() => buildChartData(transactions, period), [transactions, period]);
 
   return (
@@ -97,7 +101,7 @@ export default function SpendingChart({ transactions, period, currencySymbol }: 
             <Bar
               dataKey="amount"
               radius={[4, 4, 0, 0] as [number, number, number, number]}
-              fill="#007836"
+              fill={theme.chartColor}
             />
           </BarChart>
         </ResponsiveContainer>

@@ -1,5 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../context/ThemeContext', () => ({
+  useTheme: () => ({ themeId: 'lime', setTheme: vi.fn() }),
+}));
+
 import CategoryBreakdown from './CategoryBreakdown';
 import type { Transaction } from '../../firestore/types';
 
