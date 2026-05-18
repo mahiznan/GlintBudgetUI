@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));

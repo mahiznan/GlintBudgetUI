@@ -53,6 +53,7 @@ export function usePreferences(uid: string | null): UsePreferencesResult {
 
   useEffect(() => {
     if (!uid) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     const ref = doc(db, 'preference', uid);
     getDoc(ref)

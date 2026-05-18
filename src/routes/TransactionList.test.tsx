@@ -24,7 +24,7 @@ const authedCtx = {
   user: { uid: 'u1', name: 'Test', email: 't@e.com', photoUrl: null },
 };
 
-const prefCtx = { preference: null, loading: false, error: null };
+const prefCtx = { preference: null, loading: false, error: null, refetch: vi.fn() };
 
 describe('TransactionList', () => {
   it('renders empty state after loading', async () => {
