@@ -121,15 +121,15 @@ describe('getWeekDays', () => {
     const monday = new Date(2026, 4, 18);
     const days = getWeekDays(monday);
     expect(days).toHaveLength(7);
-    expect(days[0].getDate()).toBe(18);
-    expect(days[6].getDate()).toBe(24);
+    expect(days[0]!.getDate()).toBe(18);
+    expect(days[6]!.getDate()).toBe(24);
   });
 
   it('returns dates in ascending order', () => {
     const monday = new Date(2026, 4, 18);
     const days = getWeekDays(monday);
     for (let i = 1; i < 7; i++) {
-      expect(days[i].getTime()).toBeGreaterThan(days[i - 1].getTime());
+      expect(days[i]!.getTime()).toBeGreaterThan(days[i - 1]!.getTime());
     }
   });
 });
