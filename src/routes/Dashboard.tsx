@@ -4,13 +4,13 @@ import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactions } from '../hooks/useTransactions';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
-import { filterByPeriod, filterToday } from '../lib/dateUtils';
+import { filterByPeriod } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
 import CategoryBreakdown from '../components/dashboard/CategoryBreakdown';
 import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
-import TodayTransactions from '../components/dashboard/TodayTransactions';
+import PeriodTransactions from '../components/dashboard/PeriodTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 
@@ -26,13 +26,16 @@ export default function Dashboard() {
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
 
   const periodTxns = useMemo(() => filterByPeriod(allTxns, period), [allTxns, period]);
-  const todayTxns = useMemo(() => filterToday(allTxns), [allTxns]);
 
-  const totalSpent = useMemo(
-    () => periodTxns.reduce((s, t) => s + t.amount, 0),
+  const totalIncome = useMemo(
+    () => periodTxns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
     [periodTxns],
   );
-  const totalIncome = 0;
+  const totalExpenses = useMemo(
+    () => Math.abs(periodTxns.filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)),
+    [periodTxns],
+  );
+  const netBalance = totalIncome - totalExpenses;
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -60,9 +63,9 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col gap-0">
       <HeroStatsRow
-        totalSpent={totalSpent}
+        totalExpenses={totalExpenses}
         totalIncome={totalIncome}
-        netBalance={totalIncome - totalSpent}
+        netBalance={netBalance}
         txCount={periodTxns.length}
         currencySymbol={currencySymbol}
       />
@@ -74,14 +77,15 @@ export default function Dashboard() {
         <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
 
         <div className="col-span-2 flex flex-col gap-4">
-          <TodayTransactions
-            transactions={todayTxns}
+          <PeriodTransactions
+            transactions={periodTxns}
+            period={period}
             currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
           />
         </div>
         <div className="flex flex-col gap-4">
-          <IncomeExpenseDonut income={totalIncome} expenses={totalSpent} currencySymbol={currencySymbol} />
+          <IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
           <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
         </div>
       </div>
