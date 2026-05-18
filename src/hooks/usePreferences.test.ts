@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
@@ -56,7 +56,7 @@ describe('usePreferences', () => {
     expect(result.current.data?.id).toBe('uid-123');
   });
 
-  it('returns null data when document does not exist', async () => {
+  it('returns built-in defaults when document does not exist', async () => {
     vi.mocked(getDoc).mockResolvedValueOnce({
       exists: () => false,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,7 +64,36 @@ describe('usePreferences', () => {
 
     const { result } = renderHook(() => usePreferences('uid-123'));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).not.toBeNull();
+    expect(result.current.data?.categories.length).toBeGreaterThan(0);
+    expect(result.current.data?.payments.length).toBeGreaterThan(0);
+    expect(result.current.data?.accounts.length).toBeGreaterThan(0);
+    expect(result.current.data?.defaultCurrency.code).toBe('SGD');
+    expect(result.current.data?.defaultEntries).toEqual({ account: 'Monthly Budget' });
+  });
+
+  it('appends unique Firestore entries after defaults without duplicating', async () => {
+    vi.mocked(getDoc).mockResolvedValueOnce({
+      exists: () => true,
+      id: 'uid-123',
+      data: () => ({
+        ...mockPreferenceData,
+        payments: [
+          { name: 'Cash', emoji: '💵', type: 'payment', parent: null },   // already a default
+          { name: 'PayNow', emoji: '💸', type: 'payment', parent: null }, // custom addition
+        ],
+      }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const paymentNames = result.current.data?.payments.map((p) => p.name) ?? [];
+    // Default Cash appears exactly once (not duplicated from Firestore)
+    expect(paymentNames.filter((n) => n === 'Cash').length).toBe(1);
+    // Custom PayNow is appended after defaults
+    expect(paymentNames).toContain('PayNow');
   });
 
   it('sets error on Firestore failure', async () => {
@@ -72,5 +101,27 @@ describe('usePreferences', () => {
     const { result } = renderHook(() => usePreferences('uid-123'));
     await waitFor(() => expect(result.current.error).not.toBeNull());
     expect(result.current.error?.message).toBe('permission denied');
+  });
+});
+
+describe('usePreferences — refetch', () => {
+  it('refetch re-triggers the Firestore fetch', async () => {
+    vi.mocked(getDoc).mockResolvedValue({
+      exists: () => true,
+      id: 'u1',
+      data: () => ({ accounts: [], categories: [], subCategories: [], vendors: [], payments: [] }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+
+    const { result } = renderHook(() => usePreferences('u1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const callsBefore = vi.mocked(getDoc).mock.calls.length;
+
+    act(() => { result.current.refetch(); });
+
+    await waitFor(() =>
+      expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore),
+    );
   });
 });

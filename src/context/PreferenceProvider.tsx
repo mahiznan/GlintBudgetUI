@@ -6,10 +6,10 @@ import { PreferenceContext } from './PreferenceContext';
 export function PreferenceProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : null;
-  const { data, loading, error } = usePreferences(uid);
+  const { data, loading, error, refetch } = usePreferences(uid);
 
   return (
-    <PreferenceContext.Provider value={{ preference: data, loading, error }}>
+    <PreferenceContext.Provider value={{ preference: data, loading, error, refetch }}>
       {children}
     </PreferenceContext.Provider>
   );
