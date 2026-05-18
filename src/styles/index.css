@@ -25,6 +25,7 @@
   --hero-gradient:       linear-gradient(120deg, rgb(80,120,0) 0%, rgb(150,191,13) 40%, #22c55e 70%, #ecfccb 100%);
   --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150,191,13) 100%);
   --brand-gradient:      linear-gradient(135deg, rgb(150,191,13), #22c55e);
+  --expense-gradient:    linear-gradient(135deg, #f87171, #dc2626);
   --brand-glow:          rgba(150,191,13,0.45);
   --brand-gradient-text: linear-gradient(135deg, rgb(150,191,13), #22c55e);
 }
