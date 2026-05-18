@@ -37,9 +37,8 @@ export default function DailyTransactions({
     const newMonday = new Date(weekStart);
     newMonday.setDate(weekStart.getDate() - 7);
     setWeekStart(newMonday);
-    const newSelected = new Date(newMonday);
-    newSelected.setDate(newMonday.getDate() + dayOfWeekOffset(selectedDate));
-    setSelectedDate(newSelected);
+    const sunday = getWeekDays(newMonday)[6]!;
+    setSelectedDate(sunday);
   }
 
   function goToNextWeek() {

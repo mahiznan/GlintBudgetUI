@@ -114,6 +114,16 @@ describe('DailyTransactions — week navigation', () => {
     expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
   });
 
+  it('selects Sunday when navigating to a previous week', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    // Sunday tile should now be selected (aria-pressed=true)
+    const pressedTiles = screen.getAllByRole('button', { pressed: true });
+    expect(pressedTiles).toHaveLength(1);
+    // The pressed tile should be Sunday — verify via aria-label
+    expect(pressedTiles[0]).toHaveAccessibleName(/sun/i);
+  });
+
   it('shows transactions for a different day after navigating to it', async () => {
     // Pick a day in the current week that is NOT today (always in the current strip, no navigation needed)
     const today = new Date();
