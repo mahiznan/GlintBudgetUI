@@ -166,12 +166,7 @@ describe('DailyTransactions — week navigation', () => {
 });
 
 describe('DailyTransactions — expense sum', () => {
-  it("shows \"Today's expenses\" label when viewing today", () => {
-    renderDT([]);
-    expect(screen.getByText(/today's expenses/i)).toBeInTheDocument();
-  });
-
-  it('shows zero sum when no expense transactions exist', () => {
+  it('shows zero expense total next to date heading when no transactions', () => {
     renderDT([]);
     // The zero sum shows as −₹0.00 (the currency symbol depends on the test setup)
     // Check for the minus sign + zero pattern
