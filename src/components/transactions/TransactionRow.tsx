@@ -30,8 +30,13 @@ export default function TransactionRow({ transaction: tx, currencySymbol, onDele
       </td>
       <td className="py-3 px-4 text-xs text-text-muted">{tx.payment}</td>
       <td className="py-3 px-4 text-right">
-        <span className="text-sm font-mono font-semibold text-red-600">
-          −{formatCurrency(tx.amount, currencySymbol)}
+        <span
+          className={`text-sm font-mono font-semibold ${
+            tx.amount < 0 ? 'text-red-600' : 'text-brand'
+          }`}
+        >
+          {tx.amount < 0 ? '−' : '+'}
+          {formatCurrency(Math.abs(tx.amount), currencySymbol)}
         </span>
       </td>
       <td className="py-3 px-4 text-right">
