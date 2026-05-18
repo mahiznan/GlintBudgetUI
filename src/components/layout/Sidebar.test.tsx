@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -45,5 +46,25 @@ describe('Sidebar', () => {
       </MemoryRouter>,
     );
     expect(screen.queryByTitle('Coming soon')).not.toBeInTheDocument();
+  });
+
+  it('renders a Sign out button', () => {
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+  });
+
+  it('calls signOutCurrentUser when Sign out is clicked', async () => {
+    const { signOutCurrentUser } = await import('../../firebase/auth');
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /sign out/i }));
+    expect(signOutCurrentUser).toHaveBeenCalled();
   });
 });

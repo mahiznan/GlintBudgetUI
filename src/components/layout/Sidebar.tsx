@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { signOutCurrentUser } from '../../firebase/auth';
 
 const NAV_ITEMS = [
   { label: 'Dashboard',    icon: '◈', to: '/app/dashboard'    },
@@ -7,6 +8,13 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    navigate('/');
+    await signOutCurrentUser();
+  }
+
   return (
     <aside
       className="flex h-screen w-[220px] flex-shrink-0 flex-col py-6"
@@ -64,6 +72,18 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Sign out */}
+      <div className="px-3 pt-4">
+        <button
+          type="button"
+          onClick={() => void handleSignOut()}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white border border-white/20"
+        >
+          <span aria-hidden="true" className="text-base">⎋</span>
+          Sign out
+        </button>
+      </div>
     </aside>
   );
 }
