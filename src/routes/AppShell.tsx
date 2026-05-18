@@ -14,6 +14,7 @@ const TITLE_MAP: Record<string, string> = {
   '/app/dashboard': 'Dashboard',
   '/app/transactions': 'Transactions',
   '/app/transactions/new': 'New Transaction',
+  '/app/settings': 'Settings',
 };
 
 function getTitle(pathname: string): string {

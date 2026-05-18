@@ -45,6 +45,19 @@ describe('AppShell route', () => {
   });
 });
 
+describe('AppShell title map', () => {
+  it('shows "Settings" title when on /app/settings', () => {
+    render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/settings']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(screen.getAllByText('Settings').length).toBeGreaterThan(0);
+  });
+});
+
 describe('AppShell period switch visibility', () => {
   it('shows period switch on /app/dashboard', () => {
     render(

@@ -10,6 +10,7 @@ const AppShell = lazy(() => import('./routes/AppShell'));
 const Dashboard = lazy(() => import('./routes/Dashboard'));
 const TransactionList = lazy(() => import('./routes/TransactionList'));
 const TransactionForm = lazy(() => import('./routes/TransactionForm'));
+const Settings = lazy(() => import('./routes/Settings'));
 
 const RouteFallback = () => (
   <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
@@ -67,6 +68,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<RouteFallback />}>
             <TransactionForm mode="edit" />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <Suspense fallback={<RouteFallback />}>
+            <Settings />
           </Suspense>
         ),
       },
