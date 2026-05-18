@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../context/ThemeContext', () => ({
@@ -29,6 +30,17 @@ describe('CategoryBreakdown', () => {
     expect(screen.getByText(/category/i)).toBeInTheDocument();
   });
 
+  it('renders Expense and Income toggle buttons', () => {
+    render(<CategoryBreakdown transactions={[]} currencySymbol="₹" />);
+    expect(screen.getByRole('button', { name: /expense/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /income/i })).toBeInTheDocument();
+  });
+
+  it('shows expense mode active by default (bg-red-600 class)', () => {
+    render(<CategoryBreakdown transactions={[]} currencySymbol="₹" />);
+    expect(screen.getByRole('button', { name: /expense/i })).toHaveClass('bg-red-600');
+  });
+
   it('shows top categories by expense spend (negative amounts)', () => {
     const txns = [
       ...Array(3).fill(null).map(() => makeTx('Food', -500)),
@@ -40,18 +52,27 @@ describe('CategoryBreakdown', () => {
     expect(screen.getByText('Transport')).toBeInTheDocument();
   });
 
-  it('excludes income transactions (positive amounts) from breakdown', () => {
-    const txns = [
-      makeTx('Salary', 50000),
-      makeTx('Food', -500),
-    ];
+  it('hides income categories in default expense mode', () => {
+    const txns = [makeTx('Salary', 50000), makeTx('Food', -500)];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
     expect(screen.queryByText('Salary')).not.toBeInTheDocument();
     expect(screen.getByText('Food')).toBeInTheDocument();
   });
 
-  it('shows empty state when no transactions', () => {
+  it('income mode shows income categories and hides expense categories', async () => {
+    const user = userEvent.setup();
+    const txns = [makeTx('Salary', 50000), makeTx('Food', -500)];
+    render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
+    await user.click(screen.getByRole('button', { name: /income/i }));
+    expect(screen.getByText('Salary')).toBeInTheDocument();
+    expect(screen.queryByText('Food')).not.toBeInTheDocument();
+  });
+
+  it('shows mode-aware empty state message', async () => {
+    const user = userEvent.setup();
     render(<CategoryBreakdown transactions={[]} currencySymbol="₹" />);
-    expect(screen.getByText(/no data/i)).toBeInTheDocument();
+    expect(screen.getByText(/no expenses for this period/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /income/i }));
+    expect(screen.getByText(/no income for this period/i)).toBeInTheDocument();
   });
 });
