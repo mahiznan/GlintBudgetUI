@@ -59,6 +59,7 @@ describe('ThemeProvider', () => {
 
     function Capture() {
       const { setTheme } = useTheme();
+      // eslint-disable-next-line react-hooks/globals
       capturedSetTheme = setTheme;
       return null;
     }

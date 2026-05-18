@@ -13,6 +13,7 @@ import BudgetDataTab from '../components/settings/BudgetDataTab';
 import SubcategoriesTab from '../components/settings/SubcategoriesTab';
 import CurrencyTab from '../components/settings/CurrencyTab';
 import DefaultsTab from '../components/settings/DefaultsTab';
+import AppearanceTab from '../components/settings/AppearanceTab';
 
 const TABS = [
   { key: 'accounts',      label: 'Accounts'      },
@@ -22,6 +23,7 @@ const TABS = [
   { key: 'payments',      label: 'Payments'      },
   { key: 'currency',      label: 'Currency'      },
   { key: 'defaults',      label: 'Defaults'      },
+  { key: 'appearance',    label: 'Appearance'    },
 ] as const;
 
 type TabKey = typeof TABS[number]['key'];
@@ -181,6 +183,7 @@ export default function Settings() {
             saving={saving}
           />
         )}
+        {activeTab === 'appearance' && <AppearanceTab />}
       </div>
     </div>
   );
