@@ -22,6 +22,7 @@ export default function Dashboard() {
   const { data: allTxns, loading, error, refetch } = useTransactions({ uid, limit: 200 });
   const { mutate: deleteTx } = useDeleteTransaction();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [categoryMode, setCategoryMode] = useState<'expense' | 'income'>('expense');
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
@@ -47,6 +48,31 @@ export default function Dashboard() {
     () => Math.abs(heroTxns.filter((t) => t.amount < 0).reduce((s, t) => s + t.amount, 0)),
     [heroTxns],
   );
+
+  const categoryItems = useMemo(() => {
+    const filtered =
+      categoryMode === 'expense'
+        ? heroTxns.filter((t) => t.amount < 0)
+        : heroTxns.filter((t) => t.amount > 0);
+    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
+      (acc, t) => {
+        if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+        acc[t.category]!.total += Math.abs(t.amount);
+        return acc;
+      },
+      {},
+    );
+    const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
+    return Object.entries(totals)
+      .sort(([, a], [, b]) => b.total - a.total)
+      .slice(0, 5)
+      .map(([name, { total, icon }]) => ({
+        name,
+        icon,
+        total,
+        pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+      }));
+  }, [heroTxns, categoryMode]);
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -83,7 +109,12 @@ export default function Dashboard() {
         <div className="col-span-2">
           <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
         </div>
-        <CategoryBreakdown transactions={heroTxns} currencySymbol={currencySymbol} />
+        <CategoryBreakdown
+          categories={categoryItems}
+          mode={categoryMode}
+          onModeChange={setCategoryMode}
+          currencySymbol={currencySymbol}
+        />
 
         <div className="col-span-2 flex flex-col gap-4">
           <DailyTransactions

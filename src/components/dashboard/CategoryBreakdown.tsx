@@ -1,45 +1,26 @@
-import { useMemo, useState } from 'react';
-import type { Transaction } from '../../firestore/types';
 import { formatCurrency } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 
+export interface CategoryItem {
+  name: string;
+  icon: string;
+  total: number;
+  pct: number;
+}
+
 type Mode = 'expense' | 'income';
 
 interface CategoryBreakdownProps {
-  transactions: Transaction[];
+  categories: CategoryItem[];
+  mode: Mode;
+  onModeChange: (mode: Mode) => void;
   currencySymbol: string;
 }
 
-export default function CategoryBreakdown({ transactions, currencySymbol }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({ categories, mode, onModeChange, currencySymbol }: CategoryBreakdownProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
-  const [mode, setMode] = useState<Mode>('expense');
-
-  const categories = useMemo(() => {
-    const filtered =
-      mode === 'expense'
-        ? transactions.filter((t) => t.amount < 0)
-        : transactions.filter((t) => t.amount > 0);
-    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-      (acc, t) => {
-        if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-        acc[t.category]!.total += Math.abs(t.amount);
-        return acc;
-      },
-      {},
-    );
-    const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
-    return Object.entries(totals)
-      .sort(([, a], [, b]) => b.total - a.total)
-      .slice(0, 5)
-      .map(([name, { total, icon }]) => ({
-        name,
-        icon,
-        total,
-        pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-      }));
-  }, [transactions, mode]);
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
@@ -50,16 +31,16 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
             <button
               key={m}
               type="button"
-              onClick={() => setMode(m)}
+              onClick={() => onModeChange(m)}
               className={[
                 'rounded-md px-3 py-1 text-xs font-semibold capitalize transition-all',
-                mode === m
-                  ? m === 'expense'
-                    ? 'bg-red-600 text-white shadow-sm'
-                    : 'text-white shadow-sm'
-                  : 'text-text-muted hover:text-text',
+                mode === m ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
               ].join(' ')}
-              style={mode === m && m === 'income' ? { background: 'var(--brand-gradient)' } : undefined}
+              style={
+                mode === m
+                  ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
+                  : undefined
+              }
             >
               {m}
             </button>
