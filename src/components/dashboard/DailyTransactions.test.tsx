@@ -86,7 +86,7 @@ describe('DailyTransactions — transaction list', () => {
 
   it('formats amount with currency symbol', () => {
     renderDT([makeTx('tx1', 'Zepto', -500, todayAt())]);
-    expect(screen.getByText(/₹500/)).toBeInTheDocument();
+    expect(screen.getAllByText(/₹500/).length).toBeGreaterThan(0);
   });
 
   it('calls onDelete when delete button is clicked', async () => {
@@ -162,6 +162,44 @@ describe('DailyTransactions — week navigation', () => {
     await userEvent.click(target!);
 
     expect(screen.getByText('TargetVendor')).toBeInTheDocument();
+  });
+});
+
+describe('DailyTransactions — expense sum', () => {
+  it("shows \"Today's expenses\" label when viewing today", () => {
+    renderDT([]);
+    expect(screen.getByText(/today's expenses/i)).toBeInTheDocument();
+  });
+
+  it('shows zero sum when no expense transactions exist', () => {
+    renderDT([]);
+    // The zero sum shows as −₹0.00 (the currency symbol depends on the test setup)
+    // Check for the minus sign + zero pattern
+    const sumEl = screen.getByText(/−.*0/);
+    expect(sumEl).toBeInTheDocument();
+  });
+
+  it("shows correct expense sum for today's transactions", () => {
+    renderDT([
+      makeTx('t1', 'Swiggy', -450, todayAt(12)),
+      makeTx('t2', 'Ola', -280, todayAt(9)),
+    ]);
+    // Sum: 450 + 280 = 730 — look for the amount in the expense sum row
+    expect(screen.getByText(/−.*730/)).toBeInTheDocument();
+  });
+
+  it('excludes income transactions from the sum', () => {
+    renderDT([
+      makeTx('t1', 'Salary', 50000, todayAt(10)),
+      makeTx('t2', 'Coffee', -200, todayAt(11)),
+    ]);
+    // The expense sum row should show 200 (not 50,200)
+    const sumElements = screen.getAllByText(/−.*200/);
+    expect(sumElements.length).toBeGreaterThan(0);
+    // None of the matching elements should show the income (50,000) included
+    sumElements.forEach((el) => {
+      expect(el.textContent).not.toMatch(/50[,.]?[0-9]/);
+    });
   });
 });
 

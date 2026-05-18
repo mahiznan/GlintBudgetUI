@@ -68,6 +68,14 @@ export default function DailyTransactions({
     .filter((t) => isSameDay(t.date, selectedDate))
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
+  const dayExpenses = dayTxns
+    .filter((t) => t.amount < 0)
+    .reduce((s, t) => s + Math.abs(t.amount), 0);
+
+  const expenseLabel = isToday
+    ? "Today's expenses"
+    : `${selectedDate.toLocaleDateString('en-US', { weekday: 'short' })} ${selectedDate.getDate()} expenses`;
+
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
       {/* Header */}
@@ -187,6 +195,16 @@ export default function DailyTransactions({
         >
           ›
         </button>
+      </div>
+
+      {/* Expense sum */}
+      <div className="flex items-center justify-between border-b border-border pb-2 mb-1">
+        <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
+          {expenseLabel}
+        </span>
+        <span className="text-sm font-bold text-red-600">
+          −{formatCurrency(dayExpenses, currencySymbol)}
+        </span>
       </div>
 
       {/* Selected date heading */}
