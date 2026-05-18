@@ -9,7 +9,7 @@ export interface CategoryItem {
   pct: number;
 }
 
-type Mode = 'expense' | 'income';
+export type Mode = 'expense' | 'income';
 
 interface CategoryBreakdownProps {
   categories: CategoryItem[];

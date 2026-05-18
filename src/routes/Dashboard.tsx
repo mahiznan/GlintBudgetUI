@@ -8,7 +8,7 @@ import { filterByPeriod } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
-import CategoryBreakdown from '../components/dashboard/CategoryBreakdown';
+import CategoryBreakdown, { type Mode as CategoryMode } from '../components/dashboard/CategoryBreakdown';
 import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
 import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
@@ -22,7 +22,7 @@ export default function Dashboard() {
   const { data: allTxns, loading, error, refetch } = useTransactions({ uid, limit: 200 });
   const { mutate: deleteTx } = useDeleteTransaction();
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [categoryMode, setCategoryMode] = useState<'expense' | 'income'>('expense');
+  const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
