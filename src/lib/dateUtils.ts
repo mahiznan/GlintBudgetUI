@@ -98,3 +98,40 @@ export function todayStart(now = new Date()): Date {
   d.setHours(0, 0, 0, 0);
   return d;
 }
+
+export function getMondayOf(d: Date): Date {
+  const result = new Date(d);
+  result.setHours(0, 0, 0, 0);
+  const day = result.getDay(); // 0 = Sunday
+  const diff = day === 0 ? -6 : 1 - day;
+  result.setDate(result.getDate() + diff);
+  return result;
+}
+
+export function getWeekDays(monday: Date): Date[] {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+export function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+export function isCurrentWeek(monday: Date): boolean {
+  return isSameDay(monday, getMondayOf(new Date()));
+}
+
+export function formatDayHeading(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+}

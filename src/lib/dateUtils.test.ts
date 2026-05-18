@@ -4,6 +4,11 @@ import {
   formatCurrency,
   groupByDay,
   groupByMonth,
+  getMondayOf,
+  getWeekDays,
+  isSameDay,
+  isCurrentWeek,
+  formatDayHeading,
 } from './dateUtils';
 
 describe('getPeriodRange', () => {
@@ -78,5 +83,89 @@ describe('groupByMonth', () => {
     const result = groupByMonth(txns);
     expect(result['2026-05']).toBe(100);
     expect(result['2026-04']).toBe(200);
+  });
+});
+
+describe('getMondayOf', () => {
+  it('returns Monday when given a Wednesday', () => {
+    const wed = new Date(2026, 4, 20); // May 20, 2026 is a Wednesday
+    const monday = getMondayOf(wed);
+    expect(monday.getDay()).toBe(1);
+    expect(monday.getDate()).toBe(18);
+  });
+
+  it('returns the previous Monday when given a Sunday', () => {
+    const sun = new Date(2026, 4, 24); // May 24, 2026 is a Sunday
+    const monday = getMondayOf(sun);
+    expect(monday.getDay()).toBe(1);
+    expect(monday.getDate()).toBe(18);
+  });
+
+  it('returns the same day when given a Monday', () => {
+    const mon = new Date(2026, 4, 18); // May 18, 2026 is a Monday
+    const monday = getMondayOf(mon);
+    expect(monday.getDay()).toBe(1);
+    expect(monday.getDate()).toBe(18);
+  });
+
+  it('normalises time to midnight', () => {
+    const d = new Date(2026, 4, 20, 15, 30, 0);
+    const monday = getMondayOf(d);
+    expect(monday.getHours()).toBe(0);
+    expect(monday.getMinutes()).toBe(0);
+  });
+});
+
+describe('getWeekDays', () => {
+  it('returns 7 dates starting from the given Monday', () => {
+    const monday = new Date(2026, 4, 18);
+    const days = getWeekDays(monday);
+    expect(days).toHaveLength(7);
+    expect(days[0].getDate()).toBe(18);
+    expect(days[6].getDate()).toBe(24);
+  });
+
+  it('returns dates in ascending order', () => {
+    const monday = new Date(2026, 4, 18);
+    const days = getWeekDays(monday);
+    for (let i = 1; i < 7; i++) {
+      expect(days[i].getTime()).toBeGreaterThan(days[i - 1].getTime());
+    }
+  });
+});
+
+describe('isSameDay', () => {
+  it('returns true for same date at different times', () => {
+    const a = new Date(2026, 4, 18, 9, 0);
+    const b = new Date(2026, 4, 18, 22, 0);
+    expect(isSameDay(a, b)).toBe(true);
+  });
+
+  it('returns false for consecutive dates', () => {
+    const a = new Date(2026, 4, 18);
+    const b = new Date(2026, 4, 19);
+    expect(isSameDay(a, b)).toBe(false);
+  });
+});
+
+describe('isCurrentWeek', () => {
+  it("returns true for this week's Monday", () => {
+    expect(isCurrentWeek(getMondayOf(new Date()))).toBe(true);
+  });
+
+  it("returns false for last week's Monday", () => {
+    const lastMonday = getMondayOf(new Date());
+    lastMonday.setDate(lastMonday.getDate() - 7);
+    expect(isCurrentWeek(lastMonday)).toBe(false);
+  });
+});
+
+describe('formatDayHeading', () => {
+  it('includes weekday, day number, and month', () => {
+    const d = new Date(2026, 4, 18); // Monday May 18
+    const result = formatDayHeading(d);
+    expect(result).toMatch(/Monday/);
+    expect(result).toMatch(/18/);
+    expect(result).toMatch(/May/);
   });
 });
