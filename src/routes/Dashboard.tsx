@@ -124,7 +124,7 @@ export default function Dashboard() {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
+          <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
           <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
         </div>
       </div>
