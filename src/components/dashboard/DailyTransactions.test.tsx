@@ -1,0 +1,129 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
+import { describe, expect, it, vi } from 'vitest';
+import DailyTransactions from './DailyTransactions';
+import type { Transaction } from '../../firestore/types';
+
+function makeTx(id: string, vendor: string, amount: number, date: Date): Transaction {
+  return {
+    id, user_id: 'u1', category: 'Food', subCategory: '',
+    date, account: 'HDFC', vendor, payment: 'UPI',
+    currency: 'INR', notes: '', amount, icon: '🛒',
+  };
+}
+
+function todayAt(hours = 12): Date {
+  const d = new Date();
+  d.setHours(hours, 0, 0, 0);
+  return d;
+}
+
+function daysAgo(n: number, hours = 12): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  d.setHours(hours, 0, 0, 0);
+  return d;
+}
+
+function renderDT(transactions: Transaction[]) {
+  return render(
+    <MemoryRouter>
+      <DailyTransactions
+        transactions={transactions}
+        currencySymbol="₹"
+        onDelete={vi.fn()}
+      />
+    </MemoryRouter>,
+  );
+}
+
+describe('DailyTransactions — date strip', () => {
+  it('renders exactly 7 date tiles', () => {
+    const { container } = renderDT([]);
+    const tiles = container.querySelectorAll('button[aria-pressed]');
+    expect(tiles).toHaveLength(7);
+  });
+
+  it("today's tile is selected (aria-pressed=true) by default", () => {
+    renderDT([]);
+    const pressed = screen.getAllByRole('button', { pressed: true });
+    expect(pressed).toHaveLength(1);
+    expect(pressed[0]).toHaveTextContent(new Date().getDate().toString());
+  });
+
+  it('next week button is disabled on the current week', () => {
+    renderDT([]);
+    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+  });
+
+  it('prev week button is always enabled', () => {
+    renderDT([]);
+    expect(screen.getByRole('button', { name: /previous week/i })).not.toBeDisabled();
+  });
+});
+
+describe('DailyTransactions — transaction list', () => {
+  it('shows transactions for today by default', () => {
+    renderDT([makeTx('tx1', 'Swiggy', -400, todayAt())]);
+    expect(screen.getByText('Swiggy')).toBeInTheDocument();
+  });
+
+  it('does not show transactions from other days', () => {
+    renderDT([makeTx('tx1', 'OldVendor', -400, daysAgo(3))]);
+    expect(screen.queryByText('OldVendor')).not.toBeInTheDocument();
+  });
+
+  it('shows empty state when today has no transactions', () => {
+    renderDT([]);
+    expect(screen.getByText(/no transactions for this day/i)).toBeInTheDocument();
+  });
+
+  it('formats amount with currency symbol', () => {
+    renderDT([makeTx('tx1', 'Zepto', -500, todayAt())]);
+    expect(screen.getByText(/₹500/)).toBeInTheDocument();
+  });
+
+  it('calls onDelete when delete button is clicked', async () => {
+    const onDelete = vi.fn();
+    render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[makeTx('tx1', 'Zomato', -350, todayAt())]}
+          currencySymbol="₹"
+          onDelete={onDelete}
+        />
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /delete zomato/i }));
+    expect(onDelete).toHaveBeenCalledWith('tx1');
+  });
+});
+
+describe('DailyTransactions — week navigation', () => {
+  it('enables the next week button after navigating to a previous week', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+  });
+
+  it('disables next week button again after returning to current week', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    await userEvent.click(screen.getByRole('button', { name: /next week/i }));
+    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+  });
+
+  it('shows transactions for a different day after navigating to it', async () => {
+    const yesterday = daysAgo(1);
+    const { container } = renderDT([makeTx('tx1', 'YesterdayVendor', -300, yesterday)]);
+
+    const yesterdayNum = yesterday.getDate().toString();
+    const tiles = Array.from(container.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'));
+    const target = tiles.find((b) => b.textContent?.includes(yesterdayNum) && b.getAttribute('aria-pressed') === 'false');
+    if (target) {
+      await userEvent.click(target);
+      expect(screen.getByText('YesterdayVendor')).toBeInTheDocument();
+    }
+  });
+});
