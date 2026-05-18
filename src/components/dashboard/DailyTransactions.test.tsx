@@ -41,15 +41,20 @@ function renderDT(transactions: Transaction[]) {
 describe('DailyTransactions — date strip', () => {
   it('renders exactly 7 date tiles', () => {
     const { container } = renderDT([]);
-    const tiles = container.querySelectorAll('button[aria-pressed]');
-    expect(tiles).toHaveLength(7);
+    // button[aria-pressed] includes the Today button + 7 date tiles = 8 total
+    const allPressed = container.querySelectorAll('button[aria-pressed]');
+    const dateTiles = Array.from(allPressed).filter((b) => b.textContent !== 'Today');
+    expect(dateTiles).toHaveLength(7);
   });
 
   it("today's tile is selected (aria-pressed=true) by default", () => {
     renderDT([]);
+    // Both the Today button and today's date tile have aria-pressed=true
     const pressed = screen.getAllByRole('button', { pressed: true });
-    expect(pressed).toHaveLength(1);
-    expect(pressed[0]).toHaveTextContent(new Date().getDate().toString());
+    expect(pressed).toHaveLength(2);
+    // The date tile (not the Today button) contains today's date number
+    const todayNum = new Date().getDate().toString();
+    expect(pressed.some((b) => b.textContent?.includes(todayNum))).toBe(true);
   });
 
   it('next week button is disabled on the current week', () => {
@@ -157,5 +162,38 @@ describe('DailyTransactions — week navigation', () => {
     await userEvent.click(target!);
 
     expect(screen.getByText('TargetVendor')).toBeInTheDocument();
+  });
+});
+
+describe('DailyTransactions — Today button', () => {
+  it('Today button is present', () => {
+    renderDT([]);
+    expect(screen.getByRole('button', { name: /^today$/i })).toBeInTheDocument();
+  });
+
+  it('Today button has filled style when viewing today', () => {
+    renderDT([]);
+    const btn = screen.getByRole('button', { name: /^today$/i });
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('Today button has outline style (not pressed) after navigating to prev week', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    const btn = screen.getByRole('button', { name: /^today$/i });
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('clicking Today from a past week returns to today', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    await userEvent.click(screen.getByRole('button', { name: /^today$/i }));
+    // Next week button should be disabled again (we're back on the current week)
+    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    // Today's date tile should be selected
+    const todayNum = new Date().getDate().toString();
+    const pressed = screen.getAllByRole('button', { pressed: true });
+    const todayTile = pressed.find((b) => b.textContent?.includes(todayNum) && b !== screen.getByRole('button', { name: /^today$/i }));
+    expect(todayTile).toBeTruthy();
   });
 });

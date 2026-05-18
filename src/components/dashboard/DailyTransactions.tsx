@@ -32,6 +32,14 @@ export default function DailyTransactions({
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
+  const isToday = isSameDay(selectedDate, new Date());
+
+  function goToToday() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setWeekStart(getMondayOf(today));
+    setSelectedDate(today);
+  }
 
   function goToPrevWeek() {
     const newMonday = new Date(weekStart);
@@ -64,9 +72,25 @@ export default function DailyTransactions({
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-          Transactions
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+            Transactions
+          </h2>
+          <button
+            type="button"
+            aria-pressed={isToday}
+            onClick={isToday ? undefined : goToToday}
+            className={[
+              'rounded-md px-2 py-0.5 text-xs font-semibold transition-all',
+              isToday
+                ? 'text-white'
+                : 'border border-border bg-surface text-text-muted hover:text-text',
+            ].join(' ')}
+            style={isToday ? { background: 'var(--brand-gradient)' } : undefined}
+          >
+            Today
+          </button>
+        </div>
         <Link
           to="/app/transactions"
           className="text-xs font-medium"
