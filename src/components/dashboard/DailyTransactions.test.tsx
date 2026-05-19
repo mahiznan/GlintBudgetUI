@@ -1,3 +1,8 @@
+vi.mock('../transactions/AddTransactionDrawer', () => ({
+  default: ({ open }: { open: boolean }) =>
+    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+}));
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -198,12 +203,18 @@ describe('DailyTransactions — expense sum', () => {
   });
 });
 
-describe('DailyTransactions — Add link', () => {
-  it('renders an Add link pointing to /app/transactions/new', () => {
+describe('DailyTransactions — Add button', () => {
+  it('renders an Add button (not a navigation link to /app/transactions/new)', () => {
     renderDT([]);
-    const link = screen.getByRole('link', { name: /add/i });
-    expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', '/app/transactions/new');
+    expect(screen.getByRole('button', { name: /add transaction/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /add/i })).not.toBeInTheDocument();
+  });
+
+  it('clicking Add opens the drawer', async () => {
+    renderDT([]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /add transaction/i }));
+    expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
   });
 });
 

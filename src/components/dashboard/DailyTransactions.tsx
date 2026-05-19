@@ -11,17 +11,20 @@ import {
   formatDayHeading,
   dayOfWeekOffset,
 } from '../../lib/dateUtils';
+import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
   currencySymbol: string;
   onDelete: (id: string) => void;
+  onTransactionAdded?: () => void;
 }
 
 export default function DailyTransactions({
   transactions,
   currencySymbol,
   onDelete,
+  onTransactionAdded,
 }: DailyTransactionsProps) {
   const [weekStart, setWeekStart] = useState<Date>(() => getMondayOf(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -29,6 +32,7 @@ export default function DailyTransactions({
     d.setHours(0, 0, 0, 0);
     return d;
   });
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
@@ -108,14 +112,15 @@ export default function DailyTransactions({
           >
             See all →
           </Link>
-          <Link
-            to="/app/transactions/new"
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
             className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
             style={{ background: 'var(--brand-gradient)' }}
             aria-label="Add transaction"
           >
             + Add
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -249,6 +254,11 @@ export default function DailyTransactions({
           })}
         </div>
       )}
+      <AddTransactionDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSaved={() => { onTransactionAdded?.(); }}
+      />
     </div>
   );
 }

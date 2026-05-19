@@ -196,8 +196,9 @@ export default function Dashboard() {
         currencySymbol={currencySymbol}
       />
 
-      <div className="p-6 grid grid-cols-3 gap-4">
-        <div className="col-span-2">
+      <div className="p-6 flex gap-4">
+        {/* Left column — 2/3 width */}
+        <div className="flex flex-col gap-4 flex-[2]">
           <SpendingChart
             transactions={chartTxns}
             period={period}
@@ -205,52 +206,52 @@ export default function Dashboard() {
             chartType={chartType}
             onChartTypeChange={handleChartTypeChange}
           />
-        </div>
-        <CategoryBreakdown
-          categories={categoryItems}
-          mode={categoryMode}
-          onModeChange={handleModeChange}
-          currencySymbol={currencySymbol}
-          drillLevel={drillState.level}
-          drillLabel={
-            drillState.level === 1
-              ? drillState.category
-              : drillState.level === 2
-                ? drillState.subCategory
-                : undefined
-          }
-          backLabel={
-            drillState.level === 1
-              ? '← Back'
-              : drillState.level === 2
-                ? `← ${drillState.category}`
-                : undefined
-          }
-          onBack={
-            drillState.level === 1
-              ? () => setDrillState({ level: 0 })
-              : drillState.level === 2
-                ? () => setDrillState({ level: 1, category: drillState.category })
-                : undefined
-          }
-          onItemClick={(name) => {
-            if (drillState.level === 0) {
-              setDrillState({ level: 1, category: name });
-            } else if (drillState.level === 1) {
-              setDrillState({ level: 2, category: drillState.category, subCategory: name });
-            }
-          }}
-          transactions={drillState.level === 2 ? drillTransactions : undefined}
-        />
-
-        <div className="col-span-2 flex flex-col gap-4">
           <DailyTransactions
             transactions={allTxns}
             currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
+            onTransactionAdded={refetch}
           />
         </div>
-        <div className="flex flex-col gap-4">
+
+        {/* Right column — 1/3 width */}
+        <div className="flex flex-col gap-4 flex-[1]">
+          <CategoryBreakdown
+            categories={categoryItems}
+            mode={categoryMode}
+            onModeChange={handleModeChange}
+            currencySymbol={currencySymbol}
+            drillLevel={drillState.level}
+            drillLabel={
+              drillState.level === 1
+                ? drillState.category
+                : drillState.level === 2
+                  ? drillState.subCategory
+                  : undefined
+            }
+            backLabel={
+              drillState.level === 1
+                ? '← Back'
+                : drillState.level === 2
+                  ? `← ${drillState.category}`
+                  : undefined
+            }
+            onBack={
+              drillState.level === 1
+                ? () => setDrillState({ level: 0 })
+                : drillState.level === 2
+                  ? () => setDrillState({ level: 1, category: drillState.category })
+                  : undefined
+            }
+            onItemClick={(name) => {
+              if (drillState.level === 0) {
+                setDrillState({ level: 1, category: name });
+              } else if (drillState.level === 1) {
+                setDrillState({ level: 2, category: drillState.category, subCategory: name });
+              }
+            }}
+            transactions={drillState.level === 2 ? drillTransactions : undefined}
+          />
           <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
           <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} periodDays={periodDays} />
         </div>
