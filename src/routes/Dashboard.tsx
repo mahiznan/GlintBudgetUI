@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactions } from '../hooks/useTransactions';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
+import { useUpdatePreference } from '../hooks/useUpdatePreference';
 import { filterByPeriod, getPeriodRange } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
@@ -26,7 +27,17 @@ export default function Dashboard() {
   const { preference } = usePreferenceContext();
   const { data: allTxns, loading, error, refetch } = useTransactions({ uid, limit: 200 });
   const { mutate: deleteTx } = useDeleteTransaction();
+  const { mutate: updatePreference } = useUpdatePreference(uid);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const chartTypeSynced = useRef(false);
+
+  useEffect(() => {
+    if (!chartTypeSynced.current && preference) {
+      setChartType(preference.spendingChartType ?? 'bar');
+      chartTypeSynced.current = true;
+    }
+  }, [preference]);
   const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
   const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
 
@@ -56,6 +67,16 @@ export default function Dashboard() {
     [periodTxns, defaultCurrencyCode, defaultAccount],
   );
 
+  const chartTxns = useMemo(
+    () =>
+      allTxns.filter(
+        (t) =>
+          t.currency === defaultCurrencyCode &&
+          (defaultAccount === '' || t.account === defaultAccount),
+      ),
+    [allTxns, defaultCurrencyCode, defaultAccount],
+  );
+
   const totalIncome = useMemo(
     () => heroTxns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0),
     [heroTxns],
@@ -68,6 +89,11 @@ export default function Dashboard() {
   function handleModeChange(mode: CategoryMode) {
     setCategoryMode(mode);
     setDrillState({ level: 0 });
+  }
+
+  async function handleChartTypeChange(type: 'bar' | 'line') {
+    setChartType(type);
+    await updatePreference({ spendingChartType: type });
   }
 
   const categoryItems = useMemo(() => {
@@ -172,7 +198,13 @@ export default function Dashboard() {
 
       <div className="p-6 grid grid-cols-3 gap-4">
         <div className="col-span-2">
-          <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
+          <SpendingChart
+            transactions={chartTxns}
+            period={period}
+            currencySymbol={currencySymbol}
+            chartType={chartType}
+            onChartTypeChange={handleChartTypeChange}
+          />
         </div>
         <CategoryBreakdown
           categories={categoryItems}
