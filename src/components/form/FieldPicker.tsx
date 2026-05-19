@@ -1,13 +1,20 @@
 import type { BudgetData } from '../../firestore/types';
+import SearchPicker from './SearchPicker';
 
 interface FieldPickerProps {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: BudgetData[];
+  iconBg: string;
+  icon: string;
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
   required?: boolean;
-  error?: string;
   allowFreeText?: boolean;
+  error?: string;
+  onNext?: () => void;
 }
 
 export default function FieldPicker({
@@ -15,47 +22,62 @@ export default function FieldPicker({
   value,
   onChange,
   options,
+  iconBg,
+  icon,
+  isOpen,
+  onOpen,
+  onClose,
   required,
-  error,
   allowFreeText,
+  error,
+  onNext,
 }: FieldPickerProps) {
-  const id = label.toLowerCase().replace(/\s+/g, '-');
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-semibold text-text">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      {allowFreeText ? (
-        <input
-          id={id}
-          list={`${id}-list`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={`Select or type ${label.toLowerCase()}…`}
-          className="rounded-xl border border-border px-4 py-3 text-sm bg-surface outline-none focus:ring-2 focus:ring-brand/30 text-text"
-        />
-      ) : (
-        <select
-          id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="rounded-xl border border-border px-4 py-3 text-sm bg-surface outline-none focus:ring-2 focus:ring-brand/30 text-text appearance-none"
+    <div>
+      {/* Row header */}
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full flex items-center gap-[10px] py-[10px] border-b border-[#f1f5f9] text-left"
+      >
+        <div
+          className="w-[28px] h-[28px] rounded-[8px] flex items-center justify-center text-[13px] flex-shrink-0"
+          style={{ background: iconBg }}
         >
-          <option value="">Select {label.toLowerCase()}…</option>
-          {options.map((o) => (
-            <option key={o.name} value={o.name}>
-              {o.emoji ? `${o.emoji} ` : ''}{o.name}
-            </option>
-          ))}
-        </select>
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
+            {label}
+            {required && <span className="text-red-500 ml-[2px]">*</span>}
+          </div>
+          <div
+            className="text-[13px] font-medium mt-[1px] truncate"
+            style={{ color: value ? '#0f172a' : '#cbd5e1' }}
+          >
+            {value || `Select ${label.toLowerCase()}…`}
+          </div>
+        </div>
+        <span className="text-[11px] text-[#cbd5e1]">›</span>
+      </button>
+
+      {/* Inline picker — only when open */}
+      {isOpen && (
+        <SearchPicker
+          label={label}
+          value={value}
+          options={options}
+          onSelect={(name) => {
+            onChange(name);
+            onClose();
+            onNext?.();
+          }}
+          onClose={onClose}
+          allowFreeText={allowFreeText}
+        />
       )}
-      {allowFreeText && (
-        <datalist id={`${id}-list`}>
-          {options.map((o) => <option key={o.name} value={o.name} />)}
-        </datalist>
-      )}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+
+      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>
   );
 }

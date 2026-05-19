@@ -75,6 +75,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loadingTx, setLoadingTx] = useState(mode === 'edit');
+  const [openField, setOpenField] = useState<string | null>(null);
 
   // Seed defaults from preference once it loads (add mode only; never overwrite user-changed fields)
   useEffect(() => {
@@ -196,6 +197,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           value={form.currency}
           onChange={set('currency')}
           options={currencyOptions}
+          iconBg="rgb(200, 210, 241)"
+          icon="💱"
+          isOpen={openField === 'currency'}
+          onOpen={() => setOpenField('currency')}
+          onClose={() => setOpenField(null)}
           required
           error={errors.currency}
         />
@@ -205,6 +211,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           value={form.category}
           onChange={set('category')}
           options={preference?.categories ?? []}
+          iconBg="rgb(254, 243, 224)"
+          icon="📂"
+          isOpen={openField === 'category'}
+          onOpen={() => setOpenField('category')}
+          onClose={() => setOpenField(null)}
           required
           error={errors.category}
         />
@@ -215,6 +226,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
             value={form.subCategory}
             onChange={set('subCategory')}
             options={filteredSubCats}
+            iconBg="rgb(240, 244, 248)"
+            icon="📌"
+            isOpen={openField === 'subCategory'}
+            onOpen={() => setOpenField('subCategory')}
+            onClose={() => setOpenField(null)}
           />
         )}
 
@@ -223,6 +239,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           value={form.vendor}
           onChange={set('vendor')}
           options={preference?.vendors ?? []}
+          iconBg="rgb(254, 226, 226)"
+          icon="🏪"
+          isOpen={openField === 'vendor'}
+          onOpen={() => setOpenField('vendor')}
+          onClose={() => setOpenField(null)}
           required
           allowFreeText
           error={errors.vendor}
@@ -233,6 +254,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           value={form.account}
           onChange={set('account')}
           options={preference?.accounts ?? []}
+          iconBg="rgb(220, 252, 231)"
+          icon="🏦"
+          isOpen={openField === 'account'}
+          onOpen={() => setOpenField('account')}
+          onClose={() => setOpenField(null)}
           required
           error={errors.account}
         />
@@ -242,6 +268,11 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           value={form.payment}
           onChange={set('payment')}
           options={preference?.payments ?? []}
+          iconBg="rgb(207, 250, 254)"
+          icon="💳"
+          isOpen={openField === 'payment'}
+          onOpen={() => setOpenField('payment')}
+          onClose={() => setOpenField(null)}
           required
           error={errors.payment}
         />

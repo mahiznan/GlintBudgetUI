@@ -71,6 +71,7 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});
   const [visible, setVisible] = useState(false);
+  const [openField, setOpenField] = useState<string | null>(null);
 
   // Animate in and reset form each time the drawer opens.
   // We set visible=false first (handled by open returning null above), then
@@ -225,6 +226,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               value={form.currency}
               onChange={set('currency')}
               options={currencyOptions}
+              iconBg="rgb(200, 210, 241)"
+              icon="💱"
+              isOpen={openField === 'currency'}
+              onOpen={() => setOpenField('currency')}
+              onClose={() => setOpenField(null)}
               required
               error={errors.currency}
             />
@@ -234,6 +240,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               value={form.category}
               onChange={set('category')}
               options={preference?.categories ?? []}
+              iconBg="rgb(254, 243, 224)"
+              icon="📂"
+              isOpen={openField === 'category'}
+              onOpen={() => setOpenField('category')}
+              onClose={() => setOpenField(null)}
               required
               error={errors.category}
             />
@@ -244,6 +255,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
                 value={form.subCategory}
                 onChange={set('subCategory')}
                 options={filteredSubCats}
+                iconBg="rgb(240, 244, 248)"
+                icon="📌"
+                isOpen={openField === 'subCategory'}
+                onOpen={() => setOpenField('subCategory')}
+                onClose={() => setOpenField(null)}
               />
             )}
 
@@ -252,6 +268,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               value={form.vendor}
               onChange={set('vendor')}
               options={preference?.vendors ?? []}
+              iconBg="rgb(254, 226, 226)"
+              icon="🏪"
+              isOpen={openField === 'vendor'}
+              onOpen={() => setOpenField('vendor')}
+              onClose={() => setOpenField(null)}
               required
               allowFreeText
               error={errors.vendor}
@@ -262,6 +283,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               value={form.account}
               onChange={set('account')}
               options={preference?.accounts ?? []}
+              iconBg="rgb(220, 252, 231)"
+              icon="🏦"
+              isOpen={openField === 'account'}
+              onOpen={() => setOpenField('account')}
+              onClose={() => setOpenField(null)}
               required
               error={errors.account}
             />
@@ -271,6 +297,11 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               value={form.payment}
               onChange={set('payment')}
               options={preference?.payments ?? []}
+              iconBg="rgb(207, 250, 254)"
+              icon="💳"
+              isOpen={openField === 'payment'}
+              onOpen={() => setOpenField('payment')}
+              onClose={() => setOpenField(null)}
               required
               error={errors.payment}
             />

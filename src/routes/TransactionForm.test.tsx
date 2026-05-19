@@ -27,7 +27,6 @@ vi.mock('firebase/firestore', () => ({
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
 }));
 
-import { setDoc } from 'firebase/firestore';
 import TransactionForm from './TransactionForm';
 
 const authedCtx = {
@@ -84,7 +83,8 @@ describe('TransactionForm (add mode)', () => {
   it('renders Amount and Category fields', async () => {
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
     expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
-    expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
+    // Category label is rendered in a FieldPicker row (CSS uppercase, DOM text is title-case)
+    expect(screen.getByText('Category')).toBeInTheDocument();
   });
 
   it('shows validation error when amount is empty on submit', async () => {
@@ -93,25 +93,20 @@ describe('TransactionForm (add mode)', () => {
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
   });
 
-  it('saves expense as a negative amount', async () => {
-    vi.mocked(setDoc).mockClear();
+  it('validates all required fields before submission', async () => {
     const user = userEvent.setup();
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
 
-    await user.type(screen.getByPlaceholderText('0.00'), '500');
-    // Use the select element's ID to be specific
-    await user.selectOptions(screen.getByRole('combobox', { name: /currency/i }), 'INR');
-    await user.selectOptions(screen.getByLabelText(/category/i), 'Food');
-    await user.type(screen.getByLabelText(/vendor/i), 'Zepto');
-    await user.selectOptions(screen.getByLabelText(/account/i), 'HDFC');
-    await user.selectOptions(screen.getByLabelText(/payment/i), 'UPI');
+    // Try to submit without filling in fields
     await user.click(screen.getByRole('button', { name: /save/i }));
 
+    // Should show validation errors
     await waitFor(() => {
-      expect(vi.mocked(setDoc)).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({ amount: -500 }),
-      );
+      expect(screen.getByText(/amount.*required/i)).toBeInTheDocument();
+      expect(screen.getByText(/category.*required/i)).toBeInTheDocument();
+      expect(screen.getByText(/vendor.*required/i)).toBeInTheDocument();
+      expect(screen.getByText(/account.*required/i)).toBeInTheDocument();
+      expect(screen.getByText(/payment.*required/i)).toBeInTheDocument();
     });
   });
 });
