@@ -216,10 +216,7 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
               onChange={set('amount')}
               currencyCode={form.currency || (preference?.defaultCurrency.code ?? 'INR')}
               currencySymbol={preference?.defaultCurrency.symbol ?? '₹'}
-              onCurrencyClick={() => {
-                // Focus on currency picker - it will be the next field
-                document.getElementById('currency-picker')?.focus();
-              }}
+              onCurrencyClick={() => { /* wired in Task 6 */ }}
               error={errors.amount}
             />
 

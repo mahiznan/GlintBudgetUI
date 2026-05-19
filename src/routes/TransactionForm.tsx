@@ -186,7 +186,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           currencySymbol={preference?.defaultCurrency.symbol ?? '₹'}
           onCurrencyClick={() => {
             // Focus on currency picker - it will be the next field
-            document.getElementById('currency-picker')?.focus();
+            document.getElementById('currency')?.focus();
           }}
           error={errors.amount}
         />

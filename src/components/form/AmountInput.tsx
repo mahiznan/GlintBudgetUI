@@ -38,6 +38,7 @@ export default function AmountInput({
           step="0.01"
           value={value}
           placeholder="0.00"
+          aria-label="Amount"
           onChange={(e) => onChange(e.target.value)}
           onFocus={(e) => e.target.select()}
           onKeyDown={(e) => {
