@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../context/ThemeContext', () => ({
@@ -8,8 +8,14 @@ vi.mock('../../context/ThemeContext', () => ({
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
+  AreaChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="area-chart">{children}</div>
+  ),
   Bar: () => null,
+  Area: () => null,
   XAxis: () => null,
   YAxis: () => null,
   CartesianGrid: () => null,
@@ -34,33 +40,63 @@ const makeTx = (date: string, amount: number): Transaction => ({
   icon: '🛒',
 });
 
+const baseProps = {
+  transactions: [makeTx('2026-05-17', -500), makeTx('2026-05-16', -300)],
+  period: 'month' as const,
+  currencySymbol: '₹',
+  chartType: 'bar' as const,
+  onChartTypeChange: vi.fn(),
+};
+
 describe('SpendingChart', () => {
-  it('renders a bar chart', () => {
-    render(
-      <SpendingChart
-        transactions={[makeTx('2026-05-17', -500), makeTx('2026-05-16', -300)]}
-        period="month"
-        currencySymbol="₹"
-      />,
-    );
+  it('renders a bar chart when chartType is bar', () => {
+    render(<SpendingChart {...baseProps} chartType="bar" />);
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+    expect(screen.queryByTestId('area-chart')).not.toBeInTheDocument();
+  });
+
+  it('renders an area chart when chartType is line', () => {
+    render(<SpendingChart {...baseProps} chartType="line" />);
+    expect(screen.getByTestId('area-chart')).toBeInTheDocument();
+    expect(screen.queryByTestId('bar-chart')).not.toBeInTheDocument();
   });
 
   it('renders the Spending section heading', () => {
-    render(
-      <SpendingChart transactions={[]} period="week" currencySymbol="₹" />,
-    );
+    render(<SpendingChart {...baseProps} />);
     expect(screen.getByText(/spending/i)).toBeInTheDocument();
   });
 
-  it('excludes income transactions (positive amounts) from chart data', () => {
-    render(
-      <SpendingChart
-        transactions={[makeTx('2026-05-17', 50000)]}
-        period="month"
-        currencySymbol="₹"
-      />,
-    );
+  it('shows bar and line toggle buttons', () => {
+    render(<SpendingChart {...baseProps} />);
+    expect(screen.getByRole('button', { name: /bar chart/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /line chart/i })).toBeInTheDocument();
+  });
+
+  it('calls onChartTypeChange with "line" when line button clicked', () => {
+    const onChartTypeChange = vi.fn();
+    render(<SpendingChart {...baseProps} chartType="bar" onChartTypeChange={onChartTypeChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /line chart/i }));
+    expect(onChartTypeChange).toHaveBeenCalledWith('line');
+  });
+
+  it('calls onChartTypeChange with "bar" when bar button clicked', () => {
+    const onChartTypeChange = vi.fn();
+    render(<SpendingChart {...baseProps} chartType="line" onChartTypeChange={onChartTypeChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /bar chart/i }));
+    expect(onChartTypeChange).toHaveBeenCalledWith('bar');
+  });
+
+  it('excludes income transactions (positive amounts)', () => {
+    render(<SpendingChart {...baseProps} transactions={[makeTx('2026-05-17', 50000)]} />);
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+  });
+
+  it('renders without crash for all periods', () => {
+    const periods = ['day', 'week', 'month', 'quarter', 'year'] as const;
+    periods.forEach((period) => {
+      const { unmount } = render(<SpendingChart {...baseProps} period={period} />);
+      expect(screen.getByText(/spending/i)).toBeInTheDocument();
+      unmount();
+    });
   });
 });
