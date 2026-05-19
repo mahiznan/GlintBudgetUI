@@ -100,7 +100,7 @@ export default function CategoryBreakdown({
                 </div>
                 <span
                   className={`text-xs font-mono font-semibold flex-shrink-0 ${
-                    t.amount < 0 ? 'text-red-500' : 'text-green-600'
+                    t.amount < 0 ? 'text-red-600' : 'text-brand'
                   }`}
                 >
                   {t.amount < 0 ? '-' : '+'}
@@ -116,38 +116,47 @@ export default function CategoryBreakdown({
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {categories.map(({ name, icon, total, pct }, i) => (
-            <div
-              key={name}
-              className={`flex items-center gap-3 ${
-                onItemClick
-                  ? 'cursor-pointer rounded-xl px-1 py-0.5 hover:bg-surface-alt transition-colors'
-                  : ''
-              }`}
-              onClick={() => onItemClick?.(name)}
-            >
-              <span className="text-lg w-6 text-center">{icon || '📦'}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-text truncate">{name}</span>
-                  <span className="text-xs text-text-muted ml-2 flex-shrink-0">{pct}%</span>
+          {categories.map(({ name, icon, total, pct }, i) => {
+            const barContent = (
+              <>
+                <span className="text-lg w-6 text-center">{icon || '📦'}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm font-medium text-text truncate">{name}</span>
+                    <span className="text-xs text-text-muted ml-2 flex-shrink-0">{pct}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${pct}%`,
+                        background: theme.categoryColors[i % theme.categoryColors.length]!,
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="h-1.5 rounded-full bg-border overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${pct}%`,
-                      background: theme.categoryColors[i % theme.categoryColors.length]!,
-                    }}
-                  />
-                </div>
+                <span className="text-xs font-mono font-semibold text-text flex-shrink-0">
+                  {formatCurrency(total, currencySymbol)}
+                </span>
+              </>
+            );
+
+            return onItemClick ? (
+              <button
+                key={name}
+                type="button"
+                onClick={() => onItemClick(name)}
+                className="w-full flex items-center gap-3 cursor-pointer rounded-xl px-1 py-0.5 hover:bg-surface-alt transition-colors text-left"
+              >
+                {barContent}
+                <span className="text-text-muted text-xs flex-shrink-0">›</span>
+              </button>
+            ) : (
+              <div key={name} className="flex items-center gap-3">
+                {barContent}
               </div>
-              <span className="text-xs font-mono font-semibold text-text flex-shrink-0">
-                {formatCurrency(total, currencySymbol)}
-              </span>
-              {onItemClick && <span className="text-text-muted text-xs flex-shrink-0">›</span>}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
