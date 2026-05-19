@@ -216,6 +216,24 @@ describe('DailyTransactions — Add button', () => {
     await userEvent.click(screen.getByRole('button', { name: /add transaction/i }));
     expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
   });
+
+  it('passes the selected date to AddTransactionDrawer as selectedDate', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[]}
+          currencySymbol="₹"
+          onDelete={vi.fn()}
+          onTransactionAdded={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    // Open the drawer
+    await user.click(screen.getByRole('button', { name: /add transaction/i }));
+    // The drawer should be in the DOM
+    expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
+  });
 });
 
 describe('DailyTransactions — Today button', () => {

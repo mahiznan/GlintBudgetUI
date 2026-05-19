@@ -258,6 +258,7 @@ export default function DailyTransactions({
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onSaved={() => { onTransactionAdded?.(); }}
+        selectedDate={selectedDate}
       />
     </div>
   );
