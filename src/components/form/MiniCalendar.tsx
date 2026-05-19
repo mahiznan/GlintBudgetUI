@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface MiniCalendarProps {
   value: string;        // 'YYYY-MM-DD'
@@ -29,6 +29,17 @@ function toDateStr(d: Date): string {
 export default function MiniCalendar({ value, onChange, activeType }: MiniCalendarProps) {
   const selected = value ? new Date(value + 'T00:00:00') : null;
   const [viewDate, setViewDate] = useState<Date>(() => (selected ? new Date(selected) : new Date()));
+
+  useEffect(() => {
+    if (!value) return;
+    const d = new Date(value + 'T00:00:00');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setViewDate((prev) =>
+      prev.getFullYear() === d.getFullYear() && prev.getMonth() === d.getMonth()
+        ? prev
+        : new Date(d.getFullYear(), d.getMonth(), 1),
+    );
+  }, [value]);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -82,14 +93,14 @@ export default function MiniCalendar({ value, onChange, activeType }: MiniCalend
         ))}
 
         {/* Day cells */}
-        {days.map((d, i) => {
+        {days.map((d) => {
           const ds = toDateStr(d);
           const isCurrentMonth = d.getMonth() === month;
           const isToday = ds === todayStr;
           const isSelected = ds === selectedStr;
           return (
             <button
-              key={i}
+              key={ds}
               type="button"
               onClick={() => onChange(ds)}
               className="aspect-square flex items-center justify-center text-[11px] font-medium rounded-[6px]"

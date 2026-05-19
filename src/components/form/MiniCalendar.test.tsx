@@ -34,4 +34,19 @@ describe('MiniCalendar', () => {
     await user.click(screen.getByRole('button', { name: /previous month/i }));
     expect(screen.getByText(/april 2026/i)).toBeInTheDocument();
   });
+
+  it('applies the income gradient to the selected day when activeType is income', () => {
+    const { container } = render(
+      <MiniCalendar value="2026-05-19" onChange={vi.fn()} activeType="income" />
+    );
+    // Find all day buttons and filter for the one with text content "19" (the selected day)
+    const dayButtons = Array.from(container.querySelectorAll('button')).filter(
+      (b) => !b.getAttribute('aria-label') && b.textContent === '19'
+    );
+    const selectedButton = dayButtons[0];
+    expect(selectedButton).toBeDefined();
+    // Check that the selected day has the income gradient applied
+    const style = selectedButton!.getAttribute('style');
+    expect(style).toContain('var(--brand-gradient)');
+  });
 });
