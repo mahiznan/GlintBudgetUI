@@ -1,6 +1,8 @@
-import { formatCurrency } from '../../lib/dateUtils';
+import { Link } from 'react-router-dom';
+import { formatCurrency, formatDateShort } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
+import type { Transaction } from '../../firestore/types';
 
 export interface CategoryItem {
   name: string;
@@ -16,45 +18,114 @@ interface CategoryBreakdownProps {
   mode: Mode;
   onModeChange: (mode: Mode) => void;
   currencySymbol: string;
+  drillLevel?: 0 | 1 | 2;
+  drillLabel?: string;
+  backLabel?: string;
+  onItemClick?: (name: string) => void;
+  onBack?: () => void;
+  transactions?: Transaction[];
 }
 
-export default function CategoryBreakdown({ categories, mode, onModeChange, currencySymbol }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({
+  categories,
+  mode,
+  onModeChange,
+  currencySymbol,
+  drillLevel = 0,
+  drillLabel,
+  backLabel,
+  onItemClick,
+  onBack,
+  transactions,
+}: CategoryBreakdownProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
-        <div className="inline-flex rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5">
-          {(['expense', 'income'] as Mode[]).map((m) => (
+      <div className="flex items-center justify-between gap-2">
+        {drillLevel > 0 ? (
+          <div className="flex items-center gap-2 min-w-0">
             <button
-              key={m}
               type="button"
-              onClick={() => onModeChange(m)}
-              className={[
-                'rounded-md px-3 py-1 text-xs font-semibold capitalize transition-all',
-                mode === m ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
-              ].join(' ')}
-              style={
-                mode === m
-                  ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
-                  : undefined
-              }
+              onClick={onBack}
+              className="text-xs text-text-muted hover:text-text transition-colors flex-shrink-0"
             >
-              {m}
+              {backLabel}
             </button>
-          ))}
-        </div>
+            <span className="text-sm font-semibold text-text truncate">{drillLabel}</span>
+          </div>
+        ) : (
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
+        )}
+        {drillLevel < 2 && (
+          <div className="inline-flex rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5 flex-shrink-0">
+            {(['expense', 'income'] as Mode[]).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => onModeChange(m)}
+                className={[
+                  'rounded-md px-3 py-1 text-xs font-semibold capitalize transition-all',
+                  mode === m ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
+                ].join(' ')}
+                style={
+                  mode === m
+                    ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
+                    : undefined
+                }
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      {categories.length === 0 ? (
+
+      {drillLevel === 2 && transactions ? (
+        transactions.length === 0 ? (
+          <p className="text-sm text-text-muted py-4 text-center">No transactions</p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {transactions.map((t) => (
+              <Link
+                key={t.id}
+                to={`/app/transactions/${t.id}/edit`}
+                className="flex items-center gap-3 px-1 py-2 rounded-xl hover:bg-surface-alt transition-colors"
+              >
+                <span className="text-lg w-6 text-center">{t.icon || '📦'}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-text truncate block">{t.vendor}</span>
+                  <span className="text-xs text-text-muted">{formatDateShort(t.date)}</span>
+                </div>
+                <span
+                  className={`text-xs font-mono font-semibold flex-shrink-0 ${
+                    t.amount < 0 ? 'text-red-500' : 'text-green-600'
+                  }`}
+                >
+                  {t.amount < 0 ? '-' : '+'}
+                  {formatCurrency(Math.abs(t.amount), currencySymbol)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )
+      ) : categories.length === 0 ? (
         <p className="text-sm text-text-muted py-4 text-center">
           No {mode === 'expense' ? 'expenses' : 'income'} for this period
         </p>
       ) : (
         <div className="flex flex-col gap-3">
           {categories.map(({ name, icon, total, pct }, i) => (
-            <div key={name} className="flex items-center gap-3">
+            <div
+              key={name}
+              className={`flex items-center gap-3 ${
+                onItemClick
+                  ? 'cursor-pointer rounded-xl px-1 py-0.5 hover:bg-surface-alt transition-colors'
+                  : ''
+              }`}
+              onClick={() => onItemClick?.(name)}
+            >
               <span className="text-lg w-6 text-center">{icon || '📦'}</span>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between mb-1">
@@ -64,13 +135,17 @@ export default function CategoryBreakdown({ categories, mode, onModeChange, curr
                 <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: theme.categoryColors[i % theme.categoryColors.length]! }}
+                    style={{
+                      width: `${pct}%`,
+                      background: theme.categoryColors[i % theme.categoryColors.length]!,
+                    }}
                   />
                 </div>
               </div>
               <span className="text-xs font-mono font-semibold text-text flex-shrink-0">
                 {formatCurrency(total, currencySymbol)}
               </span>
+              {onItemClick && <span className="text-text-muted text-xs flex-shrink-0">›</span>}
             </div>
           ))}
         </div>
