@@ -14,6 +14,11 @@ import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 
+type DrillState =
+  | { level: 0 }
+  | { level: 1; category: string }
+  | { level: 2; category: string; subCategory: string };
+
 export default function Dashboard() {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
@@ -23,6 +28,7 @@ export default function Dashboard() {
   const { mutate: deleteTx } = useDeleteTransaction();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
+  const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
@@ -49,30 +55,79 @@ export default function Dashboard() {
     [heroTxns],
   );
 
+  function handleModeChange(mode: CategoryMode) {
+    setCategoryMode(mode);
+    setDrillState({ level: 0 });
+  }
+
   const categoryItems = useMemo(() => {
     const filtered =
       categoryMode === 'expense'
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
-    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-      (acc, t) => {
-        if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-        acc[t.category]!.total += Math.abs(t.amount);
-        return acc;
-      },
-      {},
+
+    if (drillState.level === 0) {
+      const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
+        (acc, t) => {
+          if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+          acc[t.category]!.total += Math.abs(t.amount);
+          return acc;
+        },
+        {},
+      );
+      const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
+      return Object.entries(totals)
+        .sort(([, a], [, b]) => b.total - a.total)
+        .map(([name, { total, icon }]) => ({
+          name,
+          icon,
+          total,
+          pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+        }));
+    }
+
+    if (drillState.level === 1) {
+      const catTxns = filtered.filter((t) => t.category === drillState.category);
+      const totals = catTxns.reduce<Record<string, { total: number; icon: string }>>(
+        (acc, t) => {
+          if (!acc[t.subCategory]) acc[t.subCategory] = { total: 0, icon: t.icon };
+          acc[t.subCategory]!.total += Math.abs(t.amount);
+          return acc;
+        },
+        {},
+      );
+      const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
+      return Object.entries(totals)
+        .sort(([, a], [, b]) => b.total - a.total)
+        .map(([name, { total, icon }]) => ({
+          name,
+          icon,
+          total,
+          pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+        }));
+    }
+
+    // level 2: single item at 100% for the donut
+    const subcatTxns = filtered.filter(
+      (t) => t.category === drillState.category && t.subCategory === drillState.subCategory,
     );
-    const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
-    return Object.entries(totals)
-      .sort(([, a], [, b]) => b.total - a.total)
-      .slice(0, 5)
-      .map(([name, { total, icon }]) => ({
-        name,
-        icon,
-        total,
-        pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-      }));
-  }, [heroTxns, categoryMode]);
+    const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
+    const icon = subcatTxns[0]?.icon ?? '📦';
+    return [{ name: drillState.subCategory, icon, total, pct: 100 }];
+  }, [heroTxns, categoryMode, drillState]);
+
+  const drillTransactions = useMemo(() => {
+    if (drillState.level !== 2) return [];
+    const filtered =
+      categoryMode === 'expense'
+        ? heroTxns.filter((t) => t.amount < 0)
+        : heroTxns.filter((t) => t.amount > 0);
+    return filtered
+      .filter(
+        (t) => t.category === drillState.category && t.subCategory === drillState.subCategory,
+      )
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [heroTxns, categoryMode, drillState]);
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -112,8 +167,38 @@ export default function Dashboard() {
         <CategoryBreakdown
           categories={categoryItems}
           mode={categoryMode}
-          onModeChange={setCategoryMode}
+          onModeChange={handleModeChange}
           currencySymbol={currencySymbol}
+          drillLevel={drillState.level}
+          drillLabel={
+            drillState.level === 1
+              ? drillState.category
+              : drillState.level === 2
+                ? drillState.subCategory
+                : undefined
+          }
+          backLabel={
+            drillState.level === 1
+              ? '← Back'
+              : drillState.level === 2
+                ? `← ${drillState.category}`
+                : undefined
+          }
+          onBack={
+            drillState.level === 1
+              ? () => setDrillState({ level: 0 })
+              : drillState.level === 2
+                ? () => setDrillState({ level: 1, category: drillState.category })
+                : undefined
+          }
+          onItemClick={(name) => {
+            if (drillState.level === 0) {
+              setDrillState({ level: 1, category: name });
+            } else if (drillState.level === 1) {
+              setDrillState({ level: 2, category: drillState.category, subCategory: name });
+            }
+          }}
+          transactions={drillState.level === 2 ? drillTransactions : undefined}
         />
 
         <div className="col-span-2 flex flex-col gap-4">
