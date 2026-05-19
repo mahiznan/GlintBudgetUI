@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrillState({ level: 0 });
   }, [period]);
 
