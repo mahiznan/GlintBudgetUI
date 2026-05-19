@@ -45,10 +45,6 @@ interface FormErrors {
   date?: string;
 }
 
-function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
 function toLocalDateStr(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -77,7 +73,7 @@ function makeEmpty(selectedDate?: Date): FormState {
     vendor: '',
     account: '',
     payment: '',
-    date: selectedDate ? toLocalDateStr(selectedDate) : toDateStr(new Date()),
+    date: toLocalDateStr(selectedDate ?? new Date()),
     notes: '',
   };
 }

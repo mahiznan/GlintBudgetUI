@@ -64,8 +64,8 @@ describe('AddTransactionDrawer', () => {
         selectedDate={new Date('2026-03-15T00:00:00')}
       />
     );
-    // The date field row shows a formatted date containing "15"
-    expect(screen.getByText(/15/)).toBeInTheDocument();
+    // The date field row shows a formatted date for March 15, 2026
+    expect(screen.getByText(/march 15, 2026/i)).toBeInTheDocument();
   });
 
   it('renders Expense and Income toggle buttons', () => {
@@ -131,6 +131,22 @@ describe('AddTransactionDrawer', () => {
     await user.keyboard('{Escape}');
     vi.runAllTimers();
     expect(onClose).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('pressing Escape when a picker is open closes the picker but not the drawer', async () => {
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const onClose = vi.fn();
+    render(<AddTransactionDrawer open={true} onClose={onClose} onSaved={vi.fn()} />);
+    // Open the vendor picker
+    await user.click(screen.getByRole('button', { name: /vendor/i }));
+    expect(screen.getByPlaceholderText(/search vendor/i)).toBeInTheDocument();
+    // Press Escape — should close the picker, not the drawer
+    await user.keyboard('{Escape}');
+    vi.runAllTimers();
+    expect(screen.queryByPlaceholderText(/search vendor/i)).not.toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
 });
