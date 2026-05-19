@@ -330,21 +330,19 @@ export default function AddTransactionDrawer({
               error={errors.category}
             />
 
-            {/* Sub-category — only when category has children */}
-            {filteredSubCats.length > 0 && (
-              <FieldPicker
-                label="Sub-category"
-                value={form.subCategory}
-                onChange={set('subCategory')}
-                options={filteredSubCats}
-                iconBg="#fdf4ff"
-                icon="🏷️"
-                isOpen={activeField === 'subCategory'}
-                onOpen={() => open_(activeField === 'subCategory' ? null : 'subCategory')}
-                onClose={() => setActiveField(null)}
-                onNext={() => setActiveField('date')}
-              />
-            )}
+            {/* Sub-category — always shown; empty when selected category has no children */}
+            <FieldPicker
+              label="Sub-category"
+              value={form.subCategory}
+              onChange={set('subCategory')}
+              options={filteredSubCats}
+              iconBg="#fdf4ff"
+              icon="🏷️"
+              isOpen={activeField === 'subCategory'}
+              onOpen={() => open_(activeField === 'subCategory' ? null : 'subCategory')}
+              onClose={() => setActiveField(null)}
+              onNext={() => setActiveField('date')}
+            />
 
             {/* Date row */}
             <button

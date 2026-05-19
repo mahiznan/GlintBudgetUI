@@ -43,8 +43,8 @@ export default function SearchPicker({
     inputRef.current?.focus();
   }, []);
 
-  const filtered = options.filter((o) =>
-    o.name.toLowerCase().includes(query.toLowerCase())
+  const filtered = options.filter(
+    (o) => o.name != null && o.name.toLowerCase().includes(query.toLowerCase()),
   );
 
   function select(name: string) {
