@@ -42,4 +42,5 @@ export interface Preference {
   bookmarkedCurrencies: string[];
   defaultEntries: Record<string, string> | null;
   theme?: string;  // theme ID: "lime" | "forest" | "ocean" | "amber"
+  spendingChartType?: 'bar' | 'line';
 }

@@ -53,6 +53,8 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     defaultEntries: raw['default_entries'] !== undefined
       ? decodeDefaultEntries(raw['default_entries'])
       : DEFAULT_ENTRIES,
+    theme: raw['theme'] as string | undefined,
+    spendingChartType: raw['spendingChartType'] as 'bar' | 'line' | undefined,
   };
 }
 
