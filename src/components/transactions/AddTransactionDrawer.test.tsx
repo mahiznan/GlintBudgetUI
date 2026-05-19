@@ -1,3 +1,4 @@
+// src/components/transactions/AddTransactionDrawer.test.tsx
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -15,12 +16,12 @@ import AddTransactionDrawer from './AddTransactionDrawer';
 
 const stubPreference = {
   id: 'user123',
-  categories: [],
-  subCategories: [],
-  vendors: [],
-  accounts: [],
-  payments: [],
-  bookmarkedCurrencies: [],
+  categories: [{ name: 'Food', emoji: '🍔', type: 'category', parent: null }],
+  subCategories: [{ name: 'Restaurants', emoji: '🍴', type: 'sub_category', parent: 'Food' }],
+  vendors: [{ name: 'Swiggy', emoji: '🛒', type: 'vendor', parent: null }],
+  accounts: [{ name: 'HDFC', emoji: '🏦', type: 'account', parent: null }],
+  payments: [{ name: 'UPI', emoji: '📱', type: 'payment', parent: null }],
+  bookmarkedCurrencies: ['INR', 'USD'],
   defaultCurrency: { name: 'Indian Rupee', code: 'INR', symbol: '₹' },
   defaultEntries: {},
 };
@@ -54,6 +55,52 @@ describe('AddTransactionDrawer', () => {
     expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
   });
 
+  it('pre-fills the date from the selectedDate prop', () => {
+    render(
+      <AddTransactionDrawer
+        open={true}
+        onClose={vi.fn()}
+        onSaved={vi.fn()}
+        selectedDate={new Date('2026-03-15T00:00:00')}
+      />
+    );
+    // The date field row shows a formatted date containing "15"
+    expect(screen.getByText(/15/)).toBeInTheDocument();
+  });
+
+  it('renders Expense and Income toggle buttons', () => {
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /expense/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /income/i })).toBeInTheDocument();
+  });
+
+  it('renders the INR currency badge', () => {
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /currency/i })).toHaveTextContent('INR');
+  });
+
+  it('opens the vendor picker when the Vendor row is clicked', async () => {
+    const user = userEvent.setup();
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: /vendor/i }));
+    expect(screen.getByPlaceholderText(/search vendor/i)).toBeInTheDocument();
+  });
+
+  it('closes the vendor picker and opens the category picker when Category row is clicked', async () => {
+    const user = userEvent.setup();
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: /vendor/i }));
+    expect(screen.getByPlaceholderText(/search vendor/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^category/i }));
+    expect(screen.queryByPlaceholderText(/search vendor/i)).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/search category/i)).toBeInTheDocument();
+  });
+
+  it('renders the Save button', () => {
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
+  });
+
   it('clicking Cancel calls onClose after animation', async () => {
     vi.useFakeTimers();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
@@ -70,8 +117,7 @@ describe('AddTransactionDrawer', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const onClose = vi.fn();
     render(<AddTransactionDrawer open={true} onClose={onClose} onSaved={vi.fn()} />);
-    const backdrop = document.querySelector('[data-testid="drawer-backdrop"]') as HTMLElement;
-    await user.click(backdrop);
+    await user.click(document.querySelector('[data-testid="drawer-backdrop"]')!);
     vi.runAllTimers();
     expect(onClose).toHaveBeenCalled();
     vi.useRealTimers();

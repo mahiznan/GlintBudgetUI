@@ -37,6 +37,7 @@ export default function FieldPicker({
       {/* Row header */}
       <button
         type="button"
+        aria-label={label}
         onClick={onOpen}
         className="w-full flex items-center gap-[10px] py-[10px] border-b border-[#f1f5f9] text-left"
       >

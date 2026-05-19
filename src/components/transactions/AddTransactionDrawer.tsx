@@ -1,12 +1,26 @@
-import { useState, useEffect } from 'react';
+// src/components/transactions/AddTransactionDrawer.tsx
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { usePreferenceContext } from '../../context/PreferenceContext';
 import { useAddTransaction } from '../../hooks/useMutateTransaction';
-import AmountInput from '../form/AmountInput';
 import TypeToggle from '../form/TypeToggle';
+import AmountInput from '../form/AmountInput';
 import FieldPicker from '../form/FieldPicker';
+import MiniCalendar from '../form/MiniCalendar';
+import SearchPicker from '../form/SearchPicker';
 import type { Transaction, BudgetData } from '../../firestore/types';
+
+type ActiveField =
+  | 'currency'
+  | 'vendor'
+  | 'category'
+  | 'subCategory'
+  | 'date'
+  | 'account'
+  | 'payment'
+  | 'notes'
+  | null;
 
 interface FormState {
   type: 'expense' | 'income';
@@ -17,7 +31,7 @@ interface FormState {
   vendor: string;
   account: string;
   payment: string;
-  date: string;
+  date: string; // 'YYYY-MM-DD'
   notes: string;
 }
 
@@ -31,9 +45,47 @@ interface FormErrors {
   date?: string;
 }
 
+function toDateStr(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function formatPickerDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function makeEmpty(selectedDate?: Date): FormState {
+  return {
+    type: 'expense',
+    amount: '',
+    currency: '',
+    category: '',
+    subCategory: '',
+    vendor: '',
+    account: '',
+    payment: '',
+    date: selectedDate ? toLocalDateStr(selectedDate) : toDateStr(new Date()),
+    notes: '',
+  };
+}
+
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.amount || parseFloat(form.amount) <= 0) errors.amount = 'Amount is required and must be positive';
+  if (!form.amount || parseFloat(form.amount) <= 0)
+    errors.amount = 'Amount is required and must be positive';
   if (!form.category) errors.category = 'Category is required';
   if (!form.vendor) errors.vendor = 'Vendor is required';
   if (!form.account) errors.account = 'Account is required';
@@ -43,54 +95,44 @@ function validate(form: FormState): FormErrors {
   return errors;
 }
 
-const EMPTY: FormState = {
-  type: 'expense',
-  amount: '',
-  currency: '',
-  category: '',
-  subCategory: '',
-  vendor: '',
-  account: '',
-  payment: '',
-  date: new Date().toISOString().slice(0, 10),
-  notes: '',
-};
-
-interface AddTransactionDrawerProps {
+export interface AddTransactionDrawerProps {
   open: boolean;
   onClose: () => void;
   onSaved: () => void;
+  selectedDate?: Date;
 }
 
-export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTransactionDrawerProps) {
+export default function AddTransactionDrawer({
+  open,
+  onClose,
+  onSaved,
+  selectedDate,
+}: AddTransactionDrawerProps) {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
   const { mutate: addTx, loading, error: mutateError } = useAddTransaction();
 
-  const [form, setForm] = useState<FormState>(EMPTY);
+  const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate));
   const [errors, setErrors] = useState<FormErrors>({});
   const [visible, setVisible] = useState(false);
-  const [openField, setOpenField] = useState<string | null>(null);
+  const [activeField, setActiveField] = useState<ActiveField>(null);
+  const saveRef = useRef<HTMLButtonElement>(null);
 
-  // Animate in and reset form each time the drawer opens.
-  // We set visible=false first (handled by open returning null above), then
-  // set visible=true after a microtask so CSS transition fires in real browsers.
+  // Animate in + reset form each open
   useEffect(() => {
     if (!open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
       return;
     }
-    setForm(EMPTY);
+    setForm(makeEmpty(selectedDate));
     setErrors({});
-    setOpenField(null);
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => setVisible(true))
-    );
-  }, [open]);
+    setActiveField(null);
+    requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Seed preference defaults when drawer opens
+  // Seed preference defaults on open
   useEffect(() => {
     if (!open || !preference) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -104,16 +146,22 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
     }));
   }, [preference, open]);
 
-  // Escape key closes the drawer
+  // Escape key: close picker first, then close drawer
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') startClose();
+      if (e.key === 'Escape') {
+        if (activeField !== null) {
+          setActiveField(null);
+        } else {
+          startClose();
+        }
+      }
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, activeField]);
 
   function startClose() {
     setVisible(false);
@@ -129,6 +177,10 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
       });
   }
 
+  function open_(field: ActiveField) {
+    setActiveField(field);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
@@ -139,15 +191,16 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
       user_id: uid,
       category: form.category,
       subCategory: form.subCategory,
-      date: new Date(form.date),
+      date: new Date(form.date + 'T00:00:00'),
       account: form.account,
       vendor: form.vendor,
       payment: form.payment,
       currency: form.currency,
       notes: form.notes,
-      amount: form.type === 'expense'
-        ? -Math.abs(parseFloat(form.amount))
-        : Math.abs(parseFloat(form.amount)),
+      amount:
+        form.type === 'expense'
+          ? -Math.abs(parseFloat(form.amount))
+          : Math.abs(parseFloat(form.amount)),
       icon: categoryObj?.emoji ?? '',
     };
     try {
@@ -168,6 +221,13 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
     type: 'currency',
     parent: null,
   }));
+
+  const saveGradient =
+    form.type === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)';
+  const saveShadow =
+    form.type === 'expense'
+      ? '0 4px 14px rgba(220,38,38,0.30)'
+      : '0 4px 14px rgba(34,197,94,0.30)';
 
   if (!open) return null;
 
@@ -208,133 +268,207 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
           </button>
         </div>
 
-        {/* Scrollable form body */}
+        {/* Type toggle — full width, no padding */}
+        <TypeToggle value={form.type} onChange={(v) => set('type')(v)} />
+
+        {/* Amount row */}
+        <AmountInput
+          value={form.amount}
+          onChange={set('amount')}
+          currencyCode={form.currency || (preference?.defaultCurrency.code ?? 'INR')}
+          currencySymbol={preference?.defaultCurrency.symbol ?? '₹'}
+          onCurrencyClick={() => open_(activeField === 'currency' ? null : 'currency')}
+          onNext={() => open_('vendor')}
+          error={errors.amount}
+        />
+
+        {/* Currency picker (inline, between amount and fields) */}
+        {activeField === 'currency' && (
+          <SearchPicker
+            label="Currency"
+            value={form.currency}
+            options={currencyOptions}
+            onSelect={(v) => { set('currency')(v); setActiveField('vendor'); }}
+            onClose={() => setActiveField(null)}
+          />
+        )}
+
+        {errors.currency && (
+          <p className="text-xs text-red-600 px-[18px]">{errors.currency}</p>
+        )}
+
+        {/* Scrollable field list */}
         <div className="flex-1 overflow-y-auto">
-          <form id="add-tx-form" onSubmit={handleSubmit} className="flex flex-col gap-5 p-5">
-            <TypeToggle value={form.type} onChange={set('type')} />
+          <form id="add-tx-form" onSubmit={handleSubmit} className="flex flex-col px-[18px] py-[8px]">
 
-            <AmountInput
-              value={form.amount}
-              onChange={set('amount')}
-              currencyCode={form.currency || (preference?.defaultCurrency.code ?? 'INR')}
-              currencySymbol={preference?.defaultCurrency.symbol ?? '₹'}
-              onCurrencyClick={() => { /* wired in Task 6 */ }}
-              error={errors.amount}
-            />
-
+            {/* Vendor */}
             <FieldPicker
-              label="Currency"
-              value={form.currency}
-              onChange={set('currency')}
-              options={currencyOptions}
-              iconBg="rgb(200, 210, 241)"
-              icon="💱"
-              isOpen={openField === 'currency'}
-              onOpen={() => setOpenField('currency')}
-              onClose={() => setOpenField(null)}
+              label="Vendor"
+              value={form.vendor}
+              onChange={set('vendor')}
+              options={preference?.vendors ?? []}
+              iconBg="#eff6ff"
+              icon="🏪"
+              isOpen={activeField === 'vendor'}
+              onOpen={() => open_(activeField === 'vendor' ? null : 'vendor')}
+              onClose={() => setActiveField(null)}
+              onNext={() => setActiveField('category')}
               required
-              error={errors.currency}
+              allowFreeText
+              error={errors.vendor}
             />
 
+            {/* Category */}
             <FieldPicker
               label="Category"
               value={form.category}
               onChange={set('category')}
               options={preference?.categories ?? []}
-              iconBg="rgb(254, 243, 224)"
+              iconBg="#fdf4ff"
               icon="📂"
-              isOpen={openField === 'category'}
-              onOpen={() => setOpenField('category')}
-              onClose={() => setOpenField(null)}
+              isOpen={activeField === 'category'}
+              onOpen={() => open_(activeField === 'category' ? null : 'category')}
+              onClose={() => setActiveField(null)}
+              onNext={() => setActiveField(filteredSubCats.length > 0 ? 'subCategory' : 'date')}
               required
               error={errors.category}
             />
 
+            {/* Sub-category — only when category has children */}
             {filteredSubCats.length > 0 && (
               <FieldPicker
                 label="Sub-category"
                 value={form.subCategory}
                 onChange={set('subCategory')}
                 options={filteredSubCats}
-                iconBg="rgb(240, 244, 248)"
-                icon="📌"
-                isOpen={openField === 'subCategory'}
-                onOpen={() => setOpenField('subCategory')}
-                onClose={() => setOpenField(null)}
+                iconBg="#fdf4ff"
+                icon="🏷️"
+                isOpen={activeField === 'subCategory'}
+                onOpen={() => open_(activeField === 'subCategory' ? null : 'subCategory')}
+                onClose={() => setActiveField(null)}
+                onNext={() => setActiveField('date')}
               />
             )}
 
-            <FieldPicker
-              label="Vendor"
-              value={form.vendor}
-              onChange={set('vendor')}
-              options={preference?.vendors ?? []}
-              iconBg="rgb(254, 226, 226)"
-              icon="🏪"
-              isOpen={openField === 'vendor'}
-              onOpen={() => setOpenField('vendor')}
-              onClose={() => setOpenField(null)}
-              required
-              allowFreeText
-              error={errors.vendor}
-            />
-
-            <FieldPicker
-              label="Account"
-              value={form.account}
-              onChange={set('account')}
-              options={preference?.accounts ?? []}
-              iconBg="rgb(220, 252, 231)"
-              icon="🏦"
-              isOpen={openField === 'account'}
-              onOpen={() => setOpenField('account')}
-              onClose={() => setOpenField(null)}
-              required
-              error={errors.account}
-            />
-
-            <FieldPicker
-              label="Payment"
-              value={form.payment}
-              onChange={set('payment')}
-              options={preference?.payments ?? []}
-              iconBg="rgb(207, 250, 254)"
-              icon="💳"
-              isOpen={openField === 'payment'}
-              onOpen={() => setOpenField('payment')}
-              onClose={() => setOpenField(null)}
-              required
-              error={errors.payment}
-            />
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor="drawer-date" className="text-sm font-semibold text-text">
-                Date <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="drawer-date"
-                type="date"
+            {/* Date row */}
+            <button
+              type="button"
+              onClick={() => open_(activeField === 'date' ? null : 'date')}
+              className="w-full flex items-center gap-[10px] py-[10px] border-b border-[#f1f5f9] text-left"
+            >
+              <div className="w-[28px] h-[28px] rounded-[8px] bg-[#ecfdf5] flex items-center justify-center text-[13px] flex-shrink-0">
+                📅
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                  Date <span className="text-red-500">*</span>
+                </div>
+                <div className="text-[13px] font-medium mt-[1px] text-text">
+                  {formatPickerDate(form.date)}
+                </div>
+              </div>
+              <span className="text-[11px] text-[#cbd5e1]">›</span>
+            </button>
+            {activeField === 'date' && (
+              <MiniCalendar
                 value={form.date}
-                onChange={(e) => set('date')(e.target.value)}
-                className="rounded-xl border border-border px-4 py-3 text-sm bg-surface outline-none focus:ring-2 focus:ring-brand/30 text-text"
+                onChange={(v) => { set('date')(v); setActiveField('account'); }}
+                activeType={form.type}
               />
-              {errors.date && <p className="text-xs text-red-600">{errors.date}</p>}
-            </div>
+            )}
+            {errors.date && <p className="text-xs text-red-600">{errors.date}</p>}
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="drawer-notes" className="text-sm font-semibold text-text">Notes</label>
-              <textarea
-                id="drawer-notes"
-                value={form.notes}
-                onChange={(e) => set('notes')(e.target.value)}
-                rows={3}
-                placeholder="Optional notes…"
-                className="rounded-xl border border-border px-4 py-3 text-sm bg-surface outline-none focus:ring-2 focus:ring-brand/30 text-text resize-none"
-              />
+            {/* Account + Payment — side by side */}
+            <div className="flex border-b border-[#f1f5f9]">
+              <button
+                type="button"
+                onClick={() => open_(activeField === 'account' ? null : 'account')}
+                className="flex flex-1 items-center gap-[10px] py-[10px] pr-[10px] border-r border-[#f1f5f9] text-left"
+              >
+                <div className="w-[28px] h-[28px] rounded-[8px] bg-[#fff7ed] flex items-center justify-center text-[13px] flex-shrink-0">🏦</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                    Account <span className="text-red-500">*</span>
+                  </div>
+                  <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}>
+                    {form.account || 'Select…'}
+                  </div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => open_(activeField === 'payment' ? null : 'payment')}
+                className="flex flex-1 items-center gap-[10px] py-[10px] pl-[10px] text-left"
+              >
+                <div className="w-[28px] h-[28px] rounded-[8px] bg-[#fff1f2] flex items-center justify-center text-[13px] flex-shrink-0">💳</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                    Payment <span className="text-red-500">*</span>
+                  </div>
+                  <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}>
+                    {form.payment || 'Select…'}
+                  </div>
+                </div>
+              </button>
             </div>
+            {activeField === 'account' && (
+              <SearchPicker
+                label="Account"
+                value={form.account}
+                options={preference?.accounts ?? []}
+                onSelect={(v) => { set('account')(v); setActiveField('payment'); }}
+                onClose={() => setActiveField(null)}
+              />
+            )}
+            {activeField === 'payment' && (
+              <SearchPicker
+                label="Payment"
+                value={form.payment}
+                options={preference?.payments ?? []}
+                onSelect={(v) => { set('payment')(v); setActiveField('notes'); }}
+                onClose={() => setActiveField(null)}
+              />
+            )}
+            {errors.account && <p className="text-xs text-red-600">{errors.account}</p>}
+            {errors.payment && <p className="text-xs text-red-600">{errors.payment}</p>}
+
+            {/* Notes */}
+            <button
+              type="button"
+              onClick={() => open_(activeField === 'notes' ? null : 'notes')}
+              className="w-full flex items-center gap-[10px] py-[10px] text-left"
+            >
+              <div className="w-[28px] h-[28px] rounded-[8px] bg-[#f8fafc] flex items-center justify-center text-[13px] flex-shrink-0">📝</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">Notes</div>
+                <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}>
+                  {form.notes || 'Optional notes…'}
+                </div>
+              </div>
+            </button>
+            {activeField === 'notes' && (
+              <div className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[10px]">
+                <textarea
+                  autoFocus
+                  value={form.notes}
+                  onChange={(e) => set('notes')(e.target.value)}
+                  rows={3}
+                  placeholder="Add a note…"
+                  className="w-full text-[13px] text-text bg-surface border border-border rounded-[10px] px-3 py-2 outline-none focus:border-brand resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      setActiveField(null);
+                      saveRef.current?.focus();
+                    }
+                    if (e.key === 'Escape') setActiveField(null);
+                  }}
+                />
+              </div>
+            )}
 
             {mutateError && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">
+              <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 mt-3">
                 {mutateError.message}
               </p>
             )}
@@ -351,11 +485,12 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
             Cancel
           </button>
           <button
+            ref={saveRef}
             type="submit"
             form="add-tx-form"
             disabled={loading}
             className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
-            style={{ background: 'var(--brand-gradient)' }}
+            style={{ background: saveGradient, boxShadow: saveShadow }}
           >
             {loading ? 'Saving…' : 'Save'}
           </button>
