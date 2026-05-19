@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactions } from '../hooks/useTransactions';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
-import { filterByPeriod } from '../lib/dateUtils';
+import { filterByPeriod, getPeriodRange } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
@@ -40,6 +40,11 @@ export default function Dashboard() {
   const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
 
   const periodTxns = useMemo(() => filterByPeriod(allTxns, period), [allTxns, period]);
+
+  const periodDays = useMemo(() => {
+    const { start, end } = getPeriodRange(period);
+    return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+  }, [period]);
 
   const heroTxns = useMemo(
     () =>
@@ -215,7 +220,7 @@ export default function Dashboard() {
         </div>
         <div className="flex flex-col gap-4">
           <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
-          <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} />
+          <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} periodDays={periodDays} />
         </div>
       </div>
 

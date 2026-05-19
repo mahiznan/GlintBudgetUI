@@ -4,9 +4,10 @@ import { formatCurrency } from '../../lib/dateUtils';
 interface QuickStatsProps {
   transactions: Transaction[];
   currencySymbol: string;
+  periodDays: number;
 }
 
-export default function QuickStats({ transactions, currencySymbol }: QuickStatsProps) {
+export default function QuickStats({ transactions, currencySymbol, periodDays }: QuickStatsProps) {
   const expenses = transactions
     .filter((t) => t.amount < 0)
     .map((t) => ({ ...t, amount: Math.abs(t.amount) }));
@@ -16,9 +17,8 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
     null,
   );
 
-  const avg = expenses.length > 0
-    ? expenses.reduce((s, t) => s + t.amount, 0) / expenses.length
-    : 0;
+  const totalExpense = expenses.reduce((s, t) => s + t.amount, 0);
+  const avgPerDay = periodDays > 0 ? totalExpense / periodDays : 0;
 
   const topPayment = expenses.reduce<Record<string, number>>((acc, t) => {
     acc[t.payment] = (acc[t.payment] ?? 0) + 1;
@@ -34,7 +34,7 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
 
   const items = [
     { label: 'Highest spend', value: highest ? formatCurrency(highest.amount, currencySymbol) : '—' },
-    { label: 'Avg per transaction', value: formatCurrency(avg, currencySymbol) },
+    { label: 'Avg / day', value: formatCurrency(avgPerDay, currencySymbol) },
     { label: 'Top payment', value: mostUsedPayment },
     { label: 'Top category', value: topCategory },
   ];
