@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getPeriodRange,
+  getChartDateRange,
   formatCurrency,
   groupByDay,
   groupByMonth,
@@ -185,5 +186,72 @@ describe('dayOfWeekOffset', () => {
   it('returns 4 for Friday (getDay=5)', () => {
     const fri = new Date(2026, 4, 22); // Friday
     expect(dayOfWeekOffset(fri)).toBe(4);
+  });
+});
+
+describe('getChartDateRange', () => {
+  const base = new Date('2026-05-19T12:00:00'); // Tuesday
+
+  it('day: start = 14 days ago at 00:00, end = today at 23:59:59.999', () => {
+    const { start, end } = getChartDateRange('day', base);
+    expect(start.getFullYear()).toBe(2026);
+    expect(start.getMonth()).toBe(4); // May
+    expect(start.getDate()).toBe(5); // 19 - 14 = 5
+    expect(start.getHours()).toBe(0);
+    expect(start.getMinutes()).toBe(0);
+    expect(end.getDate()).toBe(19);
+    expect(end.getHours()).toBe(23);
+    expect(end.getMinutes()).toBe(59);
+  });
+
+  it('day: produces 15 distinct day-keys when bucketed', () => {
+    const { start, end } = getChartDateRange('day', base);
+    const days: string[] = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      days.push(d.toISOString().slice(0, 10));
+    }
+    expect(days).toHaveLength(15);
+  });
+
+  it('week: start = Monday of current week, end = Sunday', () => {
+    // 2026-05-19 is Tuesday → Monday = May 18
+    const { start, end } = getChartDateRange('week', base);
+    expect(start.getDate()).toBe(18); // Monday May 18
+    expect(start.getDay()).toBe(1);   // 1 = Monday
+    expect(end.getDate()).toBe(24);   // Sunday May 24
+    expect(end.getDay()).toBe(0);     // 0 = Sunday
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('week: end is Sunday when today is Sunday', () => {
+    const sunday = new Date('2026-05-17T12:00:00'); // Sunday
+    const { start, end } = getChartDateRange('week', sunday);
+    expect(start.getDate()).toBe(11); // Monday May 11
+    expect(end.getDate()).toBe(17);   // Sunday May 17
+  });
+
+  it('month: start = 1st of current month, end = today', () => {
+    const { start, end } = getChartDateRange('month', base);
+    expect(start.getDate()).toBe(1);
+    expect(start.getMonth()).toBe(4); // May
+    expect(end.getDate()).toBe(19);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('quarter: start = first day of Q2 (April 1), end = today', () => {
+    // May is Q2 → starts April 1
+    const { start, end } = getChartDateRange('quarter', base);
+    expect(start.getMonth()).toBe(3); // April
+    expect(start.getDate()).toBe(1);
+    expect(end.getDate()).toBe(19); // today
+  });
+
+  it('year: start = Jan 1, end = Dec 31', () => {
+    const { start, end } = getChartDateRange('year', base);
+    expect(start.getMonth()).toBe(0);
+    expect(start.getDate()).toBe(1);
+    expect(end.getMonth()).toBe(11);
+    expect(end.getDate()).toBe(31);
+    expect(end.getFullYear()).toBe(2026);
   });
 });

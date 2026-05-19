@@ -47,6 +47,54 @@ export function getPeriodRange(
   return { start, end };
 }
 
+export function getChartDateRange(
+  period: Period,
+  now = new Date(),
+): { start: Date; end: Date } {
+  const start = new Date(now);
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  switch (period) {
+    case 'day':
+      start.setDate(start.getDate() - 14);
+      start.setHours(0, 0, 0, 0);
+      break;
+
+    case 'week': {
+      const day = start.getDay(); // 0 = Sunday
+      const diff = day === 0 ? -6 : 1 - day;
+      start.setDate(start.getDate() + diff);
+      start.setHours(0, 0, 0, 0);
+      const sunday = new Date(start);
+      sunday.setDate(start.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      return { start, end: sunday };
+    }
+
+    case 'month':
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      break;
+
+    case 'quarter': {
+      const q = Math.floor(start.getMonth() / 3);
+      start.setMonth(q * 3, 1);
+      start.setHours(0, 0, 0, 0);
+      break;
+    }
+
+    case 'year':
+      start.setMonth(0, 1);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(11, 31);
+      end.setHours(23, 59, 59, 999);
+      break;
+  }
+
+  return { start, end };
+}
+
 export function filterByPeriod(
   txns: Transaction[],
   period: Period,
