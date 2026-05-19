@@ -77,17 +77,21 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
   // set visible=true after a microtask so CSS transition fires in real browsers.
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
       return;
     }
     setForm(EMPTY);
     setErrors({});
-    setVisible(true);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => setVisible(true))
+    );
   }, [open]);
 
   // Seed preference defaults when drawer opens
   useEffect(() => {
     if (!open || !preference) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((prev) => ({
       ...prev,
       currency: prev.currency || preference.defaultCurrency.code,
