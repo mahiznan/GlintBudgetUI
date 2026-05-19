@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
@@ -29,6 +29,10 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
   const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
+
+  useEffect(() => {
+    setDrillState({ level: 0 });
+  }, [period]);
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
