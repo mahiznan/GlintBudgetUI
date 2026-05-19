@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import type { ReactNode, KeyboardEvent } from 'react';
 import type { BudgetData } from '../../firestore/types';
 
 interface SearchPickerProps {
@@ -10,7 +11,7 @@ interface SearchPickerProps {
   allowFreeText?: boolean;
 }
 
-function highlightMatch(text: string, query: string): React.ReactNode {
+function highlightMatch(text: string, query: string): ReactNode {
   if (!query.trim()) return text;
   const idx = text.toLowerCase().indexOf(query.toLowerCase());
   if (idx === -1) return text;
@@ -50,7 +51,7 @@ export default function SearchPicker({
     onSelect(name);
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setHlIdx((i) => Math.min(i + 1, filtered.length - 1));

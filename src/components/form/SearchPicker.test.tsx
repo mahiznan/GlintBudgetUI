@@ -99,4 +99,30 @@ describe('SearchPicker', () => {
     await user.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('ArrowDown moves the highlight and Enter selects the second item', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(
+      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+    );
+    await user.click(screen.getByPlaceholderText(/search vendor/i));
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Enter}');
+    // After one ArrowDown from index 0, the second option (Amazon) should be selected
+    expect(onSelect).toHaveBeenCalledWith('Amazon');
+  });
+
+  it('ArrowUp clamps at the first item and Enter still selects it', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(
+      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+    );
+    await user.click(screen.getByPlaceholderText(/search vendor/i));
+    // Arrow up from 0 should clamp at 0, not go negative
+    await user.keyboard('{ArrowUp}');
+    await user.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenCalledWith('Swiggy');
+  });
 });
