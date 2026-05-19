@@ -83,7 +83,7 @@ function EditWrapper({ children }: { children: React.ReactNode }) {
 describe('TransactionForm (add mode)', () => {
   it('renders Amount and Category fields', async () => {
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
-    expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
   });
 
@@ -98,8 +98,9 @@ describe('TransactionForm (add mode)', () => {
     const user = userEvent.setup();
     render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
 
-    await user.type(screen.getByLabelText(/amount/i), '500');
-    await user.selectOptions(screen.getByLabelText(/currency/i), 'INR');
+    await user.type(screen.getByPlaceholderText('0.00'), '500');
+    // Use the select element's ID to be specific
+    await user.selectOptions(screen.getByRole('combobox', { name: /currency/i }), 'INR');
     await user.selectOptions(screen.getByLabelText(/category/i), 'Food');
     await user.type(screen.getByLabelText(/vendor/i), 'Zepto');
     await user.selectOptions(screen.getByLabelText(/account/i), 'HDFC');
@@ -118,7 +119,7 @@ describe('TransactionForm (add mode)', () => {
 describe('TransactionForm (edit mode)', () => {
   it('displays absolute amount and infers expense type from negative stored amount', async () => {
     render(<TransactionForm mode="edit" />, { wrapper: EditWrapper as React.ComponentType });
-    const amountInput = await screen.findByLabelText(/amount/i);
+    const amountInput = await screen.findByPlaceholderText('0.00');
     expect(amountInput).toHaveValue(500);
     expect(screen.getByRole('button', { name: /expense/i })).not.toHaveAttribute('data-inactive');
   });
