@@ -13,6 +13,12 @@ vi.mock('firebase/firestore', () => ({
   doc: vi.fn(() => 'doc-ref'),
   getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
 }));
+vi.mock('../context/ThemeContext', () => ({
+  useTheme: vi.fn(() => ({
+    themeId: 'lime',
+    setTheme: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
 
 import AppShell from './AppShell';
 

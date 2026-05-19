@@ -1,16 +1,25 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../../firebase/client', () => ({ auth: {}, app: {} }));
 vi.mock('../../firebase/auth', () => ({
   signOutCurrentUser: vi.fn(),
 }));
+vi.mock('../../context/ThemeContext', () => ({ useTheme: vi.fn() }));
 
+import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 
 describe('Sidebar', () => {
+  beforeEach(() => {
+    vi.mocked(useTheme).mockReturnValue({
+      themeId: 'lime',
+      setTheme: vi.fn().mockResolvedValue(undefined),
+    });
+  });
+
   it('renders GlintBudget wordmark', () => {
     render(
       <MemoryRouter>
@@ -66,5 +75,43 @@ describe('Sidebar', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /sign out/i }));
     expect(signOutCurrentUser).toHaveBeenCalled();
+  });
+
+  describe('theme switcher', () => {
+    const setTheme = vi.fn().mockResolvedValue(undefined);
+
+    beforeEach(() => {
+      vi.mocked(useTheme).mockReturnValue({ themeId: 'lime', setTheme });
+    });
+
+    it('renders a theme group with 4 swatch buttons', () => {
+      render(
+        <MemoryRouter>
+          <Sidebar />
+        </MemoryRouter>,
+      );
+      const group = screen.getByRole('group', { name: /theme/i });
+      expect(group.querySelectorAll('button')).toHaveLength(4);
+    });
+
+    it('marks the active theme button with aria-pressed="true"', () => {
+      render(
+        <MemoryRouter>
+          <Sidebar />
+        </MemoryRouter>,
+      );
+      const active = screen.getByRole('button', { name: /lime/i });
+      expect(active).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('calls setTheme when an inactive swatch is clicked', async () => {
+      render(
+        <MemoryRouter>
+          <Sidebar />
+        </MemoryRouter>,
+      );
+      await userEvent.click(screen.getByRole('button', { name: /ocean/i }));
+      expect(setTheme).toHaveBeenCalledWith('ocean');
+    });
   });
 });

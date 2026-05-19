@@ -1,5 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { signOutCurrentUser } from '../../firebase/auth';
+import { useTheme } from '../../context/ThemeContext';
+import { THEMES } from '../../lib/themes';
 
 const NAV_ITEMS = [
   { label: 'Dashboard',    icon: '◈', to: '/app/dashboard'    },
@@ -9,6 +11,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const { themeId, setTheme } = useTheme();
 
   async function handleSignOut() {
     navigate('/');
@@ -73,8 +76,32 @@ export default function Sidebar() {
         ))}
       </nav>
 
+      {/* Theme switcher */}
+      <div
+        role="group"
+        aria-label="Theme"
+        className="px-3 pb-3 flex gap-2 justify-center"
+      >
+        {THEMES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            aria-label={t.name}
+            aria-pressed={themeId === t.id}
+            onClick={() => void setTheme(t.id)}
+            className={[
+              'w-5 h-5 rounded-full transition-all',
+              themeId === t.id
+                ? 'ring-2 ring-white ring-offset-1 ring-offset-transparent scale-110'
+                : 'opacity-60 hover:opacity-100',
+            ].join(' ')}
+            style={{ background: t.swatchGradient }}
+          />
+        ))}
+      </div>
+
       {/* Sign out */}
-      <div className="px-3 pt-4">
+      <div className="px-3 pt-2">
         <button
           type="button"
           onClick={() => void handleSignOut()}
