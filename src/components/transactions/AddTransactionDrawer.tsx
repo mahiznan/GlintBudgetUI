@@ -84,6 +84,7 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
     }
     setForm(EMPTY);
     setErrors({});
+    setOpenField(null);
     requestAnimationFrame(() =>
       requestAnimationFrame(() => setVisible(true))
     );
