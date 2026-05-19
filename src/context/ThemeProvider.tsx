@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { usePreferenceContext } from './PreferenceContext';
@@ -12,7 +12,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { mutate } = useUpdatePreference(uid);
 
-  const themeId = preference?.theme ?? DEFAULT_THEME_ID;
+  // Local state so setTheme updates the context value immediately without
+  // waiting for a Firestore round-trip through usePreferences.
+  const [themeId, setThemeId] = useState(DEFAULT_THEME_ID);
+
+  // Seed from Firestore preference once it loads (or re-loads after refetch).
+  useEffect(() => {
+    if (preference?.theme) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setThemeId(preference.theme);
+    }
+  }, [preference?.theme]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = themeId;
@@ -20,6 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback(
     async (id: string) => {
+      setThemeId(id);
       document.documentElement.dataset.theme = id;
       await mutate({ theme: id });
     },
