@@ -120,6 +120,6 @@ describe('TransactionForm (edit mode)', () => {
     render(<TransactionForm mode="edit" />, { wrapper: EditWrapper as React.ComponentType });
     const amountInput = await screen.findByLabelText(/amount/i);
     expect(amountInput).toHaveValue(500);
-    expect(screen.getByRole('button', { name: /expense/i })).toHaveClass('bg-red-600');
+    expect(screen.getByRole('button', { name: /expense/i })).not.toHaveAttribute('data-inactive');
   });
 });

@@ -7,29 +7,30 @@ interface TypeToggleProps {
 
 export default function TypeToggle({ value, onChange }: TypeToggleProps) {
   return (
-    <div className="inline-flex rounded-xl border border-border bg-surface-alt p-1 gap-1">
-      {(['expense', 'income'] as TxType[]).map((type) => (
-        <button
-          key={type}
-          type="button"
-          onClick={() => onChange(type)}
-          className={[
-            'rounded-lg px-5 py-2 text-sm font-semibold capitalize transition-all',
-            value === type
-              ? type === 'expense'
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'text-white shadow-sm'
-              : 'text-text-muted hover:text-text',
-          ].join(' ')}
-          style={
-            value === type && type === 'income'
-              ? { background: 'var(--brand-gradient)' }
-              : undefined
-          }
-        >
-          {type}
-        </button>
-      ))}
+    <div className="flex w-full h-[52px] flex-shrink-0">
+      {(['expense', 'income'] as TxType[]).map((type) => {
+        const isActive = value === type;
+        return (
+          <button
+            key={type}
+            type="button"
+            onClick={() => onChange(type)}
+            data-inactive={isActive ? undefined : 'true'}
+            className="flex flex-1 items-center justify-center gap-1.5 text-sm font-bold uppercase tracking-wider transition-colors"
+            style={
+              isActive
+                ? {
+                    background:
+                      type === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)',
+                    color: '#fff',
+                  }
+                : { background: '#e2e8f0', color: '#94a3b8' }
+            }
+          >
+            {type === 'expense' ? '💸' : '💰'} {type}
+          </button>
+        );
+      })}
     </div>
   );
 }
