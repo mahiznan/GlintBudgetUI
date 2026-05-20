@@ -7,11 +7,15 @@ vi.mock('../../firebase/client', () => ({ auth: {}, app: {} }));
 vi.mock('../../firebase/db', () => ({ db: {} }));
 vi.mock('../../auth/AuthContext', () => ({ useAuth: vi.fn() }));
 vi.mock('../../context/PreferenceContext', () => ({ usePreferenceContext: vi.fn() }));
-vi.mock('../../hooks/useMutateTransaction', () => ({ useAddTransaction: vi.fn() }));
+vi.mock('../../hooks/useMutateTransaction', () => ({ useAddTransaction: vi.fn(), useUpdateTransaction: vi.fn() }));
+vi.mock('firebase/firestore', () => ({
+  getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => undefined }),
+  doc: vi.fn(),
+}));
 
 import { useAuth } from '../../auth/AuthContext';
 import { usePreferenceContext } from '../../context/PreferenceContext';
-import { useAddTransaction } from '../../hooks/useMutateTransaction';
+import { useAddTransaction, useUpdateTransaction } from '../../hooks/useMutateTransaction';
 import AddTransactionDrawer from './AddTransactionDrawer';
 
 const stubPreference = {
@@ -39,6 +43,11 @@ beforeEach(() => {
   } as ReturnType<typeof usePreferenceContext>);
   vi.mocked(useAddTransaction).mockReturnValue({
     mutate: vi.fn().mockResolvedValue('new-id'),
+    loading: false,
+    error: null,
+  });
+  vi.mocked(useUpdateTransaction).mockReturnValue({
+    mutate: vi.fn().mockResolvedValue(undefined),
     loading: false,
     error: null,
   });
@@ -148,5 +157,17 @@ describe('AddTransactionDrawer', () => {
     expect(screen.queryByPlaceholderText(/search vendor/i)).not.toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
     vi.useRealTimers();
+  });
+});
+
+describe('AddTransactionDrawer — Edit mode', () => {
+  it('shows "Edit Transaction" title when editId is provided', () => {
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} editId="tx123" />);
+    expect(screen.getByRole('dialog', { name: /edit transaction/i })).toBeInTheDocument();
+  });
+
+  it('shows "Update" button when editId is provided', () => {
+    render(<AddTransactionDrawer open={true} onClose={vi.fn()} onSaved={vi.fn()} editId="tx123" />);
+    expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
   });
 });

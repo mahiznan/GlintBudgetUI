@@ -14,7 +14,7 @@ interface FieldPickerProps {
   required?: boolean;
   allowFreeText?: boolean;
   error?: string;
-  onNext?: () => void;
+  onNext?: (name: string) => void;
 }
 
 export default function FieldPicker({
@@ -71,7 +71,7 @@ export default function FieldPicker({
           onSelect={(name) => {
             onChange(name);
             onClose();
-            onNext?.();
+            onNext?.(name);
           }}
           onClose={onClose}
           allowFreeText={allowFreeText}

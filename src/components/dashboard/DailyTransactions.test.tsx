@@ -1,6 +1,6 @@
 vi.mock('../transactions/AddTransactionDrawer', () => ({
-  default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+  default: ({ open, editId }: { open: boolean; editId?: string }) =>
+    open ? <div role="dialog" aria-label={editId ? 'Edit Transaction' : 'New Transaction'}>drawer</div> : null,
 }));
 
 import { render, screen } from '@testing-library/react';
@@ -233,6 +233,37 @@ describe('DailyTransactions — Add button', () => {
     await user.click(screen.getByRole('button', { name: /add transaction/i }));
     // The drawer should be in the DOM
     expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
+  });
+});
+
+describe('DailyTransactions — edit button', () => {
+  it('edit icon is a button, not a link', () => {
+    render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[makeTx('tx1', 'Swiggy', -400, todayAt())]}
+          currencySymbol="₹"
+          onDelete={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('button', { name: /edit swiggy/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /edit swiggy/i })).not.toBeInTheDocument();
+  });
+
+  it('clicking edit button opens the edit drawer', async () => {
+    render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[makeTx('tx1', 'Swiggy', -400, todayAt())]}
+          currencySymbol="₹"
+          onDelete={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /edit swiggy/i }));
+    expect(screen.getByRole('dialog', { name: /edit transaction/i })).toBeInTheDocument();
   });
 });
 

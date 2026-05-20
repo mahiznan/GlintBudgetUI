@@ -47,7 +47,7 @@ export default function AmountInput({
               onNext?.();
             }
           }}
-          className="flex-1 min-w-0 text-right text-[48px] font-bold font-mono bg-transparent border-none outline-none"
+          className="flex-1 min-w-0 text-right text-[48px] font-bold bg-transparent border-none outline-none"
           style={{
             color: value ? '#0f172a' : '#cbd5e1',
             fontVariantNumeric: 'tabular-nums',

@@ -33,6 +33,7 @@ export default function DailyTransactions({
     return d;
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
@@ -233,13 +234,14 @@ export default function DailyTransactions({
                     {isExpense ? '−' : '+'}
                     {formatCurrency(Math.abs(tx.amount), currencySymbol)}
                   </span>
-                  <Link
-                    to={`/app/transactions/${tx.id}/edit`}
+                  <button
+                    type="button"
+                    onClick={() => { setEditingId(tx.id); setDrawerOpen(true); }}
                     className="text-text-muted hover:text-brand p-1"
                     aria-label={`Edit ${tx.vendor}`}
                   >
                     ✏️
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     onClick={() => onDelete(tx.id)}
@@ -256,9 +258,11 @@ export default function DailyTransactions({
       )}
       <AddTransactionDrawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => { setDrawerOpen(false); setEditingId(null); }}
         onSaved={() => { onTransactionAdded?.(); }}
-        selectedDate={selectedDate}
+        selectedDate={editingId ? undefined : selectedDate}
+        transactions={transactions}
+        editId={editingId ?? undefined}
       />
     </div>
   );

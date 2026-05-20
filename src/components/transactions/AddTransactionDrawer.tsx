@@ -1,9 +1,11 @@
 // src/components/transactions/AddTransactionDrawer.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { usePreferenceContext } from '../../context/PreferenceContext';
-import { useAddTransaction } from '../../hooks/useMutateTransaction';
+import { useAddTransaction, useUpdateTransaction } from '../../hooks/useMutateTransaction';
+import { getDoc, doc, type Timestamp } from 'firebase/firestore';
+import { db } from '../../firebase/db';
 import TypeToggle from '../form/TypeToggle';
 import AmountInput from '../form/AmountInput';
 import FieldPicker from '../form/FieldPicker';
@@ -96,6 +98,8 @@ export interface AddTransactionDrawerProps {
   onClose: () => void;
   onSaved: () => void;
   selectedDate?: Date;
+  transactions?: Transaction[];
+  editId?: string;
 }
 
 export default function AddTransactionDrawer({
@@ -103,11 +107,16 @@ export default function AddTransactionDrawer({
   onClose,
   onSaved,
   selectedDate,
+  transactions,
+  editId,
 }: AddTransactionDrawerProps) {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
-  const { mutate: addTx, loading, error: mutateError } = useAddTransaction();
+  const { mutate: addTx, loading: addLoading, error: addError } = useAddTransaction();
+  const { mutate: updateTx, loading: updateLoading, error: updateError } = useUpdateTransaction();
+  const loading = addLoading || updateLoading;
+  const mutateError = addError ?? updateError;
 
   const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate));
   const [errors, setErrors] = useState<FormErrors>({});
@@ -125,8 +134,35 @@ export default function AddTransactionDrawer({
     setForm(makeEmpty(selectedDate));
     setErrors({});
     setActiveField(null);
-    requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        setVisible(true);
+        (document.getElementById('amount-input') as HTMLInputElement | null)?.focus();
+      }),
+    );
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pre-fill form from Firestore when editing an existing transaction
+  useEffect(() => {
+    if (!open || !editId) return;
+    getDoc(doc(db, 'transactions', editId)).then((snap) => {
+      if (!snap.exists()) return;
+      const d = snap.data();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setForm({
+        type: (d['amount'] as number) < 0 ? 'expense' : 'income',
+        amount: String(Math.abs(d['amount'] as number)),
+        currency: d['currency'] as string,
+        category: d['category'] as string,
+        subCategory: d['sub_category'] as string,
+        vendor: d['vendor'] as string,
+        account: d['account'] as string,
+        payment: d['payment'] as string,
+        date: (d['date'] as Timestamp).toDate().toISOString().slice(0, 10),
+        notes: (d['notes'] as string) ?? '',
+      });
+    });
+  }, [open, editId]);
 
   // Seed preference defaults on open
   useEffect(() => {
@@ -142,7 +178,10 @@ export default function AddTransactionDrawer({
     }));
   }, [preference, open]);
 
-  // Escape key: close picker first, then close drawer
+  // Escape key: close picker first, then close drawer.
+  // Enter key: when the date calendar is open, confirm the current date and advance to account.
+  // preventDefault on Enter suppresses the browser's default "click focused button" behaviour,
+  // which would otherwise re-fire the date row button's onClick and close the calendar instead.
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
@@ -152,6 +191,9 @@ export default function AddTransactionDrawer({
         } else {
           startClose();
         }
+      } else if (e.key === 'Enter' && activeField === 'date') {
+        e.preventDefault();
+        setActiveField('account');
       }
     }
     document.addEventListener('keydown', handleKey);
@@ -200,13 +242,29 @@ export default function AddTransactionDrawer({
       icon: categoryObj?.emoji ?? '',
     };
     try {
-      await addTx(txData);
+      if (editId) {
+        await updateTx(editId, txData);
+      } else {
+        await addTx(txData);
+      }
       onSaved();
       startClose();
     } catch {
       // mutateError state is set by the hook
     }
   }
+
+  // Mirror iOS SuggestionToolbarView: show vendors from past transactions in addition to
+  // the stored preference vendors, so the picker reflects real usage history.
+  const vendorOptions = useMemo((): BudgetData[] => {
+    const fromPref = preference?.vendors ?? [];
+    const seen = new Set(fromPref.map((v) => v.name));
+    const fromTxns = (transactions ?? [])
+      .map((t) => t.vendor)
+      .filter((name, idx, arr) => Boolean(name) && arr.indexOf(name) === idx && !seen.has(name))
+      .map((name): BudgetData => ({ name, emoji: null, type: 'vendor', parent: null }));
+    return [...fromPref, ...fromTxns];
+  }, [preference, transactions]);
 
   const filteredSubCats: BudgetData[] =
     preference?.subCategories.filter((s) => s.parent === form.category) ?? [];
@@ -244,16 +302,16 @@ export default function AddTransactionDrawer({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="New Transaction"
+        aria-label={editId ? 'Edit Transaction' : 'New Transaction'}
         className={[
-          'fixed inset-y-0 right-0 z-50 flex w-[480px] max-w-full flex-col bg-surface shadow-2xl',
+          'fixed inset-y-0 right-0 z-50 flex w-[420px] max-w-[88vw] flex-col bg-surface shadow-2xl',
           'transition-transform duration-300 ease-out',
           visible ? 'translate-x-0' : 'translate-x-full',
         ].join(' ')}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
-          <h2 className="text-base font-semibold text-text">New Transaction</h2>
+          <h2 className="text-base font-semibold text-text">{editId ? 'Edit Transaction' : 'New Transaction'}</h2>
           <button
             type="button"
             onClick={startClose}
@@ -302,7 +360,7 @@ export default function AddTransactionDrawer({
               label="Vendor"
               value={form.vendor}
               onChange={set('vendor')}
-              options={preference?.vendors ?? []}
+              options={vendorOptions}
               iconBg="#eff6ff"
               icon="🏪"
               isOpen={activeField === 'vendor'}
@@ -325,7 +383,10 @@ export default function AddTransactionDrawer({
               isOpen={activeField === 'category'}
               onOpen={() => open_(activeField === 'category' ? null : 'category')}
               onClose={() => setActiveField(null)}
-              onNext={() => setActiveField(filteredSubCats.length > 0 ? 'subCategory' : 'date')}
+              onNext={(name) => {
+                const hasSubCats = (preference?.subCategories ?? []).some((s) => s.parent === name);
+                setActiveField(hasSubCats ? 'subCategory' : 'date');
+              }}
               required
               error={errors.category}
             />
@@ -486,7 +547,7 @@ export default function AddTransactionDrawer({
             className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
             style={{ background: saveGradient, boxShadow: saveShadow }}
           >
-            {loading ? 'Saving…' : 'Save'}
+            {loading ? 'Saving…' : editId ? 'Update' : 'Save'}
           </button>
         </div>
       </div>
