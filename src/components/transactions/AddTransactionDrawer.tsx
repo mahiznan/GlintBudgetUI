@@ -148,7 +148,6 @@ export default function AddTransactionDrawer({
     getDoc(doc(db, 'transactions', editId)).then((snap) => {
       if (!snap.exists()) return;
       const d = snap.data();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         type: (d['amount'] as number) < 0 ? 'expense' : 'income',
         amount: String(Math.abs(d['amount'] as number)),

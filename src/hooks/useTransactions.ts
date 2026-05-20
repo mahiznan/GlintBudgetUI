@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import {
   collection,
   query,
@@ -26,6 +26,22 @@ interface UseTransactionsResult {
   refetch: () => void;
 }
 
+type State = { data: Transaction[]; loading: boolean; error: Error | null; tick: number };
+type Action =
+  | { type: 'fetch' }
+  | { type: 'success'; data: Transaction[] }
+  | { type: 'error'; error: Error }
+  | { type: 'refetch' };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'fetch':   return { ...state, loading: true, error: null };
+    case 'success': return { ...state, loading: false, data: action.data };
+    case 'error':   return { ...state, loading: false, error: action.error };
+    case 'refetch': return { ...state, tick: state.tick + 1 };
+  }
+}
+
 function docToTransaction(id: string, raw: DocumentData): Transaction {
   return {
     id,
@@ -44,19 +60,16 @@ function docToTransaction(id: string, raw: DocumentData): Transaction {
 }
 
 export function useTransactions(filter: TransactionFilter): UseTransactionsResult {
-  const [data, setData] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [tick, setTick] = useState(0);
+  const [state, dispatch] = useReducer(reducer, {
+    data: [],
+    loading: !!filter.uid,
+    error: null,
+    tick: 0,
+  });
 
   useEffect(() => {
-    if (!filter.uid) {
-      setLoading(false);
-      return;
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    setError(null);
+    if (!filter.uid) return;
+    dispatch({ type: 'fetch' });
 
     const col = collection(db, 'transactions');
     const constraints: QueryConstraint[] = [
@@ -72,14 +85,18 @@ export function useTransactions(filter: TransactionFilter): UseTransactionsResul
 
     getDocs(q)
       .then((snap) => {
-        setData(snap.docs.map((d) => docToTransaction(d.id, d.data())));
+        dispatch({ type: 'success', data: snap.docs.map((d) => docToTransaction(d.id, d.data())) });
       })
       .catch((err: unknown) =>
-        setError(err instanceof Error ? err : new Error(String(err))),
-      )
-      .finally(() => setLoading(false));
+        dispatch({ type: 'error', error: err instanceof Error ? err : new Error(String(err)) }),
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.uid, filter.start?.getTime(), filter.end?.getTime(), filter.limit, tick]);
+  }, [filter.uid, filter.start?.getTime(), filter.end?.getTime(), filter.limit, state.tick]);
 
-  return { data, loading, error, refetch: () => setTick((n) => n + 1) };
+  return {
+    data: state.data,
+    loading: state.loading,
+    error: state.error,
+    refetch: () => dispatch({ type: 'refetch' }),
+  };
 }
