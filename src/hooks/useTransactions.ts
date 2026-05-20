@@ -50,6 +50,10 @@ export function useTransactions(filter: TransactionFilter): UseTransactionsResul
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    if (!filter.uid) {
+      setLoading(false);
+      return;
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);

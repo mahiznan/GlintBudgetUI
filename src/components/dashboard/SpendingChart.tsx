@@ -21,9 +21,18 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 
+const PERIODS: { label: string; value: Period }[] = [
+  { label: 'Day', value: 'day' },
+  { label: 'Week', value: 'week' },
+  { label: 'Month', value: 'month' },
+  { label: 'Quarter', value: 'quarter' },
+  { label: 'Year', value: 'year' },
+];
+
 interface SpendingChartProps {
   transactions: Transaction[];
   period: Period;
+  onPeriodChange: (p: Period) => void;
   currencySymbol: string;
   chartType: 'bar' | 'line';
   onChartTypeChange: (type: 'bar' | 'line') => void;
@@ -124,6 +133,7 @@ const CustomTooltip = ({
 export default function SpendingChart({
   transactions,
   period,
+  onPeriodChange,
   currencySymbol,
   chartType,
   onChartTypeChange,
@@ -153,33 +163,56 @@ export default function SpendingChart({
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted flex-shrink-0">
           Spending
         </h2>
-        <div className="flex gap-1">
-          <button
-            onClick={() => onChartTypeChange('bar')}
-            aria-label="Bar chart"
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-              chartType === 'bar'
-                ? 'bg-brand text-white'
-                : 'bg-surface-alt text-text-muted hover:text-text'
-            }`}
-          >
-            ▬
-          </button>
-          <button
-            onClick={() => onChartTypeChange('line')}
-            aria-label="Line chart"
-            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-              chartType === 'line'
-                ? 'bg-brand text-white'
-                : 'bg-surface-alt text-text-muted hover:text-text'
-            }`}
-          >
-            ∿
-          </button>
+        <div className="flex items-center gap-2">
+          {/* Period switcher */}
+          <div className="flex items-center rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5">
+            {PERIODS.map(({ label, value }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => onPeriodChange(value)}
+                className={[
+                  'rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all',
+                  period === value
+                    ? 'text-white shadow-sm'
+                    : 'text-text-muted hover:text-text',
+                ].join(' ')}
+                style={period === value ? { background: 'var(--brand-gradient)' } : undefined}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Chart type switcher */}
+          <div className="flex gap-1">
+            <button
+              onClick={() => onChartTypeChange('bar')}
+              aria-label="Bar chart"
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                chartType === 'bar'
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-alt text-text-muted hover:text-text'
+              }`}
+            >
+              ▬
+            </button>
+            <button
+              onClick={() => onChartTypeChange('line')}
+              aria-label="Line chart"
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                chartType === 'line'
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-alt text-text-muted hover:text-text'
+              }`}
+            >
+              ∿
+            </button>
+          </div>
         </div>
       </div>
 

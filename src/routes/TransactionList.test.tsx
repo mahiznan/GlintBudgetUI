@@ -1,43 +1,36 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, Outlet } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
-import { AuthContext } from '../auth/AuthContext';
 import { PreferenceContext } from '../context/PreferenceContext';
+import { TransactionContext } from '../context/TransactionContext';
+import type { AppShellOutletContext } from './AppShell';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => 'col'),
-  query: vi.fn(() => 'q'),
-  where: vi.fn(() => 'w'),
-  orderBy: vi.fn(() => 'o'),
-  limit: vi.fn(() => 'l'),
-  getDocs: vi.fn(() => Promise.resolve({ docs: [] })),
-  Timestamp: { fromDate: vi.fn((d: Date) => d) },
   deleteDoc: vi.fn(() => Promise.resolve()),
   doc: vi.fn(() => 'docref'),
 }));
 
 import TransactionList from './TransactionList';
 
-const authedCtx = {
-  status: 'authenticated' as const,
-  user: { uid: 'u1', name: 'Test', email: 't@e.com', photoUrl: null },
-};
-
 const prefCtx = { preference: null, loading: false, error: null, refetch: vi.fn() };
+const txCtx = { transactions: [], loading: false, error: null, refetch: vi.fn() };
 
 describe('TransactionList', () => {
   it('renders empty state after loading', async () => {
+    const ctx: AppShellOutletContext = { period: 'month', setPeriod: vi.fn() };
     render(
-      <AuthContext.Provider value={authedCtx}>
-        <PreferenceContext.Provider value={prefCtx}>
+      <PreferenceContext.Provider value={prefCtx}>
+        <TransactionContext.Provider value={txCtx}>
           <MemoryRouter>
             <Routes>
-              <Route path="/" element={<TransactionList />} />
+              <Route path="/" element={<Outlet context={ctx} />}>
+                <Route index element={<TransactionList />} />
+              </Route>
             </Routes>
           </MemoryRouter>
-        </PreferenceContext.Provider>
-      </AuthContext.Provider>,
+        </TransactionContext.Provider>
+      </PreferenceContext.Provider>,
     );
     expect(await screen.findByText(/no transactions/i)).toBeInTheDocument();
   });

@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
 import { PreferenceProvider } from './context/PreferenceContext';
+import { TransactionProvider } from './context/TransactionContext';
 import { ThemeProvider } from './context/ThemeProvider';
 import Landing from './routes/Landing';
 
@@ -88,9 +89,11 @@ export default function App() {
   return (
     <AuthProvider>
       <PreferenceProvider>
-        <ThemeProvider>
-          <RouterProvider router={router} />
-        </ThemeProvider>
+        <TransactionProvider>
+          <ThemeProvider>
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </TransactionProvider>
       </PreferenceProvider>
     </AuthProvider>
   );

@@ -304,7 +304,7 @@ export default function AddTransactionDrawer({
         aria-modal="true"
         aria-label={editId ? 'Edit Transaction' : 'New Transaction'}
         className={[
-          'fixed inset-y-0 right-0 z-50 flex w-[420px] max-w-[88vw] flex-col bg-surface shadow-2xl',
+          'fixed inset-y-0 right-0 z-50 flex w-[480px] max-w-full flex-col bg-surface shadow-2xl',
           'transition-transform duration-300 ease-out',
           visible ? 'translate-x-0' : 'translate-x-full',
         ].join(' ')}

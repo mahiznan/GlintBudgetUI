@@ -30,10 +30,7 @@ export default function HeroStatsRow({
   currencySymbol,
 }: HeroStatsRowProps) {
   return (
-    <div
-      className="hero-gradient w-full px-8 py-8"
-      style={{ borderRadius: '0 0 24px 24px' }}
-    >
+    <div className="hero-gradient w-full px-8 py-8 rounded-2xl">
       <div className="flex items-center gap-12 flex-wrap">
         <StatCard
           label="Income"

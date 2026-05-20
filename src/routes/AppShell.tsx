@@ -35,14 +35,11 @@ export default function AppShell() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar
-          title={getTitle(location.pathname, firstName)}
-          period={period}
-          onPeriodChange={setPeriod}
-          showPeriodSwitch={location.pathname === '/app/dashboard'}
-        />
+        <TopBar title={getTitle(location.pathname, firstName)} />
         <main className="flex-1 overflow-y-auto bg-surface-alt">
-          <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
+          <div className="max-w-5xl mx-auto w-full">
+            <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
+          </div>
         </main>
       </div>
     </div>

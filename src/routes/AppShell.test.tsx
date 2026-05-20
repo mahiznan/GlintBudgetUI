@@ -75,26 +75,3 @@ describe('AppShell title map', () => {
   });
 });
 
-describe('AppShell period switch visibility', () => {
-  it('shows period switch on /app/dashboard', () => {
-    render(
-      <AuthContext.Provider value={authedCtx}>
-        <MemoryRouter initialEntries={['/app/dashboard']}>
-          <AppShell />
-        </MemoryRouter>
-      </AuthContext.Provider>,
-    );
-    expect(screen.getByRole('button', { name: /month/i })).toBeInTheDocument();
-  });
-
-  it('hides period switch on /app/transactions', () => {
-    render(
-      <AuthContext.Provider value={authedCtx}>
-        <MemoryRouter initialEntries={['/app/transactions']}>
-          <AppShell />
-        </MemoryRouter>
-      </AuthContext.Provider>,
-    );
-    expect(screen.queryByRole('button', { name: /month/i })).not.toBeInTheDocument();
-  });
-});

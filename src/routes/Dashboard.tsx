@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
-import { useTransactions } from '../hooks/useTransactions';
+import { useTransactionContext } from '../context/TransactionContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import { useUpdatePreference } from '../hooks/useUpdatePreference';
 import { filterByPeriod, getPeriodRange } from '../lib/dateUtils';
@@ -23,9 +23,9 @@ type DrillState =
 export default function Dashboard() {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
-  const { period } = useOutletContext<AppShellOutletContext>();
+  const { period, setPeriod } = useOutletContext<AppShellOutletContext>();
   const { preference } = usePreferenceContext();
-  const { data: allTxns, loading, error, refetch } = useTransactions({ uid, limit: 200 });
+  const { transactions: allTxns, loading, error, refetch } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
   const { mutate: updatePreference } = useUpdatePreference(uid);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -189,19 +189,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col gap-0">
+    <div className="flex flex-col gap-4 p-6">
       <HeroStatsRow
         totalExpenses={totalExpenses}
         totalIncome={totalIncome}
         currencySymbol={currencySymbol}
       />
 
-      <div className="p-6 flex gap-4">
+      <div className="flex gap-4">
         {/* Left column — 2/3 width */}
         <div className="flex flex-col gap-4 flex-[2]">
           <SpendingChart
             transactions={chartTxns}
             period={period}
+            onPeriodChange={setPeriod}
             currencySymbol={currencySymbol}
             chartType={chartType}
             onChartTypeChange={handleChartTypeChange}

@@ -43,6 +43,7 @@ const makeTx = (date: string, amount: number): Transaction => ({
 const baseProps = {
   transactions: [makeTx('2026-05-17', -500), makeTx('2026-05-16', -300)],
   period: 'month' as const,
+  onPeriodChange: vi.fn(),
   currencySymbol: '₹',
   chartType: 'bar' as const,
   onChartTypeChange: vi.fn(),
