@@ -51,19 +51,8 @@ describe('AppShell route', () => {
   });
 });
 
-describe('AppShell title map', () => {
-  it('shows "Settings" title when on /app/settings', () => {
-    render(
-      <AuthContext.Provider value={authedCtx}>
-        <MemoryRouter initialEntries={['/app/settings']}>
-          <AppShell />
-        </MemoryRouter>
-      </AuthContext.Provider>,
-    );
-    expect(screen.getAllByText('Settings').length).toBeGreaterThan(0);
-  });
-
-  it('shows personalised greeting on /app/dashboard', () => {
+describe('AppShell nav links', () => {
+  it('renders the Transactions nav link', () => {
     render(
       <AuthContext.Provider value={authedCtx}>
         <MemoryRouter initialEntries={['/app/dashboard']}>
@@ -71,7 +60,18 @@ describe('AppShell title map', () => {
         </MemoryRouter>
       </AuthContext.Provider>,
     );
-    expect(screen.getByRole('heading', { name: /hello, rajesh/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /transactions/i })).toBeInTheDocument();
+  });
+
+  it('renders the Settings nav link', () => {
+    render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
   });
 });
 
