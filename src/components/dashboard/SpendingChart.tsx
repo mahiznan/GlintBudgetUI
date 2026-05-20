@@ -163,11 +163,11 @@ export default function SpendingChart({
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted flex-shrink-0">
           Spending
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Period switcher */}
           <div className="flex items-center rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5">
             {PERIODS.map(({ label, value }) => (

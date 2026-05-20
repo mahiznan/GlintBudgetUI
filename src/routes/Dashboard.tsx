@@ -189,16 +189,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4 p-3 sm:p-6">
       <HeroStatsRow
         totalExpenses={totalExpenses}
         totalIncome={totalIncome}
         currencySymbol={currencySymbol}
       />
 
-      <div className="flex gap-4">
-        {/* Left column — 2/3 width */}
-        <div className="flex flex-col gap-4 flex-[2]">
+      <div className="flex flex-col gap-4 md:flex-row">
+        {/* Left column — 2/3 width on desktop, full width on mobile */}
+        <div className="flex flex-col gap-4 md:flex-[2]">
           <SpendingChart
             transactions={chartTxns}
             period={period}
@@ -215,8 +215,8 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Right column — 1/3 width */}
-        <div className="flex flex-col gap-4 flex-[1]">
+        {/* Right column — 1/3 width on desktop, full width on mobile */}
+        <div className="flex flex-col gap-4 md:flex-[1]">
           <CategoryBreakdown
             categories={categoryItems}
             mode={categoryMode}

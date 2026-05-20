@@ -42,7 +42,7 @@ export default function TransactionList() {
   }
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-3 sm:p-6 flex flex-col gap-5">
       <TransactionTable transactions={filtered} currencySymbol={currencySymbol} onDelete={setDeletingId} />
       {deletingId && (
         <DeleteConfirmDialog
