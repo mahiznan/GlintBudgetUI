@@ -157,7 +157,7 @@ export default function AddTransactionDrawer({
         vendor: d['vendor'] as string,
         account: d['account'] as string,
         payment: d['payment'] as string,
-        date: (d['date'] as Timestamp).toDate().toISOString().slice(0, 10),
+        date: toLocalDateStr((d['date'] as Timestamp).toDate()),
         notes: (d['notes'] as string) ?? '',
       });
     });

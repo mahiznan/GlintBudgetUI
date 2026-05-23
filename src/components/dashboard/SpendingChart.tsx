@@ -16,6 +16,7 @@ import {
   getChartDateRange,
   groupByDay,
   groupByMonth,
+  localDateStr,
   formatCurrency,
 } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
@@ -73,7 +74,7 @@ function buildChartData(
     buckets.forEach((b, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-      b.amount = grouped[d.toISOString().slice(0, 10)] ?? 0;
+      b.amount = grouped[localDateStr(d)] ?? 0;
     });
     return buckets;
   }

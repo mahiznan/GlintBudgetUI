@@ -115,10 +115,14 @@ export function formatCurrency(amount: number, symbol: string): string {
   })}`;
 }
 
+export function localDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // Groups transactions by YYYY-MM-DD, summing amounts
 export function groupByDay(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
-    const key = t.date.toISOString().slice(0, 10);
+    const key = localDateStr(t.date);
     acc[key] = (acc[key] ?? 0) + t.amount;
     return acc;
   }, {});
@@ -127,7 +131,7 @@ export function groupByDay(txns: Array<Pick<Transaction, 'date' | 'amount'>>): R
 // Groups transactions by YYYY-MM, summing amounts
 export function groupByMonth(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
-    const key = t.date.toISOString().slice(0, 7);
+    const key = `${t.date.getFullYear()}-${String(t.date.getMonth() + 1).padStart(2, '0')}`;
     acc[key] = (acc[key] ?? 0) + t.amount;
     return acc;
   }, {});

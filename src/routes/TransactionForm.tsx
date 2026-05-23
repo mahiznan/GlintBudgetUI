@@ -33,6 +33,15 @@ interface FormErrors {
   date?: string;
 }
 
+function toLocalDateString(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function parseLocalDate(s: string): Date {
+  const parts = s.split('-').map(Number);
+  return new Date(parts[0]!, parts[1]! - 1, parts[2]!);
+}
+
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
   if (!form.amount || parseFloat(form.amount) <= 0) errors.amount = 'Amount is required and must be positive';
@@ -54,7 +63,7 @@ const EMPTY: FormState = {
   vendor: '',
   account: '',
   payment: '',
-  date: new Date().toISOString().slice(0, 10),
+  date: toLocalDateString(new Date()),
   notes: '',
 };
 
@@ -106,7 +115,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           vendor: d['vendor'] as string,
           account: d['account'] as string,
           payment: d['payment'] as string,
-          date: (d['date'] as Timestamp).toDate().toISOString().slice(0, 10),
+          date: toLocalDateString((d['date'] as Timestamp).toDate()),
           notes: (d['notes'] as string) ?? '',
         });
       })
@@ -138,7 +147,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       user_id: uid,
       category: form.category,
       subCategory: form.subCategory,
-      date: new Date(form.date),
+      date: parseLocalDate(form.date),
       account: form.account,
       vendor: form.vendor,
       payment: form.payment,
