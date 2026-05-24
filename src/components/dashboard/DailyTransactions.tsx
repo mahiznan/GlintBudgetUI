@@ -57,9 +57,9 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
             return (
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
-                <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text truncate">{tx.vendor}</p>
-                  <p className="text-xs text-text-muted truncate">
+                  <p className="text-xs text-text-muted">
                     {tx.category} · {formatTime(tx.date)}
                   </p>
                 </div>
