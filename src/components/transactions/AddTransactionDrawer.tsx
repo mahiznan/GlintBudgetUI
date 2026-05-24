@@ -408,20 +408,20 @@ export default function AddTransactionDrawer({
             <button
               type="button"
               onClick={() => open_(activeField === 'date' ? null : 'date')}
-              className="w-full flex items-center gap-[10px] py-[10px] border-b border-[#f1f5f9] text-left"
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
             >
-              <div className="w-[28px] h-[28px] rounded-[8px] bg-[#ecfdf5] flex items-center justify-center text-[13px] flex-shrink-0">
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#ecfdf5] flex items-center justify-center text-[16px] flex-shrink-0">
                 📅
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
                   Date <span className="text-red-500">*</span>
                 </div>
-                <div className="text-[13px] font-medium mt-[1px] text-text">
+                <div className="text-[16px] font-medium mt-[1px] text-text">
                   {formatPickerDate(form.date)}
                 </div>
               </div>
-              <span className="text-[11px] text-[#cbd5e1]">›</span>
+              <span className="text-[14px] text-[#cbd5e1]">›</span>
             </button>
             {activeField === 'date' && (
               <MiniCalendar
@@ -432,39 +432,23 @@ export default function AddTransactionDrawer({
             )}
             {errors.date && <p className="text-xs text-red-600">{errors.date}</p>}
 
-            {/* Account + Payment — side by side */}
-            <div className="flex border-b border-[#f1f5f9]">
-              <button
-                type="button"
-                onClick={() => open_(activeField === 'account' ? null : 'account')}
-                className="flex flex-1 items-center gap-[10px] py-[10px] pr-[10px] border-r border-[#f1f5f9] text-left"
-              >
-                <div className="w-[28px] h-[28px] rounded-[8px] bg-[#fff7ed] flex items-center justify-center text-[13px] flex-shrink-0">🏦</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
-                    Account <span className="text-red-500">*</span>
-                  </div>
-                  <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}>
-                    {form.account || 'Select…'}
-                  </div>
+            {/* Account */}
+            <button
+              type="button"
+              onClick={() => open_(activeField === 'account' ? null : 'account')}
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+            >
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff7ed] flex items-center justify-center text-[16px] flex-shrink-0">🏦</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                  Account <span className="text-red-500">*</span>
                 </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => open_(activeField === 'payment' ? null : 'payment')}
-                className="flex flex-1 items-center gap-[10px] py-[10px] pl-[10px] text-left"
-              >
-                <div className="w-[28px] h-[28px] rounded-[8px] bg-[#fff1f2] flex items-center justify-center text-[13px] flex-shrink-0">💳</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">
-                    Payment <span className="text-red-500">*</span>
-                  </div>
-                  <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}>
-                    {form.payment || 'Select…'}
-                  </div>
+                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}>
+                  {form.account || 'Select…'}
                 </div>
-              </button>
-            </div>
+              </div>
+              <span className="text-[14px] text-[#cbd5e1]">›</span>
+            </button>
             {activeField === 'account' && (
               <SearchPicker
                 label="Account"
@@ -474,6 +458,25 @@ export default function AddTransactionDrawer({
                 onClose={() => setActiveField(null)}
               />
             )}
+            {errors.account && <p className="text-xs text-red-600">{errors.account}</p>}
+
+            {/* Payment */}
+            <button
+              type="button"
+              onClick={() => open_(activeField === 'payment' ? null : 'payment')}
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+            >
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff1f2] flex items-center justify-center text-[16px] flex-shrink-0">💳</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                  Payment <span className="text-red-500">*</span>
+                </div>
+                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}>
+                  {form.payment || 'Select…'}
+                </div>
+              </div>
+              <span className="text-[14px] text-[#cbd5e1]">›</span>
+            </button>
             {activeField === 'payment' && (
               <SearchPicker
                 label="Payment"
@@ -483,19 +486,18 @@ export default function AddTransactionDrawer({
                 onClose={() => setActiveField(null)}
               />
             )}
-            {errors.account && <p className="text-xs text-red-600">{errors.account}</p>}
             {errors.payment && <p className="text-xs text-red-600">{errors.payment}</p>}
 
             {/* Notes */}
             <button
               type="button"
               onClick={() => open_(activeField === 'notes' ? null : 'notes')}
-              className="w-full flex items-center gap-[10px] py-[10px] text-left"
+              className="w-full flex items-center gap-[10px] py-[14px] text-left"
             >
-              <div className="w-[28px] h-[28px] rounded-[8px] bg-[#f8fafc] flex items-center justify-center text-[13px] flex-shrink-0">📝</div>
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#f8fafc] flex items-center justify-center text-[16px] flex-shrink-0">📝</div>
               <div className="flex-1 min-w-0">
-                <div className="text-[9px] font-bold text-text-muted uppercase tracking-[0.07em]">Notes</div>
-                <div className="text-[13px] font-medium mt-[1px] truncate" style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}>
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">Notes</div>
+                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}>
                   {form.notes || 'Optional notes…'}
                 </div>
               </div>
@@ -534,7 +536,7 @@ export default function AddTransactionDrawer({
           <button
             type="button"
             onClick={startClose}
-            className="flex-1 rounded-xl border border-border py-3 text-sm font-semibold text-text hover:bg-surface-alt transition-colors"
+            className="flex-1 rounded-xl border border-border py-[14px] text-base font-semibold text-text hover:bg-surface-alt transition-colors"
           >
             Cancel
           </button>
@@ -543,7 +545,7 @@ export default function AddTransactionDrawer({
             type="submit"
             form="add-tx-form"
             disabled={loading}
-            className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
+            className="flex-1 rounded-xl py-[14px] text-base font-semibold text-white transition-opacity disabled:opacity-60"
             style={{ background: saveGradient, boxShadow: saveShadow }}
           >
             {loading ? 'Saving…' : editId ? 'Update' : 'Save'}

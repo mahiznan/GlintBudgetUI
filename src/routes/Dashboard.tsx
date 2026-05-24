@@ -28,6 +28,11 @@ function getGroupField(t: { account: string; currency: string; vendor: string; p
   return t.category;
 }
 
+function formatPathLabel(label: string): string {
+  const parts = label.split('|');
+  return parts.length === 2 ? `${parts[0]} · ${parts[1]}` : label;
+}
+
 function getCurrencySymbol(code: string): string {
   try {
     const parts = new Intl.NumberFormat('en', { style: 'currency', currency: code }).formatToParts(1);
@@ -60,6 +65,7 @@ export default function Dashboard() {
   const [periodOffset, setPeriodOffset] = useState<number>(0);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrillState((prev) => ({ ...prev, path: [] }));
     setPeriodOffset(0);
   }, [period]);
@@ -67,6 +73,12 @@ export default function Dashboard() {
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
   const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
+
+  // Build code→symbol from preference so e.g. SGD → "$" instead of Intl's "SGD"
+  const currencySymbolMap = useMemo((): Record<string, string> => {
+    if (!preference) return {};
+    return { [preference.defaultCurrency.code]: preference.defaultCurrency.symbol };
+  }, [preference]);
 
   const referenceDate = useMemo(
     () => shiftPeriodDate(period, periodOffset),
@@ -169,39 +181,49 @@ export default function Dashboard() {
       return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
     }
 
-    // account | vendor: 4-level drill (groupItem → currency → category → subCategory)
+    // account | vendor: composite top level (groupItem|currency), then category → subCategory → transactions
     if (groupBy === 'account' || groupBy === 'vendor') {
-      if (path.length === 0) return toItems(filtered, (t) => getGroupField(t, groupBy));
-      const byGroup = filtered.filter((t) => getGroupField(t, groupBy) === path[0]);
-      if (path.length === 1) {
-        const currTotals = byGroup.reduce<Record<string, { total: number }>>((acc, t) => {
-          if (!acc[t.currency]) acc[t.currency] = { total: 0 };
-          acc[t.currency]!.total += Math.abs(t.amount);
-          return acc;
-        }, {});
-        const sum = Object.values(currTotals).reduce((s, { total }) => s + total, 0);
-        return Object.entries(currTotals)
+      if (path.length === 0) {
+        const totals = filtered.reduce<Record<string, { total: number; groupName: string; currency: string }>>(
+          (acc, t) => {
+            const groupName = getGroupField(t, groupBy);
+            const composite = `${groupName}|${t.currency}`;
+            if (!acc[composite]) acc[composite] = { total: 0, groupName, currency: t.currency };
+            acc[composite]!.total += Math.abs(t.amount);
+            return acc;
+          },
+          {},
+        );
+        const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
+        return Object.entries(totals)
           .sort(([, a], [, b]) => b.total - a.total)
-          .map(([code, { total }]) => ({
-            name: code,
-            icon: getCurrencySymbol(code),
-            total,
-            pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-            symbol: getCurrencySymbol(code),
-          }));
+          .map(([composite, { total, groupName, currency }]) => {
+            const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
+            return {
+              name: groupName,
+              icon: sym,
+              total,
+              pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+              symbol: sym,
+              key: composite,
+            };
+          });
       }
-      const byCurrency = byGroup.filter((t) => t.currency === path[1]);
-      if (path.length === 2) return toItems(byCurrency, (t) => t.category);
-      if (path.length === 3)
+      const [groupName, currencyCode] = path[0]!.split('|') as [string, string];
+      const byGroupAndCurrency = filtered.filter(
+        (t) => getGroupField(t, groupBy) === groupName && t.currency === currencyCode,
+      );
+      if (path.length === 1) return toItems(byGroupAndCurrency, (t) => t.category);
+      if (path.length === 2)
         return toItems(
-          byCurrency.filter((t) => t.category === path[2]),
+          byGroupAndCurrency.filter((t) => t.category === path[1]),
           (t) => t.subCategory,
         );
-      const subcatTxns4 = byCurrency.filter(
-        (t) => t.category === path[2] && t.subCategory === path[3],
+      const subcatTxns4 = byGroupAndCurrency.filter(
+        (t) => t.category === path[1] && t.subCategory === path[2],
       );
       const total4 = subcatTxns4.reduce((s, t) => s + Math.abs(t.amount), 0);
-      return [{ name: path[3]!, icon: subcatTxns4[0]?.icon ?? '📦', total: total4, pct: 100 }];
+      return [{ name: path[2]!, icon: subcatTxns4[0]?.icon ?? '📦', total: total4, pct: 100 }];
     }
 
     // currency | payment: 3-level drill (groupItem → category → subCategory)
@@ -224,12 +246,11 @@ export default function Dashboard() {
     );
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
     return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
-  }, [heroTxns, periodTxns, categoryMode, drillState]);
+  }, [heroTxns, periodTxns, categoryMode, drillState, currencySymbolMap]);
 
   const drillTransactions = useMemo((): typeof heroTxns | undefined => {
     const { groupBy, path } = drillState;
-    const maxDepth =
-      groupBy === 'category' ? 2 : groupBy === 'account' || groupBy === 'vendor' ? 4 : 3;
+    const maxDepth = groupBy === 'category' ? 2 : 3;
     if (path.length !== maxDepth) return undefined;
 
     const txns = groupBy === 'category' ? heroTxns : periodTxns;
@@ -245,13 +266,14 @@ export default function Dashboard() {
     }
 
     if (groupBy === 'account' || groupBy === 'vendor') {
+      const [groupName, currencyCode] = path[0]!.split('|') as [string, string];
       return filtered
         .filter(
           (t) =>
-            getGroupField(t, groupBy) === path[0] &&
-            t.currency === path[1] &&
-            t.category === path[2] &&
-            t.subCategory === path[3],
+            getGroupField(t, groupBy) === groupName &&
+            t.currency === currencyCode &&
+            t.category === path[1] &&
+            t.subCategory === path[2],
         )
         .sort((a, b) => b.date.getTime() - a.date.getTime());
     }
@@ -268,11 +290,12 @@ export default function Dashboard() {
 
   const activeCurrencySymbol = useMemo(() => {
     const { groupBy, path } = drillState;
-    if ((groupBy === 'account' || groupBy === 'vendor') && path.length >= 2) {
-      return getCurrencySymbol(path[1]!);
+    if ((groupBy === 'account' || groupBy === 'vendor') && path.length >= 1) {
+      const currencyCode = path[0]!.split('|')[1];
+      if (currencyCode) return currencySymbolMap[currencyCode] ?? getCurrencySymbol(currencyCode);
     }
     return currencySymbol;
-  }, [drillState, currencySymbol]);
+  }, [drillState, currencySymbol, currencySymbolMap]);
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -336,12 +359,12 @@ export default function Dashboard() {
             groupBy={drillState.groupBy}
             onGroupByChange={handleGroupByChange}
             drillLevel={drillState.path.length}
-            drillLabel={drillState.path.at(-1)}
+            drillLabel={drillState.path.at(-1) !== undefined ? formatPathLabel(drillState.path.at(-1)!) : undefined}
             backLabel={
               drillState.path.length === 1
                 ? '← Back'
                 : drillState.path.length > 1
-                  ? `← ${drillState.path.at(-2)}`
+                  ? `← ${formatPathLabel(drillState.path.at(-2)!)}`
                   : undefined
             }
             onBack={

@@ -7,7 +7,7 @@ interface TypeToggleProps {
 
 export default function TypeToggle({ value, onChange }: TypeToggleProps) {
   return (
-    <div className="flex w-full h-[52px] flex-shrink-0">
+    <div className="flex w-full h-[64px] flex-shrink-0">
       {(['expense', 'income'] as TxType[]).map((type) => {
         const isActive = value === type;
         return (

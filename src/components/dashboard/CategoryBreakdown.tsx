@@ -10,6 +10,7 @@ export interface CategoryItem {
   total: number;
   pct: number;
   symbol?: string;
+  key?: string;
 }
 
 export type Mode = 'expense' | 'income';
@@ -141,7 +142,7 @@ export default function CategoryBreakdown({
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {categories.map(({ name, icon, total, pct, symbol }, i) => {
+          {categories.map(({ name, icon, total, pct, symbol, key }, i) => {
             const barContent = (
               <>
                 <span className="text-lg w-6 text-center">{icon || '📦'}</span>
@@ -170,7 +171,7 @@ export default function CategoryBreakdown({
               <button
                 key={name}
                 type="button"
-                onClick={() => onItemClick(name)}
+                onClick={() => onItemClick(key ?? name)}
                 className="w-full flex items-center gap-3 cursor-pointer rounded-xl px-1 py-0.5 hover:bg-surface-alt transition-colors text-left"
               >
                 {barContent}
