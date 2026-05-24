@@ -126,6 +126,22 @@ describe('CategoryBreakdown — drill-down', () => {
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
+  it('hides toggle and dropdown at drillLevel 2', () => {
+    render(
+      <CategoryBreakdown
+        {...baseProps}
+        categories={[makeCategory('Restaurants', 1500, 60)]}
+        drillLevel={2}
+        drillLabel="Restaurants"
+        backLabel="← Food"
+        onBack={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /expense/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /income/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
   it('calls onItemClick with category name when a row is clicked', async () => {
     const user = userEvent.setup();
     const onItemClick = vi.fn();

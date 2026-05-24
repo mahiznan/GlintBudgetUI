@@ -70,6 +70,7 @@ export default function CategoryBreakdown({
           </div>
         ) : (
           <select
+            aria-label="Group by"
             value={groupBy}
             onChange={(e) => onGroupByChange(e.target.value as GroupBy)}
             className="text-xs font-semibold text-text-muted bg-surface-alt border border-border rounded-lg px-2 py-1 cursor-pointer"
