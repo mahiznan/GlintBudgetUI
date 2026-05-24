@@ -12,13 +12,24 @@ export interface CategoryItem {
 }
 
 export type Mode = 'expense' | 'income';
+export type GroupBy = 'category' | 'account' | 'currency' | 'vendor' | 'payment';
+
+const GROUP_LABELS: Record<GroupBy, string> = {
+  category: 'Category',
+  account: 'Account',
+  currency: 'Currency',
+  vendor: 'Vendor',
+  payment: 'Payment',
+};
 
 interface CategoryBreakdownProps {
   categories: CategoryItem[];
   mode: Mode;
   onModeChange: (mode: Mode) => void;
   currencySymbol: string;
-  drillLevel?: 0 | 1 | 2;
+  groupBy: GroupBy;
+  onGroupByChange: (g: GroupBy) => void;
+  drillLevel?: number;
   drillLabel?: string;
   backLabel?: string;
   onItemClick?: (name: string) => void;
@@ -31,6 +42,8 @@ export default function CategoryBreakdown({
   mode,
   onModeChange,
   currencySymbol,
+  groupBy,
+  onGroupByChange,
   drillLevel = 0,
   drillLabel,
   backLabel,
@@ -56,9 +69,19 @@ export default function CategoryBreakdown({
             <span className="text-sm font-semibold text-text truncate">{drillLabel}</span>
           </div>
         ) : (
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
+          <select
+            value={groupBy}
+            onChange={(e) => onGroupByChange(e.target.value as GroupBy)}
+            className="text-xs font-semibold text-text-muted bg-surface-alt border border-border rounded-lg px-2 py-1 cursor-pointer"
+          >
+            {(Object.keys(GROUP_LABELS) as GroupBy[]).map((g) => (
+              <option key={g} value={g}>
+                {GROUP_LABELS[g]}
+              </option>
+            ))}
+          </select>
         )}
-        {drillLevel < 2 && (
+        {drillLevel === 0 && (
           <div className="inline-flex rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5 flex-shrink-0">
             {(['expense', 'income'] as Mode[]).map((m) => (
               <button
@@ -82,7 +105,7 @@ export default function CategoryBreakdown({
         )}
       </div>
 
-      {drillLevel === 2 && transactions ? (
+      {transactions !== undefined ? (
         transactions.length === 0 ? (
           <p className="text-sm text-text-muted py-4 text-center">No transactions</p>
         ) : (
