@@ -18,7 +18,7 @@ export default function AppShell() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-surface-alt">
+      <main className="flex-1 overflow-y-auto bg-surface-alt [scrollbar-gutter:stable]">
         <div className="max-w-5xl mx-auto w-full">
           <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
         </div>
