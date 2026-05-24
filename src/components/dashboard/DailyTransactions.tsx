@@ -130,6 +130,7 @@ export default function DailyTransactions({
             <button
               type="button"
               aria-label="Pick a date"
+              aria-haspopup="true"
               aria-expanded={calendarOpen}
               onClick={() => setCalendarOpen((o) => !o)}
               className="p-0.5 rounded text-text-muted hover:text-brand transition-colors"
