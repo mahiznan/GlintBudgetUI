@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
 
@@ -18,14 +18,20 @@ const makeCategory = (name: string, total: number, pct: number): CategoryItem =>
   pct,
 });
 
-const baseProps = {
+const makeBaseProps = () => ({
   categories: [] as CategoryItem[],
   mode: 'expense' as const,
   onModeChange: vi.fn(),
   currencySymbol: '₹',
   groupBy: 'category' as const,
   onGroupByChange: vi.fn(),
-};
+});
+
+let baseProps: ReturnType<typeof makeBaseProps>;
+
+beforeEach(() => {
+  baseProps = makeBaseProps();
+});
 
 describe('CategoryBreakdown', () => {
   it('renders groupBy dropdown at level 0', () => {
@@ -86,21 +92,6 @@ describe('CategoryBreakdown', () => {
     expect(screen.getByText(/no income for this period/i)).toBeInTheDocument();
   });
 
-  it('hides toggle and dropdown at drillLevel 1', () => {
-    render(
-      <CategoryBreakdown
-        {...baseProps}
-        categories={[makeCategory('Food', 1500, 60)]}
-        drillLevel={1}
-        drillLabel="Food"
-        backLabel="← Back"
-        onBack={vi.fn()}
-      />,
-    );
-    expect(screen.queryByRole('button', { name: /expense/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /income/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-  });
 });
 
 const makeTxn = (id: string, vendor: string, date: Date): Transaction => ({
@@ -119,6 +110,22 @@ const makeTxn = (id: string, vendor: string, date: Date): Transaction => ({
 });
 
 describe('CategoryBreakdown — drill-down', () => {
+  it('hides toggle and dropdown at drillLevel 1', () => {
+    render(
+      <CategoryBreakdown
+        {...baseProps}
+        categories={[makeCategory('Food', 1500, 60)]}
+        drillLevel={1}
+        drillLabel="Food"
+        backLabel="← Back"
+        onBack={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /expense/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /income/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
   it('calls onItemClick with category name when a row is clicked', async () => {
     const user = userEvent.setup();
     const onItemClick = vi.fn();
