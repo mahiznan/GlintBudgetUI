@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, type TransitionEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
+import { CURRENCIES } from '../../lib/currencies';
 import {
   getMondayOf,
   getWeekDays,
   isSameDay,
   isCurrentWeek,
-  formatCurrency,
   formatTime,
   formatDayHeading,
   dayOfWeekOffset,
@@ -15,6 +15,8 @@ import {
 } from '../../lib/dateUtils';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import MiniCalendar from '../form/MiniCalendar';
+
+const SYMBOL: Record<string, string> = Object.fromEntries(CURRENCIES.map((c) => [c.code, c.symbol]));
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
@@ -42,20 +44,16 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
-          {formatDayHeading(date)}
-        </p>
-        <span className="text-sm font-bold font-mono text-red-600">
-          −{formatCurrency(dayExpenses, currencySymbol)}
-        </span>
-      </div>
+      <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
+        {formatDayHeading(date)}
+      </p>
       {dayTxns.length === 0 ? (
         <p className="text-sm text-text-muted py-4 text-center">No transactions for this day</p>
       ) : (
         <div className="flex flex-col divide-y divide-border">
           {dayTxns.map((tx) => {
             const isExpense = tx.amount < 0;
+            const txSymbol = SYMBOL[tx.currency] ?? tx.currency;
             return (
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
@@ -67,12 +65,13 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span
-                    className={`text-sm font-mono font-semibold ${
+                    className={`text-sm font-semibold ${
                       isExpense ? 'text-red-600' : 'text-brand'
                     }`}
                   >
                     {isExpense ? '−' : '+'}
-                    {formatCurrency(Math.abs(tx.amount), currencySymbol)}
+                    <span className="text-[10px] mr-0.5">{txSymbol}</span>
+                    {Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   <button
                     type="button"
@@ -94,6 +93,22 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
               </div>
             );
           })}
+        </div>
+      )}
+      {dayTxns.length > 0 && dayExpenses > 0 && (
+        <div className="border-t border-border pt-2 flex items-center gap-3">
+          <span className="w-8 flex-shrink-0" aria-hidden="true" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-text-muted">Day total</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-base font-bold text-red-600">
+              −<span className="text-xs mr-0.5">{currencySymbol}</span>
+              {dayExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span className="p-1 invisible select-none" aria-hidden="true">✏️</span>
+            <span className="p-1 invisible select-none" aria-hidden="true">🗑</span>
+          </div>
         </div>
       )}
     </div>
@@ -268,15 +283,6 @@ export default function DailyTransactions({
           >
             See all →
           </Link>
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ background: 'var(--brand-gradient)' }}
-            aria-label="Add transaction"
-          >
-            + Add
-          </button>
         </div>
       </div>
 

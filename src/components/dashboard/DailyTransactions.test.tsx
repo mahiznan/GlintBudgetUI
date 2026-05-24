@@ -99,7 +99,10 @@ describe('DailyTransactions — transaction list', () => {
 
   it('formats amount with currency symbol', () => {
     renderDT([makeTx('tx1', 'Zepto', -500, todayAt())]);
-    expect(screen.getAllByText(/₹500/).length).toBeGreaterThan(0);
+    // Symbol and number are in separate spans; check via the full transaction row
+    const row = screen.getByText('Zepto').closest('div')!.parentElement!;
+    expect(row.textContent).toMatch(/₹/);
+    expect(row.textContent).toMatch(/500/);
   });
 
   it('calls onDelete when delete button is clicked', async () => {
@@ -178,11 +181,10 @@ describe('DailyTransactions — week navigation', () => {
 });
 
 describe('DailyTransactions — expense sum', () => {
-  it('shows zero expense total next to date heading when no transactions', () => {
+  it('hides day total when there are no transactions', () => {
     renderDT([]);
-    // The zero sum shows as −₹0.00; three-panel carousel renders it for all three days
-    const sumEls = screen.getAllByText(/−.*0/);
-    expect(sumEls.length).toBeGreaterThan(0);
+    // Day total footer is only rendered when dayExpenses > 0
+    expect(screen.queryByText('Day total')).not.toBeInTheDocument();
   });
 
   it("shows correct expense sum for today's transactions", () => {
@@ -210,35 +212,9 @@ describe('DailyTransactions — expense sum', () => {
 });
 
 describe('DailyTransactions — Add button', () => {
-  it('renders an Add button (not a navigation link to /app/transactions/new)', () => {
+  it('does not render an Add transaction button (moved to global FAB)', () => {
     renderDT([]);
-    expect(screen.getByRole('button', { name: /add transaction/i })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /add/i })).not.toBeInTheDocument();
-  });
-
-  it('clicking Add opens the drawer', async () => {
-    renderDT([]);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: /add transaction/i }));
-    expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
-  });
-
-  it('passes the selected date to AddTransactionDrawer as selectedDate', async () => {
-    const user = userEvent.setup();
-    render(
-      <MemoryRouter>
-        <DailyTransactions
-          transactions={[]}
-          currencySymbol="₹"
-          onDelete={vi.fn()}
-          onTransactionAdded={vi.fn()}
-        />
-      </MemoryRouter>,
-    );
-    // Open the drawer
-    await user.click(screen.getByRole('button', { name: /add transaction/i }));
-    // The drawer should be in the DOM
-    expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /add transaction/i })).not.toBeInTheDocument();
   });
 });
 
