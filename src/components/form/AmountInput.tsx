@@ -34,6 +34,7 @@ export default function AmountInput({
         <input
           id="amount-input"
           type="number"
+          inputMode="decimal"
           min="0.01"
           step="0.01"
           value={value}

@@ -41,6 +41,21 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
     );
   }, [value]);
 
+  function moveDate(deltaDays: number) {
+    const base = value || toDateStr(new Date());
+    const d = new Date(base + 'T00:00:00');
+    d.setDate(d.getDate() + deltaDays);
+    const newStr = toDateStr(d);
+    if (disableFuture && newStr > toDateStr(new Date())) return;
+    onChange(newStr);
+    setViewDate((prev) =>
+      prev.getFullYear() === d.getFullYear() && prev.getMonth() === d.getMonth()
+        ? prev
+        : new Date(d.getFullYear(), d.getMonth(), 1),
+    );
+  }
+
+
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const days = getCalendarDays(year, month);
@@ -61,7 +76,19 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
   const disableFuture = activeType === 'brand';
 
   return (
-    <div className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[12px] pb-[14px]">
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[12px] pb-[14px] outline-none focus-visible:ring-2 focus-visible:ring-brand/30 rounded-sm"
+      tabIndex={0}
+      // eslint-disable-next-line jsx-a11y/no-autofocus
+      autoFocus
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); moveDate(-1); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); moveDate(1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); moveDate(-7); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); moveDate(7); }
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-[10px]">
         <span className="text-[13px] font-bold text-text">{monthLabel}</span>
@@ -109,7 +136,7 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
               type="button"
               onClick={() => onChange(ds)}
               disabled={isFuture}
-              className="aspect-square flex items-center justify-center text-[11px] font-medium rounded-[6px] disabled:cursor-not-allowed"
+              className="aspect-square flex items-center justify-center text-[22px] font-medium rounded-[6px] disabled:cursor-not-allowed"
               style={
                 isFuture
                   ? { color: '#cbd5e1', opacity: 0.4 }
