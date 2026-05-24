@@ -133,7 +133,7 @@ export default function DailyTransactions({
               aria-haspopup="true"
               aria-expanded={calendarOpen}
               onClick={() => setCalendarOpen((o) => !o)}
-              className="p-0.5 rounded text-sm leading-none opacity-70 hover:opacity-100 transition-opacity"
+              className="p-0.5 rounded text-base leading-none opacity-70 hover:opacity-100 transition-opacity"
             >
               📅
             </button>
