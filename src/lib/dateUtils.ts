@@ -191,3 +191,55 @@ export function formatDayHeading(date: Date): string {
 export function dayOfWeekOffset(d: Date): number {
   return d.getDay() === 0 ? 6 : d.getDay() - 1;
 }
+
+export function shiftPeriodDate(period: Period, offset: number, now = new Date()): Date {
+  const d = new Date(now);
+  switch (period) {
+    case 'day':
+      d.setDate(d.getDate() + offset);
+      break;
+    case 'week':
+      d.setDate(d.getDate() + offset * 7);
+      break;
+    case 'month':
+      d.setMonth(d.getMonth() + offset);
+      break;
+    case 'quarter':
+      d.setMonth(d.getMonth() + offset * 3);
+      break;
+    case 'year':
+      d.setFullYear(d.getFullYear() + offset);
+      break;
+  }
+  return d;
+}
+
+export function getPeriodLabel(period: Period, referenceDate: Date): string {
+  switch (period) {
+    case 'day':
+      return referenceDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    case 'week': {
+      const monday = getMondayOf(referenceDate);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      const fmt = (d: Date) =>
+        d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `${fmt(monday)} – ${fmt(sunday)}`;
+    }
+    case 'month':
+      return referenceDate.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      });
+    case 'quarter': {
+      const q = Math.floor(referenceDate.getMonth() / 3) + 1;
+      return `Q${q} ${referenceDate.getFullYear()}`;
+    }
+    case 'year':
+      return String(referenceDate.getFullYear());
+  }
+}

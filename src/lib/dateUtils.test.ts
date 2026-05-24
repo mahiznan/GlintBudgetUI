@@ -11,6 +11,8 @@ import {
   isCurrentWeek,
   formatDayHeading,
   dayOfWeekOffset,
+  shiftPeriodDate,
+  getPeriodLabel,
 } from './dateUtils';
 
 describe('getPeriodRange', () => {
@@ -253,5 +255,74 @@ describe('getChartDateRange', () => {
     expect(end.getMonth()).toBe(11);
     expect(end.getDate()).toBe(31);
     expect(end.getFullYear()).toBe(2026);
+  });
+});
+
+describe('shiftPeriodDate', () => {
+  // May 15, 2026 is a Friday (confirmed: May 17 is Sunday per existing tests)
+  const base = new Date(2026, 4, 15, 12, 0, 0);
+
+  it('shifts day by -3', () => {
+    const r = shiftPeriodDate('day', -3, base);
+    expect(r.getFullYear()).toBe(2026);
+    expect(r.getMonth()).toBe(4);
+    expect(r.getDate()).toBe(12);
+  });
+
+  it('shifts week by -1 (subtracts 7 days)', () => {
+    const r = shiftPeriodDate('week', -1, base);
+    expect(r.getMonth()).toBe(4);
+    expect(r.getDate()).toBe(8); // May 15 - 7 = May 8
+  });
+
+  it('shifts month by -1', () => {
+    const r = shiftPeriodDate('month', -1, base);
+    expect(r.getMonth()).toBe(3); // April
+    expect(r.getFullYear()).toBe(2026);
+  });
+
+  it('shifts quarter by -1 (subtracts 3 months)', () => {
+    const r = shiftPeriodDate('quarter', -1, base);
+    expect(r.getMonth()).toBe(1); // February (May - 3 = Feb)
+    expect(r.getFullYear()).toBe(2026);
+  });
+
+  it('shifts year by -1', () => {
+    const r = shiftPeriodDate('year', -1, base);
+    expect(r.getFullYear()).toBe(2025);
+    expect(r.getMonth()).toBe(4); // still May
+  });
+
+  it('returns a copy at offset 0 (not the same object)', () => {
+    const r = shiftPeriodDate('month', 0, base);
+    expect(r.getMonth()).toBe(4); // May
+    expect(r).not.toBe(base);
+  });
+});
+
+describe('getPeriodLabel', () => {
+  // May 15, 2026 is a Friday → ISO week Mon May 11 – Sun May 17
+  const ref = new Date(2026, 4, 15, 12, 0, 0);
+
+  it('formats day', () => {
+    expect(getPeriodLabel('day', ref)).toBe('May 15, 2026');
+  });
+
+  it('formats week as Mon – Sun range using en dash', () => {
+    // getMondayOf(May 15 Fri) = May 11; Sunday = May 17
+    expect(getPeriodLabel('week', ref)).toBe('May 11 – May 17');
+  });
+
+  it('formats month', () => {
+    expect(getPeriodLabel('month', ref)).toBe('May 2026');
+  });
+
+  it('formats quarter', () => {
+    // May (month index 4): floor(4/3)+1 = 2
+    expect(getPeriodLabel('quarter', ref)).toBe('Q2 2026');
+  });
+
+  it('formats year', () => {
+    expect(getPeriodLabel('year', ref)).toBe('2026');
   });
 });
