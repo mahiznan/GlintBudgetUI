@@ -22,6 +22,83 @@ interface DailyTransactionsProps {
   onTransactionAdded?: () => void;
 }
 
+interface DayPanelProps {
+  date: Date;
+  transactions: Transaction[];
+  currencySymbol: string;
+  onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
+}
+
+function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayPanelProps) {
+  const dayTxns = transactions
+    .filter((t) => isSameDay(t.date, date))
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  const dayExpenses = dayTxns
+    .filter((t) => t.amount < 0)
+    .reduce((s, t) => s + Math.abs(t.amount), 0);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
+          {formatDayHeading(date)}
+        </p>
+        <span className="text-sm font-bold font-mono text-red-600">
+          −{formatCurrency(dayExpenses, currencySymbol)}
+        </span>
+      </div>
+      {dayTxns.length === 0 ? (
+        <p className="text-sm text-text-muted py-4 text-center">No transactions for this day</p>
+      ) : (
+        <div className="flex flex-col divide-y divide-border">
+          {dayTxns.map((tx) => {
+            const isExpense = tx.amount < 0;
+            return (
+              <div key={tx.id} className="flex items-center gap-3 py-2.5">
+                <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-text truncate">{tx.vendor}</p>
+                  <p className="text-xs text-text-muted">
+                    {tx.category} · {formatTime(tx.date)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span
+                    className={`text-sm font-mono font-semibold ${
+                      isExpense ? 'text-red-600' : 'text-brand'
+                    }`}
+                  >
+                    {isExpense ? '−' : '+'}
+                    {formatCurrency(Math.abs(tx.amount), currencySymbol)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(tx.id)}
+                    className="text-text-muted hover:text-brand p-1"
+                    aria-label={`Edit ${tx.vendor}`}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(tx.id)}
+                    className="text-text-muted hover:text-red-600 p-1"
+                    aria-label={`Delete ${tx.vendor}`}
+                  >
+                    🗑
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DailyTransactions({
   transactions,
   currencySymbol,
@@ -95,14 +172,6 @@ export default function DailyTransactions({
       document.removeEventListener('keydown', handleKey);
     };
   }, [calendarOpen]);
-
-  const dayTxns = transactions
-    .filter((t) => isSameDay(t.date, selectedDate))
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
-
-  const dayExpenses = dayTxns
-    .filter((t) => t.amount < 0)
-    .reduce((s, t) => s + Math.abs(t.amount), 0);
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
@@ -246,63 +315,13 @@ export default function DailyTransactions({
         </button>
       </div>
 
-      {/* Selected date heading + daily expense total */}
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
-          {formatDayHeading(selectedDate)}
-        </p>
-        <span className="text-sm font-bold font-mono text-red-600">
-          −{formatCurrency(dayExpenses, currencySymbol)}
-        </span>
-      </div>
-
-      {/* Transaction list */}
-      {dayTxns.length === 0 ? (
-        <p className="text-sm text-text-muted py-4 text-center">No transactions for this day</p>
-      ) : (
-        <div className="flex flex-col divide-y divide-border">
-          {dayTxns.map((tx) => {
-            const isExpense = tx.amount < 0;
-            return (
-              <div key={tx.id} className="flex items-center gap-3 py-2.5">
-                <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text truncate">{tx.vendor}</p>
-                  <p className="text-xs text-text-muted">
-                    {tx.category} · {formatTime(tx.date)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span
-                    className={`text-sm font-mono font-semibold ${
-                      isExpense ? 'text-red-600' : 'text-brand'
-                    }`}
-                  >
-                    {isExpense ? '−' : '+'}
-                    {formatCurrency(Math.abs(tx.amount), currencySymbol)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => { setEditingId(tx.id); setDrawerOpen(true); }}
-                    className="text-text-muted hover:text-brand p-1"
-                    aria-label={`Edit ${tx.vendor}`}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(tx.id)}
-                    className="text-text-muted hover:text-red-600 p-1"
-                    aria-label={`Delete ${tx.vendor}`}
-                  >
-                    🗑
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <DayPanel
+        date={selectedDate}
+        transactions={transactions}
+        currencySymbol={currencySymbol}
+        onDelete={onDelete}
+        onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+      />
       <AddTransactionDrawer
         open={drawerOpen}
         onClose={() => { setDrawerOpen(false); setEditingId(null); }}
