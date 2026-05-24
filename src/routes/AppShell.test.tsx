@@ -1,4 +1,19 @@
+vi.mock('../context/TransactionContext', () => ({
+  useTransactionContext: () => ({
+    transactions: [],
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+}));
+
+vi.mock('../components/transactions/AddTransactionDrawer', () => ({
+  default: ({ open }: { open: boolean }) =>
+    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+}));
+
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
@@ -72,6 +87,32 @@ describe('AppShell nav links', () => {
       </AuthContext.Provider>,
     );
     expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+  });
+});
+
+describe('AppShell — FAB', () => {
+  it('renders an "Add transaction" FAB button', () => {
+    render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(screen.getByRole('button', { name: /add transaction/i })).toBeInTheDocument();
+  });
+
+  it('clicking the FAB opens the AddTransactionDrawer', async () => {
+    render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /add transaction/i }));
+    expect(screen.getByRole('dialog', { name: /new transaction/i })).toBeInTheDocument();
   });
 });
 
