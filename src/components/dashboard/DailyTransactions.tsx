@@ -354,7 +354,7 @@ export default function DailyTransactions({
         </button>
       </div>
 
-      <div className="overflow-hidden">
+      <div className="overflow-hidden w-full">
         <div
           data-testid="carousel-track"
           ref={trackRef}
@@ -371,7 +371,7 @@ export default function DailyTransactions({
           onTransitionEnd={onTransitionEnd}
         >
           {(['left', 'center', 'right'] as const).map((slot) => (
-            <div key={slot} className="w-1/3 min-w-0">
+            <div key={slot} className="w-1/3 min-w-0 flex-shrink-0 overflow-hidden">
               <DayPanel
                 date={panels[slot]}
                 transactions={transactions}
