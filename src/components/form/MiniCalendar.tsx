@@ -76,11 +76,9 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
   const disableFuture = activeType === 'brand';
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[12px] pb-[14px] outline-none focus-visible:ring-2 focus-visible:ring-brand/30 rounded-sm"
       tabIndex={0}
-      // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
       onKeyDown={(e) => {
         if (e.key === 'ArrowLeft') { e.preventDefault(); moveDate(-1); }
