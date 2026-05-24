@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
 
 vi.mock('../../context/ThemeContext', () => ({
@@ -195,38 +194,37 @@ describe('CategoryBreakdown — drill-down', () => {
       makeTxn('t2', "Domino's", new Date('2026-05-15')),
     ];
     render(
-      <MemoryRouter>
-        <CategoryBreakdown
-          {...baseProps}
-          categories={[makeCategory('Dining Out', 1000, 100)]}
-          drillLevel={2}
-          drillLabel="Dining Out"
-          backLabel="← Food"
-          onBack={vi.fn()}
-          transactions={txns}
-        />
-      </MemoryRouter>,
+      <CategoryBreakdown
+        {...baseProps}
+        categories={[makeCategory('Dining Out', 1000, 100)]}
+        drillLevel={2}
+        drillLabel="Dining Out"
+        backLabel="← Food"
+        onBack={vi.fn()}
+        transactions={txns}
+      />,
     );
     expect(screen.getByText('Pizza Hut')).toBeInTheDocument();
     expect(screen.getByText("Domino's")).toBeInTheDocument();
   });
 
-  it('transaction rows link to the edit form when transactions prop is passed', () => {
+  it('calls onEdit with transaction id when a drilled transaction row is clicked', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
     const txns = [makeTxn('txn-abc', 'Pizza Hut', new Date())];
     render(
-      <MemoryRouter>
-        <CategoryBreakdown
-          {...baseProps}
-          categories={[makeCategory('Dining Out', 500, 100)]}
-          drillLevel={2}
-          drillLabel="Dining Out"
-          backLabel="← Food"
-          onBack={vi.fn()}
-          transactions={txns}
-        />
-      </MemoryRouter>,
+      <CategoryBreakdown
+        {...baseProps}
+        categories={[makeCategory('Dining Out', 500, 100)]}
+        drillLevel={2}
+        drillLabel="Dining Out"
+        backLabel="← Food"
+        onBack={vi.fn()}
+        transactions={txns}
+        onEdit={onEdit}
+      />,
     );
-    const link = screen.getByRole('link', { name: /Pizza Hut/i });
-    expect(link).toHaveAttribute('href', '/app/transactions/txn-abc/edit');
+    await user.click(screen.getByRole('button', { name: /Pizza Hut/i }));
+    expect(onEdit).toHaveBeenCalledWith('txn-abc');
   });
 });

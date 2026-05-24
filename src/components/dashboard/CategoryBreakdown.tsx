@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { formatCurrency, formatDateShort } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
@@ -37,6 +36,7 @@ interface CategoryBreakdownProps {
   onItemClick?: (name: string) => void;
   onBack?: () => void;
   transactions?: Transaction[];
+  onEdit?: (id: string) => void;
 }
 
 export default function CategoryBreakdown({
@@ -52,6 +52,7 @@ export default function CategoryBreakdown({
   onItemClick,
   onBack,
   transactions,
+  onEdit,
 }: CategoryBreakdownProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
@@ -114,10 +115,11 @@ export default function CategoryBreakdown({
         ) : (
           <div className="flex flex-col gap-1">
             {transactions.map((t) => (
-              <Link
+              <button
                 key={t.id}
-                to={`/app/transactions/${t.id}/edit`}
-                className="flex items-center gap-3 px-1 py-2 rounded-xl hover:bg-surface-alt transition-colors"
+                type="button"
+                onClick={() => onEdit?.(t.id)}
+                className="w-full flex items-center gap-3 px-1 py-2 rounded-xl hover:bg-surface-alt transition-colors text-left"
               >
                 <span className="text-lg w-6 text-center">{t.icon || '📦'}</span>
                 <div className="flex-1 min-w-0">
@@ -132,7 +134,7 @@ export default function CategoryBreakdown({
                   {t.amount < 0 ? '-' : '+'}
                   {formatCurrency(Math.abs(t.amount), currencySymbol)}
                 </span>
-              </Link>
+              </button>
             ))}
           </div>
         )
