@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
 import {
@@ -10,8 +10,10 @@ import {
   formatTime,
   formatDayHeading,
   dayOfWeekOffset,
+  localDateStr,
 } from '../../lib/dateUtils';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
+import MiniCalendar from '../form/MiniCalendar';
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
@@ -34,6 +36,8 @@ export default function DailyTransactions({
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
@@ -69,6 +73,29 @@ export default function DailyTransactions({
     }
   }
 
+  function handleCalendarPick(dateStr: string) {
+    const picked = new Date(dateStr + 'T00:00:00');
+    setWeekStart(getMondayOf(picked));
+    setSelectedDate(picked);
+    setCalendarOpen(false);
+  }
+
+  useEffect(() => {
+    if (!calendarOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (!calendarRef.current?.contains(e.target as Node)) setCalendarOpen(false);
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setCalendarOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [calendarOpen]);
+
   const dayTxns = transactions
     .filter((t) => isSameDay(t.date, selectedDate))
     .sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -99,6 +126,41 @@ export default function DailyTransactions({
           >
             Today
           </button>
+          <div ref={calendarRef} className="relative">
+            <button
+              type="button"
+              aria-label="Pick a date"
+              aria-expanded={calendarOpen}
+              onClick={() => setCalendarOpen((o) => !o)}
+              className="p-0.5 rounded text-text-muted hover:text-brand transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </button>
+            {calendarOpen && (
+              <div className="absolute left-0 top-full mt-1 z-50 bg-surface rounded-xl border border-border shadow-lg p-3 w-64">
+                <MiniCalendar
+                  value={localDateStr(selectedDate)}
+                  onChange={handleCalendarPick}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Link

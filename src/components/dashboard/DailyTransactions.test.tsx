@@ -299,3 +299,40 @@ describe('DailyTransactions — Today button', () => {
     expect(todayTile).toBeTruthy();
   });
 });
+
+describe('DailyTransactions — calendar date picker', () => {
+  it('renders a "Pick a date" button', () => {
+    renderDT([]);
+    expect(screen.getByRole('button', { name: /pick a date/i })).toBeInTheDocument();
+  });
+
+  it('shows a month calendar when the picker icon is clicked', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /pick a date/i }));
+    expect(screen.getByRole('button', { name: /previous month/i })).toBeInTheDocument();
+  });
+
+  it('closes the calendar when Escape is pressed', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /pick a date/i }));
+    expect(screen.getByRole('button', { name: /previous month/i })).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('button', { name: /previous month/i })).not.toBeInTheDocument();
+  });
+
+  it('navigates to the picked date and closes the popover', async () => {
+    renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /pick a date/i }));
+    // Go to last month so all days are in the past
+    await userEvent.click(screen.getByRole('button', { name: /previous month/i }));
+    // Pick the 15th (always a past date)
+    const dayBtns = screen.getAllByRole('button').filter(
+      (b) => !b.getAttribute('aria-label') && b.textContent === '15' && !b.hasAttribute('disabled')
+    );
+    await userEvent.click(dayBtns[0]!);
+    // Popover closed
+    expect(screen.queryByRole('button', { name: /previous month/i })).not.toBeInTheDocument();
+    // Week strip now shows a past week — next-week button is enabled
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+  });
+});
