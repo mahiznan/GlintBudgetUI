@@ -93,7 +93,8 @@ describe('DailyTransactions — transaction list', () => {
 
   it('shows empty state when today has no transactions', () => {
     renderDT([]);
-    expect(screen.getByText(/no transactions for this day/i)).toBeInTheDocument();
+    // Three-panel carousel renders the message for all three days; verify at least one is present
+    expect(screen.getAllByText(/no transactions for this day/i).length).toBeGreaterThan(0);
   });
 
   it('formats amount with currency symbol', () => {
@@ -179,10 +180,9 @@ describe('DailyTransactions — week navigation', () => {
 describe('DailyTransactions — expense sum', () => {
   it('shows zero expense total next to date heading when no transactions', () => {
     renderDT([]);
-    // The zero sum shows as −₹0.00 (the currency symbol depends on the test setup)
-    // Check for the minus sign + zero pattern
-    const sumEl = screen.getByText(/−.*0/);
-    expect(sumEl).toBeInTheDocument();
+    // The zero sum shows as −₹0.00; three-panel carousel renders it for all three days
+    const sumEls = screen.getAllByText(/−.*0/);
+    expect(sumEls.length).toBeGreaterThan(0);
   });
 
   it("shows correct expense sum for today's transactions", () => {

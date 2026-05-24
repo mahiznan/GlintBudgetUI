@@ -358,15 +358,29 @@ export default function DailyTransactions({
         <div
           data-testid="carousel-track"
           ref={trackRef}
+          className="flex w-[300%] will-change-transform"
+          style={{
+            transform:
+              sliding === 'left'
+                ? 'translateX(-66.66%)'
+                : sliding === 'right'
+                ? 'translateX(0%)'
+                : 'translateX(-33.33%)',
+            transition: sliding ? 'transform 280ms ease' : 'none',
+          }}
           onTransitionEnd={onTransitionEnd}
         >
-          <DayPanel
-            date={panels.center}
-            transactions={transactions}
-            currencySymbol={currencySymbol}
-            onDelete={onDelete}
-            onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
-          />
+          {(['left', 'center', 'right'] as const).map((slot) => (
+            <div key={slot} className="w-1/3 min-w-0">
+              <DayPanel
+                date={panels[slot]}
+                transactions={transactions}
+                currencySymbol={currencySymbol}
+                onDelete={onDelete}
+                onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+              />
+            </div>
+          ))}
         </div>
       </div>
       <AddTransactionDrawer
