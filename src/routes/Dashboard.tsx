@@ -119,10 +119,11 @@ export default function Dashboard() {
 
   const categoryItems = useMemo(() => {
     const { groupBy, path } = drillState;
+    const txns = groupBy === 'category' ? heroTxns : periodTxns;
     const filtered =
       categoryMode === 'expense'
-        ? heroTxns.filter((t) => t.amount < 0)
-        : heroTxns.filter((t) => t.amount > 0);
+        ? txns.filter((t) => t.amount < 0)
+        : txns.filter((t) => t.amount > 0);
 
     const toItems = (
       txns: typeof filtered,
@@ -179,17 +180,18 @@ export default function Dashboard() {
     );
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
     return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
-  }, [heroTxns, categoryMode, drillState]);
+  }, [heroTxns, periodTxns, categoryMode, drillState]);
 
   const drillTransactions = useMemo((): typeof heroTxns | undefined => {
     const { groupBy, path } = drillState;
     const maxDepth = groupBy === 'category' ? 2 : 3;
     if (path.length !== maxDepth) return undefined;
 
+    const txns = groupBy === 'category' ? heroTxns : periodTxns;
     const filtered =
       categoryMode === 'expense'
-        ? heroTxns.filter((t) => t.amount < 0)
-        : heroTxns.filter((t) => t.amount > 0);
+        ? txns.filter((t) => t.amount < 0)
+        : txns.filter((t) => t.amount > 0);
 
     if (groupBy === 'category') {
       return filtered
@@ -205,7 +207,7 @@ export default function Dashboard() {
           t.subCategory === path[2],
       )
       .sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [heroTxns, categoryMode, drillState]);
+  }, [heroTxns, periodTxns, categoryMode, drillState]);
 
   async function handleDelete(id: string) {
     setDeletingId(null);
