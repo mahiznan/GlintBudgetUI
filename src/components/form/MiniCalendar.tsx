@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 interface MiniCalendarProps {
   value: string;        // 'YYYY-MM-DD'
   onChange: (v: string) => void;
-  activeType: 'expense' | 'income';
+  activeType?: 'expense' | 'income' | 'brand';
 }
 
 function getCalendarDays(year: number, month: number): Date[] {
@@ -26,7 +26,7 @@ function toDateStr(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export default function MiniCalendar({ value, onChange, activeType }: MiniCalendarProps) {
+export default function MiniCalendar({ value, onChange, activeType = 'brand' }: MiniCalendarProps) {
   const selected = value ? new Date(value + 'T00:00:00') : null;
   const [viewDate, setViewDate] = useState<Date>(() => (selected ? new Date(selected) : new Date()));
 
@@ -54,7 +54,11 @@ export default function MiniCalendar({ value, onChange, activeType }: MiniCalend
   const selShadow =
     activeType === 'expense'
       ? '0 2px 6px rgba(220,38,38,0.28)'
-      : '0 2px 6px rgba(34,197,94,0.28)';
+      : activeType === 'income'
+      ? '0 2px 6px rgba(34,197,94,0.28)'
+      : '0 2px 6px rgba(245,158,11,0.30)';
+
+  const disableFuture = activeType === 'brand';
 
   return (
     <div className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[12px] pb-[14px]">
@@ -98,14 +102,18 @@ export default function MiniCalendar({ value, onChange, activeType }: MiniCalend
           const isCurrentMonth = d.getMonth() === month;
           const isToday = ds === todayStr;
           const isSelected = ds === selectedStr;
+          const isFuture = disableFuture && ds > todayStr;
           return (
             <button
               key={ds}
               type="button"
               onClick={() => onChange(ds)}
-              className="aspect-square flex items-center justify-center text-[11px] font-medium rounded-[6px]"
+              disabled={isFuture}
+              className="aspect-square flex items-center justify-center text-[11px] font-medium rounded-[6px] disabled:cursor-not-allowed"
               style={
-                isSelected
+                isFuture
+                  ? { color: '#cbd5e1', opacity: 0.4 }
+                  : isSelected
                   ? { background: selGradient, color: '#fff', fontWeight: 700, boxShadow: selShadow }
                   : isToday
                   ? { background: '#f1f5f9', fontWeight: 700, color: '#475569' }

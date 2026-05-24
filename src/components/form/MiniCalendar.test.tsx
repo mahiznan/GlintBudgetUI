@@ -49,4 +49,38 @@ describe('MiniCalendar', () => {
     const style = selectedButton!.getAttribute('style');
     expect(style).toContain('var(--brand-gradient)');
   });
+
+  it('omitting activeType applies the brand gradient to the selected day', () => {
+    const { container } = render(
+      <MiniCalendar value="2026-05-19" onChange={vi.fn()} />
+    );
+    const dayButtons = Array.from(container.querySelectorAll('button')).filter(
+      (b) => !b.getAttribute('aria-label') && b.textContent === '19'
+    );
+    expect(dayButtons[0]!.getAttribute('style')).toContain('var(--brand-gradient)');
+  });
+
+  it('disables future dates when activeType is brand (default)', async () => {
+    const user = userEvent.setup();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    render(<MiniCalendar value={todayStr} onChange={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: /next month/i }));
+    const dayBtns = screen.getAllByRole('button').filter(
+      (b) => !b.getAttribute('aria-label') && b.textContent === '15'
+    );
+    expect(dayBtns[0]).toBeDisabled();
+  });
+
+  it('does NOT disable future dates when activeType is expense', async () => {
+    const user = userEvent.setup();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    render(<MiniCalendar value={todayStr} onChange={vi.fn()} activeType="expense" />);
+    await user.click(screen.getByRole('button', { name: /next month/i }));
+    const dayBtns = screen.getAllByRole('button').filter(
+      (b) => !b.getAttribute('aria-label') && b.textContent === '15'
+    );
+    expect(dayBtns[0]).not.toBeDisabled();
+  });
 });
