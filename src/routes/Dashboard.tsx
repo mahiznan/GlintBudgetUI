@@ -5,7 +5,7 @@ import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactionContext } from '../context/TransactionContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import { useUpdatePreference } from '../hooks/useUpdatePreference';
-import { filterByPeriod, getPeriodRange } from '../lib/dateUtils';
+import { filterByPeriod, getPeriodRange, shiftPeriodDate } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
@@ -40,22 +40,32 @@ export default function Dashboard() {
   }, [preference]);
   const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
   const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
+  const [periodOffset, setPeriodOffset] = useState<number>(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrillState({ level: 0 });
+    setPeriodOffset(0);
   }, [period]);
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
   const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
 
-  const periodTxns = useMemo(() => filterByPeriod(allTxns, period), [allTxns, period]);
+  const referenceDate = useMemo(
+    () => shiftPeriodDate(period, periodOffset),
+    [period, periodOffset],
+  );
+
+  const periodTxns = useMemo(
+    () => filterByPeriod(allTxns, period, referenceDate),
+    [allTxns, period, referenceDate],
+  );
 
   const periodDays = useMemo(() => {
-    const { start, end } = getPeriodRange(period);
+    const { start, end } = getPeriodRange(period, referenceDate);
     return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-  }, [period]);
+  }, [period, referenceDate]);
 
   const heroTxns = useMemo(
     () =>
@@ -206,6 +216,8 @@ export default function Dashboard() {
             currencySymbol={currencySymbol}
             chartType={chartType}
             onChartTypeChange={handleChartTypeChange}
+            offset={periodOffset}
+            onOffsetChange={(delta) => setPeriodOffset((o) => Math.min(0, o + delta))}
           />
           <DailyTransactions
             transactions={allTxns}
