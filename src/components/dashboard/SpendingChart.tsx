@@ -147,8 +147,10 @@ export default function SpendingChart({
 }: SpendingChartProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
-  const referenceDate = useMemo(() => shiftPeriodDate(period, offset), [period, offset]);
-  const periodLabel = getPeriodLabel(period, referenceDate);
+  const { referenceDate, periodLabel } = useMemo(() => {
+    const ref = shiftPeriodDate(period, offset);
+    return { referenceDate: ref, periodLabel: getPeriodLabel(period, ref) };
+  }, [period, offset]);
   const data = useMemo(
     () => buildChartData(transactions, period, referenceDate),
     [transactions, period, referenceDate],

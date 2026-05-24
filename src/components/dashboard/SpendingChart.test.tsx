@@ -125,4 +125,11 @@ describe('SpendingChart', () => {
     fireEvent.click(screen.getByRole('button', { name: /previous period/i }));
     expect(onOffsetChange).toHaveBeenCalledWith(-1);
   });
+
+  it('calls onOffsetChange(1) when next button is clicked while offset is negative', () => {
+    const onOffsetChange = vi.fn();
+    render(<SpendingChart {...baseProps} offset={-1} onOffsetChange={onOffsetChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /next period/i }));
+    expect(onOffsetChange).toHaveBeenCalledWith(1);
+  });
 });
