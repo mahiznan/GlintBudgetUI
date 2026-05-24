@@ -194,11 +194,11 @@ describe('dayOfWeekOffset', () => {
 describe('getChartDateRange', () => {
   const base = new Date('2026-05-19T12:00:00'); // Tuesday
 
-  it('day: start = 14 days ago at 00:00, end = today at 23:59:59.999', () => {
+  it('day: start and end are both the reference date (single day)', () => {
     const { start, end } = getChartDateRange('day', base);
     expect(start.getFullYear()).toBe(2026);
     expect(start.getMonth()).toBe(4); // May
-    expect(start.getDate()).toBe(5); // 19 - 14 = 5
+    expect(start.getDate()).toBe(19);
     expect(start.getHours()).toBe(0);
     expect(start.getMinutes()).toBe(0);
     expect(end.getDate()).toBe(19);
@@ -206,13 +206,13 @@ describe('getChartDateRange', () => {
     expect(end.getMinutes()).toBe(59);
   });
 
-  it('day: produces 15 distinct day-keys when bucketed', () => {
+  it('day: produces exactly 1 day-key when bucketed', () => {
     const { start, end } = getChartDateRange('day', base);
     const days: string[] = [];
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       days.push(d.toISOString().slice(0, 10));
     }
-    expect(days).toHaveLength(15);
+    expect(days).toHaveLength(1);
   });
 
   it('week: start = Monday of current week, end = Sunday', () => {
@@ -232,11 +232,23 @@ describe('getChartDateRange', () => {
     expect(end.getDate()).toBe(17);   // Sunday May 17
   });
 
-  it('month: start = 1st of current month, end = today', () => {
-    const { start, end } = getChartDateRange('month', base);
+  it('month: start = 1st, end = last day of month for a past month', () => {
+    const pastMonth = new Date(2026, 2, 15); // March 15, 2026 (past month)
+    const { start, end } = getChartDateRange('month', pastMonth);
     expect(start.getDate()).toBe(1);
-    expect(start.getMonth()).toBe(4); // May
-    expect(end.getDate()).toBe(19);
+    expect(start.getMonth()).toBe(2); // March
+    expect(end.getDate()).toBe(31); // last day of March
+    expect(end.getMonth()).toBe(2);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('month: end = today for the current month', () => {
+    const today = new Date();
+    const { start, end } = getChartDateRange('month', today);
+    expect(start.getDate()).toBe(1);
+    expect(start.getMonth()).toBe(today.getMonth());
+    expect(end.getDate()).toBe(today.getDate());
+    expect(end.getMonth()).toBe(today.getMonth());
     expect(end.getHours()).toBe(23);
   });
 

@@ -57,7 +57,6 @@ export function getChartDateRange(
 
   switch (period) {
     case 'day':
-      start.setDate(start.getDate() - 14);
       start.setHours(0, 0, 0, 0);
       break;
 
@@ -72,10 +71,20 @@ export function getChartDateRange(
       return { start, end: sunday };
     }
 
-    case 'month':
+    case 'month': {
       start.setDate(1);
       start.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const isCurrentMonth =
+        now.getFullYear() === today.getFullYear() && now.getMonth() === today.getMonth();
+      if (isCurrentMonth) {
+        end.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+      } else {
+        end.setFullYear(now.getFullYear(), now.getMonth() + 1, 0); // last day of month
+      }
+      end.setHours(23, 59, 59, 999);
       break;
+    }
 
     case 'quarter': {
       const q = Math.floor(start.getMonth() / 3);

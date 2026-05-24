@@ -57,7 +57,7 @@ function buildChartData(
   if (period === 'day' || period === 'week' || period === 'month') {
     const dayCount =
       period === 'day'
-        ? 15
+        ? 1
         : period === 'week'
           ? 7
           : Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -156,7 +156,7 @@ export default function SpendingChart({
     [transactions, period, referenceDate],
   );
 
-  const tickInterval = period === 'day' ? 4 : period === 'month' ? 4 : 0;
+  const tickInterval = period === 'month' ? 4 : 0;
 
   const axisProps = {
     dataKey: 'label',
