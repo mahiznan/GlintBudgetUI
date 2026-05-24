@@ -35,7 +35,7 @@ describe('MiniCalendar', () => {
     expect(screen.getByText(/april 2026/i)).toBeInTheDocument();
   });
 
-  it('applies the income gradient to the selected day when activeType is income', () => {
+  it('applies the brand gradient to the selected day when activeType is income', () => {
     const { container } = render(
       <MiniCalendar value="2026-05-19" onChange={vi.fn()} activeType="income" />
     );
