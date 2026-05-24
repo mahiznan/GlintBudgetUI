@@ -9,16 +9,16 @@ import { filterByPeriod, getPeriodRange, shiftPeriodDate } from '../lib/dateUtil
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
-import CategoryBreakdown, { type Mode as CategoryMode } from '../components/dashboard/CategoryBreakdown';
+import CategoryBreakdown, { type Mode as CategoryMode, type GroupBy } from '../components/dashboard/CategoryBreakdown';
 import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
 import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 
-type DrillState =
-  | { level: 0 }
-  | { level: 1; category: string }
-  | { level: 2; category: string; subCategory: string };
+interface DrillState {
+  groupBy: GroupBy;
+  path: string[];
+}
 
 export default function Dashboard() {
   const auth = useAuth();
@@ -39,12 +39,12 @@ export default function Dashboard() {
     }
   }, [preference]);
   const [categoryMode, setCategoryMode] = useState<CategoryMode>('expense');
-  const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
+  const [drillState, setDrillState] = useState<DrillState>({ groupBy: 'category', path: [] });
   const [periodOffset, setPeriodOffset] = useState<number>(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDrillState({ level: 0 });
+    setDrillState((prev) => ({ ...prev, path: [] }));
     setPeriodOffset(0);
   }, [period]);
 
@@ -96,9 +96,13 @@ export default function Dashboard() {
     [heroTxns],
   );
 
+  function handleGroupByChange(g: GroupBy) {
+    setDrillState({ groupBy: g, path: [] });
+  }
+
   function handleModeChange(mode: CategoryMode) {
     setCategoryMode(mode);
-    setDrillState({ level: 0 });
+    setDrillState((prev) => ({ ...prev, path: [] }));
   }
 
   async function handleChartTypeChange(type: 'bar' | 'line') {
@@ -107,20 +111,30 @@ export default function Dashboard() {
   }
 
   const categoryItems = useMemo(() => {
+    const { groupBy, path } = drillState;
     const filtered =
       categoryMode === 'expense'
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
 
-    if (drillState.level === 0) {
-      const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-        (acc, t) => {
-          if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-          acc[t.category]!.total += Math.abs(t.amount);
-          return acc;
-        },
-        {},
-      );
+    const getGroupField = (t: (typeof filtered)[number]): string => {
+      if (groupBy === 'account') return t.account;
+      if (groupBy === 'currency') return t.currency;
+      if (groupBy === 'vendor') return t.vendor;
+      if (groupBy === 'payment') return t.payment;
+      return t.category;
+    };
+
+    const toItems = (
+      txns: typeof filtered,
+      keyFn: (t: (typeof filtered)[number]) => string,
+    ) => {
+      const totals = txns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+        const k = keyFn(t);
+        if (!acc[k]) acc[k] = { total: 0, icon: t.icon };
+        acc[k]!.total += Math.abs(t.amount);
+        return acc;
+      }, {});
       const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
       return Object.entries(totals)
         .sort(([, a], [, b]) => b.total - a.total)
@@ -130,47 +144,74 @@ export default function Dashboard() {
           total,
           pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
         }));
-    }
+    };
 
-    if (drillState.level === 1) {
-      const catTxns = filtered.filter((t) => t.category === drillState.category);
-      const totals = catTxns.reduce<Record<string, { total: number; icon: string }>>(
-        (acc, t) => {
-          if (!acc[t.subCategory]) acc[t.subCategory] = { total: 0, icon: t.icon };
-          acc[t.subCategory]!.total += Math.abs(t.amount);
-          return acc;
-        },
-        {},
+    if (groupBy === 'category') {
+      if (path.length === 0) return toItems(filtered, (t) => t.category);
+      if (path.length === 1)
+        return toItems(
+          filtered.filter((t) => t.category === path[0]),
+          (t) => t.subCategory,
+        );
+      const subcatTxns = filtered.filter(
+        (t) => t.category === path[0] && t.subCategory === path[1],
       );
-      const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
-      return Object.entries(totals)
-        .sort(([, a], [, b]) => b.total - a.total)
-        .map(([name, { total, icon }]) => ({
-          name,
-          icon,
-          total,
-          pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-        }));
+      const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
+      return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
     }
 
-    // level 2: single item at 100% for the donut
+    // non-category groupings (account | currency | vendor | payment)
+    if (path.length === 0) return toItems(filtered, getGroupField);
+    if (path.length === 1)
+      return toItems(
+        filtered.filter((t) => getGroupField(t) === path[0]),
+        (t) => t.category,
+      );
+    if (path.length === 2)
+      return toItems(
+        filtered.filter((t) => getGroupField(t) === path[0] && t.category === path[1]),
+        (t) => t.subCategory,
+      );
     const subcatTxns = filtered.filter(
-      (t) => t.category === drillState.category && t.subCategory === drillState.subCategory,
+      (t) =>
+        getGroupField(t) === path[0] &&
+        t.category === path[1] &&
+        t.subCategory === path[2],
     );
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
-    const icon = subcatTxns[0]?.icon ?? '📦';
-    return [{ name: drillState.subCategory, icon, total, pct: 100 }];
+    return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
   }, [heroTxns, categoryMode, drillState]);
 
-  const drillTransactions = useMemo(() => {
-    if (drillState.level !== 2) return [];
+  const drillTransactions = useMemo((): typeof heroTxns | undefined => {
+    const { groupBy, path } = drillState;
+    const maxDepth = groupBy === 'category' ? 2 : 3;
+    if (path.length !== maxDepth) return undefined;
+
     const filtered =
       categoryMode === 'expense'
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
+
+    const getGroupField = (t: (typeof filtered)[number]): string => {
+      if (groupBy === 'account') return t.account;
+      if (groupBy === 'currency') return t.currency;
+      if (groupBy === 'vendor') return t.vendor;
+      if (groupBy === 'payment') return t.payment;
+      return t.category;
+    };
+
+    if (groupBy === 'category') {
+      return filtered
+        .filter((t) => t.category === path[0] && t.subCategory === path[1])
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
+    }
+
     return filtered
       .filter(
-        (t) => t.category === drillState.category && t.subCategory === drillState.subCategory,
+        (t) =>
+          getGroupField(t) === path[0] &&
+          t.category === path[1] &&
+          t.subCategory === path[2],
       )
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [heroTxns, categoryMode, drillState]);
@@ -234,36 +275,29 @@ export default function Dashboard() {
             mode={categoryMode}
             onModeChange={handleModeChange}
             currencySymbol={currencySymbol}
-            drillLevel={drillState.level}
-            drillLabel={
-              drillState.level === 1
-                ? drillState.category
-                : drillState.level === 2
-                  ? drillState.subCategory
-                  : undefined
-            }
+            groupBy={drillState.groupBy}
+            onGroupByChange={handleGroupByChange}
+            drillLevel={drillState.path.length}
+            drillLabel={drillState.path.at(-1)}
             backLabel={
-              drillState.level === 1
+              drillState.path.length === 1
                 ? '← Back'
-                : drillState.level === 2
-                  ? `← ${drillState.category}`
+                : drillState.path.length > 1
+                  ? `← ${drillState.path.at(-2)}`
                   : undefined
             }
             onBack={
-              drillState.level === 1
-                ? () => setDrillState({ level: 0 })
-                : drillState.level === 2
-                  ? () => setDrillState({ level: 1, category: drillState.category })
-                  : undefined
+              drillState.path.length > 0
+                ? () => setDrillState((prev) => ({ ...prev, path: prev.path.slice(0, -1) }))
+                : undefined
             }
-            onItemClick={(name) => {
-              if (drillState.level === 0) {
-                setDrillState({ level: 1, category: name });
-              } else if (drillState.level === 1) {
-                setDrillState({ level: 2, category: drillState.category, subCategory: name });
-              }
-            }}
-            transactions={drillState.level === 2 ? drillTransactions : undefined}
+            onItemClick={
+              drillTransactions === undefined
+                ? (name) =>
+                    setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
+                : undefined
+            }
+            transactions={drillTransactions}
           />
           <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
           <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} periodDays={periodDays} />
