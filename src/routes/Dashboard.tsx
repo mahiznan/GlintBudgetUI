@@ -20,6 +20,14 @@ interface DrillState {
   path: string[];
 }
 
+function getGroupField(t: { account: string; currency: string; vendor: string; payment: string; category: string }, groupBy: GroupBy): string {
+  if (groupBy === 'account') return t.account;
+  if (groupBy === 'currency') return t.currency;
+  if (groupBy === 'vendor') return t.vendor;
+  if (groupBy === 'payment') return t.payment;
+  return t.category;
+}
+
 export default function Dashboard() {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
@@ -117,14 +125,6 @@ export default function Dashboard() {
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
 
-    const getGroupField = (t: (typeof filtered)[number]): string => {
-      if (groupBy === 'account') return t.account;
-      if (groupBy === 'currency') return t.currency;
-      if (groupBy === 'vendor') return t.vendor;
-      if (groupBy === 'payment') return t.payment;
-      return t.category;
-    };
-
     const toItems = (
       txns: typeof filtered,
       keyFn: (t: (typeof filtered)[number]) => string,
@@ -161,20 +161,20 @@ export default function Dashboard() {
     }
 
     // non-category groupings (account | currency | vendor | payment)
-    if (path.length === 0) return toItems(filtered, getGroupField);
+    if (path.length === 0) return toItems(filtered, (t) => getGroupField(t, groupBy));
     if (path.length === 1)
       return toItems(
-        filtered.filter((t) => getGroupField(t) === path[0]),
+        filtered.filter((t) => getGroupField(t, groupBy) === path[0]),
         (t) => t.category,
       );
     if (path.length === 2)
       return toItems(
-        filtered.filter((t) => getGroupField(t) === path[0] && t.category === path[1]),
+        filtered.filter((t) => getGroupField(t, groupBy) === path[0] && t.category === path[1]),
         (t) => t.subCategory,
       );
     const subcatTxns = filtered.filter(
       (t) =>
-        getGroupField(t) === path[0] &&
+        getGroupField(t, groupBy) === path[0] &&
         t.category === path[1] &&
         t.subCategory === path[2],
     );
@@ -192,14 +192,6 @@ export default function Dashboard() {
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
 
-    const getGroupField = (t: (typeof filtered)[number]): string => {
-      if (groupBy === 'account') return t.account;
-      if (groupBy === 'currency') return t.currency;
-      if (groupBy === 'vendor') return t.vendor;
-      if (groupBy === 'payment') return t.payment;
-      return t.category;
-    };
-
     if (groupBy === 'category') {
       return filtered
         .filter((t) => t.category === path[0] && t.subCategory === path[1])
@@ -209,7 +201,7 @@ export default function Dashboard() {
     return filtered
       .filter(
         (t) =>
-          getGroupField(t) === path[0] &&
+          getGroupField(t, groupBy) === path[0] &&
           t.category === path[1] &&
           t.subCategory === path[2],
       )
