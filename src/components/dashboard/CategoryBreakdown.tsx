@@ -9,6 +9,7 @@ export interface CategoryItem {
   icon: string;
   total: number;
   pct: number;
+  symbol?: string;
 }
 
 export type Mode = 'expense' | 'income';
@@ -123,7 +124,7 @@ export default function CategoryBreakdown({
                   <span className="text-xs text-text-muted">{formatDateShort(t.date)}</span>
                 </div>
                 <span
-                  className={`text-xs font-mono font-semibold flex-shrink-0 ${
+                  className={`text-xs font-bold flex-shrink-0 ${
                     t.amount < 0 ? 'text-red-600' : 'text-brand'
                   }`}
                 >
@@ -140,7 +141,7 @@ export default function CategoryBreakdown({
         </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {categories.map(({ name, icon, total, pct }, i) => {
+          {categories.map(({ name, icon, total, pct, symbol }, i) => {
             const barContent = (
               <>
                 <span className="text-lg w-6 text-center">{icon || '📦'}</span>
@@ -159,8 +160,8 @@ export default function CategoryBreakdown({
                     />
                   </div>
                 </div>
-                <span className="text-xs font-mono font-semibold text-text flex-shrink-0">
-                  {formatCurrency(total, currencySymbol)}
+                <span className="text-xs font-bold text-text flex-shrink-0">
+                  {formatCurrency(total, symbol ?? currencySymbol)}
                 </span>
               </>
             );

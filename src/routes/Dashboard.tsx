@@ -28,6 +28,15 @@ function getGroupField(t: { account: string; currency: string; vendor: string; p
   return t.category;
 }
 
+function getCurrencySymbol(code: string): string {
+  try {
+    const parts = new Intl.NumberFormat('en', { style: 'currency', currency: code }).formatToParts(1);
+    return parts.find((p) => p.type === 'currency')?.value ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export default function Dashboard() {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
@@ -160,7 +169,42 @@ export default function Dashboard() {
       return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
     }
 
-    // non-category groupings (account | currency | vendor | payment)
+    // account | vendor: 4-level drill (groupItem → currency → category → subCategory)
+    if (groupBy === 'account' || groupBy === 'vendor') {
+      if (path.length === 0) return toItems(filtered, (t) => getGroupField(t, groupBy));
+      const byGroup = filtered.filter((t) => getGroupField(t, groupBy) === path[0]);
+      if (path.length === 1) {
+        const currTotals = byGroup.reduce<Record<string, { total: number }>>((acc, t) => {
+          if (!acc[t.currency]) acc[t.currency] = { total: 0 };
+          acc[t.currency]!.total += Math.abs(t.amount);
+          return acc;
+        }, {});
+        const sum = Object.values(currTotals).reduce((s, { total }) => s + total, 0);
+        return Object.entries(currTotals)
+          .sort(([, a], [, b]) => b.total - a.total)
+          .map(([code, { total }]) => ({
+            name: code,
+            icon: getCurrencySymbol(code),
+            total,
+            pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+            symbol: getCurrencySymbol(code),
+          }));
+      }
+      const byCurrency = byGroup.filter((t) => t.currency === path[1]);
+      if (path.length === 2) return toItems(byCurrency, (t) => t.category);
+      if (path.length === 3)
+        return toItems(
+          byCurrency.filter((t) => t.category === path[2]),
+          (t) => t.subCategory,
+        );
+      const subcatTxns4 = byCurrency.filter(
+        (t) => t.category === path[2] && t.subCategory === path[3],
+      );
+      const total4 = subcatTxns4.reduce((s, t) => s + Math.abs(t.amount), 0);
+      return [{ name: path[3]!, icon: subcatTxns4[0]?.icon ?? '📦', total: total4, pct: 100 }];
+    }
+
+    // currency | payment: 3-level drill (groupItem → category → subCategory)
     if (path.length === 0) return toItems(filtered, (t) => getGroupField(t, groupBy));
     if (path.length === 1)
       return toItems(
@@ -184,7 +228,8 @@ export default function Dashboard() {
 
   const drillTransactions = useMemo((): typeof heroTxns | undefined => {
     const { groupBy, path } = drillState;
-    const maxDepth = groupBy === 'category' ? 2 : 3;
+    const maxDepth =
+      groupBy === 'category' ? 2 : groupBy === 'account' || groupBy === 'vendor' ? 4 : 3;
     if (path.length !== maxDepth) return undefined;
 
     const txns = groupBy === 'category' ? heroTxns : periodTxns;
@@ -199,6 +244,18 @@ export default function Dashboard() {
         .sort((a, b) => b.date.getTime() - a.date.getTime());
     }
 
+    if (groupBy === 'account' || groupBy === 'vendor') {
+      return filtered
+        .filter(
+          (t) =>
+            getGroupField(t, groupBy) === path[0] &&
+            t.currency === path[1] &&
+            t.category === path[2] &&
+            t.subCategory === path[3],
+        )
+        .sort((a, b) => b.date.getTime() - a.date.getTime());
+    }
+
     return filtered
       .filter(
         (t) =>
@@ -208,6 +265,14 @@ export default function Dashboard() {
       )
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [heroTxns, periodTxns, categoryMode, drillState]);
+
+  const activeCurrencySymbol = useMemo(() => {
+    const { groupBy, path } = drillState;
+    if ((groupBy === 'account' || groupBy === 'vendor') && path.length >= 2) {
+      return getCurrencySymbol(path[1]!);
+    }
+    return currencySymbol;
+  }, [drillState, currencySymbol]);
 
   async function handleDelete(id: string) {
     setDeletingId(null);
@@ -267,7 +332,7 @@ export default function Dashboard() {
             categories={categoryItems}
             mode={categoryMode}
             onModeChange={handleModeChange}
-            currencySymbol={currencySymbol}
+            currencySymbol={activeCurrencySymbol}
             groupBy={drillState.groupBy}
             onGroupByChange={handleGroupByChange}
             drillLevel={drillState.path.length}
