@@ -14,6 +14,7 @@ import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
 import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
+import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 
 interface DrillState {
   groupBy: GroupBy;
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const { mutate: deleteTx } = useDeleteTransaction();
   const { mutate: updatePreference } = useUpdatePreference(uid);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const chartTypeSynced = useRef(false);
 
@@ -379,6 +381,7 @@ export default function Dashboard() {
                 : undefined
             }
             transactions={drillTransactions}
+            onEdit={(id) => setEditingId(id)}
           />
           <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
           <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} periodDays={periodDays} />
@@ -391,6 +394,13 @@ export default function Dashboard() {
           onCancel={() => setDeletingId(null)}
         />
       )}
+      <AddTransactionDrawer
+        open={editingId !== null}
+        editId={editingId ?? undefined}
+        onClose={() => setEditingId(null)}
+        onSaved={refetch}
+        transactions={periodTxns}
+      />
     </div>
   );
 }
