@@ -202,9 +202,11 @@ export function shiftPeriodDate(period: Period, offset: number, now = new Date()
       d.setDate(d.getDate() + offset * 7);
       break;
     case 'month':
+      d.setDate(1);
       d.setMonth(d.getMonth() + offset);
       break;
     case 'quarter':
+      d.setDate(1);
       d.setMonth(d.getMonth() + offset * 3);
       break;
     case 'year':

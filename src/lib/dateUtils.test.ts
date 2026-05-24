@@ -298,6 +298,19 @@ describe('shiftPeriodDate', () => {
     expect(r.getMonth()).toBe(4); // May
     expect(r).not.toBe(base);
   });
+
+  it('month shift from month-end does not overflow (Mar 31 → Feb)', () => {
+    const mar31 = new Date(2026, 2, 31, 12, 0, 0); // March 31
+    const r = shiftPeriodDate('month', -1, mar31);
+    expect(r.getMonth()).toBe(1); // February, not March
+    expect(r.getFullYear()).toBe(2026);
+  });
+
+  it('shifts month by +1 (forward)', () => {
+    const r = shiftPeriodDate('month', 1, new Date(2026, 4, 15, 12, 0, 0));
+    expect(r.getMonth()).toBe(5); // June
+    expect(r.getFullYear()).toBe(2026);
+  });
 });
 
 describe('getPeriodLabel', () => {
