@@ -154,7 +154,7 @@ export default function DailyTransactions({
               </svg>
             </button>
             {calendarOpen && (
-              <div className="absolute left-0 top-full mt-1 z-50 bg-surface rounded-xl border border-border shadow-lg p-3 w-64">
+              <div className="absolute left-0 top-full mt-1 z-50 bg-surface rounded-xl border border-border shadow-lg p-3 w-64 overflow-hidden">
                 <MiniCalendar
                   value={localDateStr(selectedDate)}
                   onChange={handleCalendarPick}
