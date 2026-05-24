@@ -51,7 +51,6 @@ export default function Dashboard() {
   const [periodOffset, setPeriodOffset] = useState<number>(0);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrillState((prev) => ({ ...prev, path: [] }));
     setPeriodOffset(0);
   }, [period]);
