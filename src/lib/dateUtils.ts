@@ -23,18 +23,43 @@ export function getPeriodRange(
       const diff = day === 0 ? -6 : 1 - day;
       start.setDate(start.getDate() + diff);
       start.setHours(0, 0, 0, 0);
+      const sunday = new Date(start);
+      sunday.setDate(start.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      end.setTime(sunday.getTime() <= todayEnd.getTime() ? sunday.getTime() : todayEnd.getTime());
       break;
     }
 
-    case 'month':
+    case 'month': {
       start.setDate(1);
       start.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const isCurrentMonth =
+        now.getFullYear() === today.getFullYear() && now.getMonth() === today.getMonth();
+      if (isCurrentMonth) {
+        end.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+      } else {
+        end.setFullYear(now.getFullYear(), now.getMonth() + 1, 0); // last day of month
+      }
+      end.setHours(23, 59, 59, 999);
       break;
+    }
 
     case 'quarter': {
       const q = Math.floor(start.getMonth() / 3);
       start.setMonth(q * 3, 1);
       start.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const currentQ = Math.floor(today.getMonth() / 3);
+      const isCurrentQuarter = now.getFullYear() === today.getFullYear() && q === currentQ;
+      if (isCurrentQuarter) {
+        end.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+      } else {
+        end.setFullYear(now.getFullYear(), q * 3 + 3, 0); // last day of quarter's final month
+      }
+      end.setHours(23, 59, 59, 999);
       break;
     }
 
@@ -90,6 +115,15 @@ export function getChartDateRange(
       const q = Math.floor(start.getMonth() / 3);
       start.setMonth(q * 3, 1);
       start.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const currentQ = Math.floor(today.getMonth() / 3);
+      const isCurrentQuarter = now.getFullYear() === today.getFullYear() && q === currentQ;
+      if (isCurrentQuarter) {
+        end.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
+      } else {
+        end.setFullYear(now.getFullYear(), q * 3 + 3, 0);
+      }
+      end.setHours(23, 59, 59, 999);
       break;
     }
 

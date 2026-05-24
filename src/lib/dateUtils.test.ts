@@ -54,6 +54,53 @@ describe('getPeriodRange', () => {
     expect(start.getDate()).toBe(1);
     expect(start.getFullYear()).toBe(2026);
   });
+
+  it('week (past): end = Sunday of that week', () => {
+    // 2026-05-17 is Sunday; its week Mon=May11–Sun=May17; May17 < today so end = Sunday May 17
+    const { end } = getPeriodRange('week', base);
+    expect(end.getDate()).toBe(17); // Sunday May 17
+    expect(end.getMonth()).toBe(4);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('week (current): end = today not future Sunday', () => {
+    const today = new Date();
+    const { end } = getPeriodRange('week', today);
+    expect(end.getDate()).toBe(today.getDate());
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('month (past): end = last day of that month', () => {
+    const pastMonth = new Date(2026, 2, 15); // March 15, 2026
+    const { end } = getPeriodRange('month', pastMonth);
+    expect(end.getDate()).toBe(31); // March has 31 days
+    expect(end.getMonth()).toBe(2);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('month (current): end = today', () => {
+    const today = new Date();
+    const { end } = getPeriodRange('month', today);
+    expect(end.getDate()).toBe(today.getDate());
+    expect(end.getMonth()).toBe(today.getMonth());
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('quarter (past): end = last day of that quarter', () => {
+    const pastQ = new Date(2026, 1, 15); // Feb 15, 2026 → Q1; ends March 31
+    const { end } = getPeriodRange('quarter', pastQ);
+    expect(end.getMonth()).toBe(2); // March
+    expect(end.getDate()).toBe(31);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('quarter (current): end = today', () => {
+    const today = new Date();
+    const { end } = getPeriodRange('quarter', today);
+    expect(end.getDate()).toBe(today.getDate());
+    expect(end.getMonth()).toBe(today.getMonth());
+    expect(end.getHours()).toBe(23);
+  });
 });
 
 describe('formatCurrency', () => {
@@ -252,12 +299,25 @@ describe('getChartDateRange', () => {
     expect(end.getHours()).toBe(23);
   });
 
-  it('quarter: start = first day of Q2 (April 1), end = today', () => {
-    // May is Q2 → starts April 1
-    const { start, end } = getChartDateRange('quarter', base);
-    expect(start.getMonth()).toBe(3); // April
+  it('quarter: start = first day of Q1 (Jan 1), end = last day of Q1 (Mar 31) for a past quarter', () => {
+    const pastQ = new Date(2026, 1, 15); // Feb 15, 2026 → Q1 (past quarter)
+    const { start, end } = getChartDateRange('quarter', pastQ);
+    expect(start.getMonth()).toBe(0); // January
     expect(start.getDate()).toBe(1);
-    expect(end.getDate()).toBe(19); // today
+    expect(end.getMonth()).toBe(2); // March
+    expect(end.getDate()).toBe(31);
+    expect(end.getHours()).toBe(23);
+  });
+
+  it('quarter: end = today for the current quarter', () => {
+    const today = new Date();
+    const { start, end } = getChartDateRange('quarter', today);
+    const q = Math.floor(today.getMonth() / 3);
+    expect(start.getMonth()).toBe(q * 3);
+    expect(start.getDate()).toBe(1);
+    expect(end.getDate()).toBe(today.getDate());
+    expect(end.getMonth()).toBe(today.getMonth());
+    expect(end.getHours()).toBe(23);
   });
 
   it('year: start = Jan 1, end = Dec 31', () => {
