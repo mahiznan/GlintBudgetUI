@@ -130,7 +130,7 @@ const CustomTooltip = ({
   return (
     <div className="card-surface rounded-lg px-3 py-2 text-sm shadow-md">
       <p className="font-semibold text-text">{label}</p>
-      <p className="text-brand font-mono">{formatCurrency(payload[0]!.value, symbol)}</p>
+      <p className="text-brand">{formatCurrency(payload[0]!.value, symbol)}</p>
     </div>
   );
 };
@@ -212,7 +212,7 @@ export default function SpendingChart({
             >
               ‹
             </button>
-            <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold text-text">
+            <span className="min-w-[72px] text-center text-[11px] font-semibold text-text">
               {periodLabel}
             </span>
             <button

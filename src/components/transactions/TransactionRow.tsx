@@ -31,7 +31,7 @@ export default function TransactionRow({ transaction: tx, currencySymbol, onDele
       <td className="py-3 px-4 text-xs text-text-muted">{tx.payment}</td>
       <td className="py-3 px-4 text-right">
         <span
-          className={`text-sm font-mono font-semibold ${
+          className={`text-sm font-semibold ${
             tx.amount < 0 ? 'text-red-600' : 'text-brand'
           }`}
         >

@@ -65,10 +65,11 @@ While creating planner ask:
 - “Is this repeatable?”
 
 If repeatable:
-- planner continues automatically for future periods
+- planner continues automatically for future periods and past periods
+- Should have a navigation to previous periods
 
 If not repeatable:
-- once date range is completed it should disappear from active dashboard widgets
+- once the date range is completed, it should disappear from active dashboard widgets
 - archived planners should still be accessible from planner history/archive section
 
 ---

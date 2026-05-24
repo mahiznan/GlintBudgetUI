@@ -48,7 +48,7 @@ export default function QuickStats({ transactions, currencySymbol, periodDays }:
         {items.map(({ label, value }) => (
           <div key={label} className="flex justify-between items-center py-1 border-b border-border last:border-0">
             <span className="text-xs text-text-muted">{label}</span>
-            <span className="text-sm font-semibold font-mono text-text">{value}</span>
+            <span className="text-sm font-semibold text-text">{value}</span>
           </div>
         ))}
       </div>
