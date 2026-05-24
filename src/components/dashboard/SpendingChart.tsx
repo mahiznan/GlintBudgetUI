@@ -18,6 +18,8 @@ import {
   groupByMonth,
   localDateStr,
   formatCurrency,
+  shiftPeriodDate,
+  getPeriodLabel,
 } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
@@ -37,6 +39,8 @@ interface SpendingChartProps {
   currencySymbol: string;
   chartType: 'bar' | 'line';
   onChartTypeChange: (type: 'bar' | 'line') => void;
+  offset: number;
+  onOffsetChange: (delta: -1 | 1) => void;
 }
 
 function buildChartData(
@@ -138,10 +142,17 @@ export default function SpendingChart({
   currencySymbol,
   chartType,
   onChartTypeChange,
+  offset,
+  onOffsetChange,
 }: SpendingChartProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
-  const data = useMemo(() => buildChartData(transactions, period), [transactions, period]);
+  const referenceDate = useMemo(() => shiftPeriodDate(period, offset), [period, offset]);
+  const periodLabel = getPeriodLabel(period, referenceDate);
+  const data = useMemo(
+    () => buildChartData(transactions, period, referenceDate),
+    [transactions, period, referenceDate],
+  );
 
   const tickInterval = period === 'day' ? 4 : period === 'month' ? 4 : 0;
 
@@ -187,6 +198,34 @@ export default function SpendingChart({
                 {label}
               </button>
             ))}
+          </div>
+
+          {/* Period navigator */}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onOffsetChange(-1)}
+              aria-label="Previous period"
+              className="w-6 h-6 flex items-center justify-center rounded text-sm text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
+            >
+              ‹
+            </button>
+            <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold text-text">
+              {periodLabel}
+            </span>
+            <button
+              type="button"
+              onClick={() => onOffsetChange(1)}
+              disabled={offset === 0}
+              aria-label="Next period"
+              className={`w-6 h-6 flex items-center justify-center rounded text-sm transition-colors ${
+                offset === 0
+                  ? 'text-border cursor-not-allowed'
+                  : 'text-text-muted hover:text-text hover:bg-surface-alt'
+              }`}
+            >
+              ›
+            </button>
           </div>
 
           {/* Chart type switcher */}

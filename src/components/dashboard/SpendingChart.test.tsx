@@ -47,6 +47,8 @@ const baseProps = {
   currencySymbol: '₹',
   chartType: 'bar' as const,
   onChartTypeChange: vi.fn(),
+  offset: 0,
+  onOffsetChange: vi.fn(),
 };
 
 describe('SpendingChart', () => {
@@ -99,5 +101,28 @@ describe('SpendingChart', () => {
       expect(screen.getByText(/spending/i)).toBeInTheDocument();
       unmount();
     });
+  });
+
+  it('renders previous and next period buttons', () => {
+    render(<SpendingChart {...baseProps} />);
+    expect(screen.getByRole('button', { name: /previous period/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /next period/i })).toBeInTheDocument();
+  });
+
+  it('disables the next period button when offset is 0', () => {
+    render(<SpendingChart {...baseProps} offset={0} />);
+    expect(screen.getByRole('button', { name: /next period/i })).toBeDisabled();
+  });
+
+  it('enables the next period button when offset is negative', () => {
+    render(<SpendingChart {...baseProps} offset={-1} />);
+    expect(screen.getByRole('button', { name: /next period/i })).not.toBeDisabled();
+  });
+
+  it('calls onOffsetChange(-1) when previous button is clicked', () => {
+    const onOffsetChange = vi.fn();
+    render(<SpendingChart {...baseProps} onOffsetChange={onOffsetChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /previous period/i }));
+    expect(onOffsetChange).toHaveBeenCalledWith(-1);
   });
 });
