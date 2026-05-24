@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type TransitionEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
 import {
@@ -11,6 +11,7 @@ import {
   formatDayHeading,
   dayOfWeekOffset,
   localDateStr,
+  dayOffset,
 } from '../../lib/dateUtils';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import MiniCalendar from '../form/MiniCalendar';
@@ -115,45 +116,83 @@ export default function DailyTransactions({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const [panels, setPanels] = useState<{ left: Date; center: Date; right: Date }>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      left: dayOffset(today, -1),
+      center: today,
+      right: dayOffset(today, +1),
+    };
+  });
+  const [sliding, setSliding] = useState<'left' | 'right' | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const weekDays = getWeekDays(weekStart);
   const onCurrentWeek = isCurrentWeek(weekStart);
   const isToday = isSameDay(selectedDate, new Date());
 
+  function navigateTo(targetDate: Date) {
+    if (sliding !== null) return;
+    const target = new Date(targetDate);
+    target.setHours(0, 0, 0, 0);
+    if (isSameDay(target, panels.center)) return;
+    const dir: 'left' | 'right' = target > panels.center ? 'left' : 'right';
+    setPanels(prev => ({
+      ...prev,
+      [dir === 'left' ? 'right' : 'left']: target,
+    }));
+    setWeekStart(getMondayOf(target));
+    setSelectedDate(target);
+    setSliding(dir);
+  }
+
   function goToToday() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    setWeekStart(getMondayOf(today));
-    setSelectedDate(today);
+    navigateTo(today);
   }
 
   function goToPrevWeek() {
     const newMonday = new Date(weekStart);
     newMonday.setDate(weekStart.getDate() - 7);
-    setWeekStart(newMonday);
     const sunday = getWeekDays(newMonday)[6]!;
-    setSelectedDate(sunday);
+    navigateTo(sunday);
   }
 
   function goToNextWeek() {
     const newMonday = new Date(weekStart);
     newMonday.setDate(weekStart.getDate() + 7);
-    setWeekStart(newMonday);
+    let target: Date;
     if (isCurrentWeek(newMonday)) {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      setSelectedDate(d);
+      target = new Date();
+      target.setHours(0, 0, 0, 0);
     } else {
-      const newSelected = new Date(newMonday);
-      newSelected.setDate(newMonday.getDate() + dayOfWeekOffset(selectedDate));
-      setSelectedDate(newSelected);
+      target = new Date(newMonday);
+      target.setDate(newMonday.getDate() + dayOfWeekOffset(selectedDate));
     }
+    navigateTo(target);
+  }
+
+  function onTransitionEnd(e: TransitionEvent<HTMLDivElement>) {
+    if (e.target !== trackRef.current) return;
+    if (sliding === null) return;
+    const committed = sliding === 'left' ? panels.right : panels.left;
+    const track = trackRef.current;
+    track.style.transition = 'none';
+    setPanels({
+      left: dayOffset(committed, -1),
+      center: committed,
+      right: dayOffset(committed, +1),
+    });
+    setSliding(null);
+    requestAnimationFrame(() => {
+      if (track) track.style.transition = '';
+    });
   }
 
   function handleCalendarPick(dateStr: string) {
-    const picked = new Date(dateStr + 'T00:00:00');
-    setWeekStart(getMondayOf(picked));
-    setSelectedDate(picked);
+    navigateTo(new Date(dateStr + 'T00:00:00'));
     setCalendarOpen(false);
   }
 
@@ -263,7 +302,7 @@ export default function DailyTransactions({
               <button
                 key={day.toISOString()}
                 type="button"
-                onClick={() => setSelectedDate(day)}
+                onClick={() => navigateTo(day)}
                 aria-label={`${dayName} ${dayNum}`}
                 aria-pressed={isSelected}
                 className={`flex flex-col items-center py-2 rounded-lg flex-1 min-w-0 ${
@@ -315,13 +354,21 @@ export default function DailyTransactions({
         </button>
       </div>
 
-      <DayPanel
-        date={selectedDate}
-        transactions={transactions}
-        currencySymbol={currencySymbol}
-        onDelete={onDelete}
-        onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
-      />
+      <div className="overflow-hidden">
+        <div
+          data-testid="carousel-track"
+          ref={trackRef}
+          onTransitionEnd={onTransitionEnd}
+        >
+          <DayPanel
+            date={panels.center}
+            transactions={transactions}
+            currencySymbol={currencySymbol}
+            onDelete={onDelete}
+            onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+          />
+        </div>
+      </div>
       <AddTransactionDrawer
         open={drawerOpen}
         onClose={() => { setDrawerOpen(false); setEditingId(null); }}

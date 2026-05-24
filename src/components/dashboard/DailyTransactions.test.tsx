@@ -3,7 +3,7 @@ vi.mock('../transactions/AddTransactionDrawer', () => ({
     open ? <div role="dialog" aria-label={editId ? 'Edit Transaction' : 'New Transaction'}>drawer</div> : null,
 }));
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
@@ -41,6 +41,13 @@ function renderDT(transactions: Transaction[]) {
       />
     </MemoryRouter>,
   );
+}
+
+// Simulates CSS transitionend so the carousel commits its state.
+// jsdom doesn't run CSS transitions, so tests must call this manually.
+function settleAnimation(container: HTMLElement) {
+  const track = container.querySelector('[data-testid="carousel-track"]');
+  if (track) fireEvent.transitionEnd(track);
 }
 
 describe('DailyTransactions — date strip', () => {
@@ -118,9 +125,11 @@ describe('DailyTransactions — week navigation', () => {
   });
 
   it('disables next week button again after returning to current week', async () => {
-    renderDT([]);
+    const { container } = renderDT([]);
     await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    settleAnimation(container);
     await userEvent.click(screen.getByRole('button', { name: /next week/i }));
+    settleAnimation(container);
     expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
   });
 
@@ -135,15 +144,12 @@ describe('DailyTransactions — week navigation', () => {
   });
 
   it('shows transactions for a different day after navigating to it', async () => {
-    // Pick a day in the current week that is NOT today (always in the current strip, no navigation needed)
     const today = new Date();
     const targetDate = new Date(today);
     if (today.getDay() !== 1) {
-      // Go to Monday of this week
       const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
       targetDate.setDate(today.getDate() + diff);
     } else {
-      // Today is Monday — pick Tuesday instead
       targetDate.setDate(today.getDate() + 1);
     }
     targetDate.setHours(12, 0, 0, 0);
@@ -165,7 +171,7 @@ describe('DailyTransactions — week navigation', () => {
     );
     expect(target).toBeTruthy();
     await userEvent.click(target!);
-
+    settleAnimation(container);
     expect(screen.getByText('TargetVendor')).toBeInTheDocument();
   });
 });
@@ -287,9 +293,11 @@ describe('DailyTransactions — Today button', () => {
   });
 
   it('clicking Today from a past week returns to today', async () => {
-    renderDT([]);
+    const { container } = renderDT([]);
     await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    settleAnimation(container);
     await userEvent.click(screen.getByRole('button', { name: /^today$/i }));
+    settleAnimation(container);
     // Next week button should be disabled again (we're back on the current week)
     expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
     // Today's date tile should be selected
@@ -333,6 +341,75 @@ describe('DailyTransactions — calendar date picker', () => {
     // Popover closed
     expect(screen.queryByRole('button', { name: /previous month/i })).not.toBeInTheDocument();
     // Week strip now shows a past week — next-week button is enabled
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+  });
+});
+
+describe('DailyTransactions — slide animation', () => {
+  it('rapid clicks during animation are ignored (next-week button stays enabled only once)', async () => {
+    const { container } = renderDT([]);
+    const prevBtn = screen.getByRole('button', { name: /previous week/i });
+    await userEvent.click(prevBtn); // starts animation
+    await userEvent.click(prevBtn); // ignored while sliding
+    settleAnimation(container);
+    // We went back exactly one week — next week button is enabled
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+    // Settle a second animation if somehow two fired — should still be one week back
+    settleAnimation(container);
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+  });
+
+  it('same-day tap does not start animation', async () => {
+    const { container } = renderDT([]);
+    const todayNum = new Date().getDate().toString();
+    const allTiles = container.querySelectorAll('button[aria-pressed]');
+    const todayTile = Array.from(allTiles).find(
+      (b) => b.textContent?.includes(todayNum) && b.textContent !== 'Today',
+    )!;
+    await userEvent.click(todayTile); // already selected — should be a no-op
+    settleAnimation(container);
+    // weekStart unchanged — next week button remains disabled
+    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+  });
+
+  it('shows prev-week transactions in center panel after settling animation', async () => {
+    // Build prev Sunday's date (what goToPrevWeek targets)
+    const today = new Date();
+    const currentMonday = new Date(today);
+    const diff = today.getDay() === 0 ? -6 : 1 - today.getDay();
+    currentMonday.setDate(today.getDate() + diff);
+    currentMonday.setHours(0, 0, 0, 0);
+    const prevMonday = new Date(currentMonday);
+    prevMonday.setDate(currentMonday.getDate() - 7);
+    const prevSunday = new Date(prevMonday);
+    prevSunday.setDate(prevMonday.getDate() + 6);
+    prevSunday.setHours(12, 0, 0, 0);
+
+    const { container } = render(
+      <MemoryRouter>
+        <DailyTransactions
+          transactions={[makeTx('tx-prev', 'PrevWeekVendor', -100, prevSunday)]}
+          currencySymbol="₹"
+          onDelete={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    settleAnimation(container);
+    expect(screen.getByText('PrevWeekVendor')).toBeInTheDocument();
+  });
+
+  it('transitionend fired on a child element does not commit state prematurely', async () => {
+    const { container } = renderDT([]);
+    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
+    // Fire transitionend on an inner child — should be ignored by the handler
+    const track = container.querySelector('[data-testid="carousel-track"]')!;
+    const inner = track.firstElementChild as HTMLElement;
+    if (inner) fireEvent.transitionEnd(inner);
+    // Week strip already updated (navigateTo fires immediately)
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
+    // Now settle properly
+    settleAnimation(container);
     expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
   });
 });
