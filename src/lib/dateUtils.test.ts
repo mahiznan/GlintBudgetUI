@@ -13,6 +13,7 @@ import {
   dayOfWeekOffset,
   shiftPeriodDate,
   getPeriodLabel,
+  dayOffset,
 } from './dateUtils';
 
 describe('getPeriodRange', () => {
@@ -409,5 +410,34 @@ describe('getPeriodLabel', () => {
 
   it('formats year', () => {
     expect(getPeriodLabel('year', ref)).toBe('2026');
+  });
+});
+
+describe('dayOffset', () => {
+  it('adds positive days', () => {
+    const base = new Date('2026-05-20T00:00:00');
+    const result = dayOffset(base, 3);
+    expect(result.getDate()).toBe(23);
+    expect(result.getMonth()).toBe(4); // May = 4
+    expect(result.getFullYear()).toBe(2026);
+  });
+
+  it('subtracts negative days', () => {
+    const base = new Date('2026-05-20T00:00:00');
+    const result = dayOffset(base, -2);
+    expect(result.getDate()).toBe(18);
+  });
+
+  it('does not mutate the original date', () => {
+    const base = new Date('2026-05-20T00:00:00');
+    dayOffset(base, 5);
+    expect(base.getDate()).toBe(20);
+  });
+
+  it('handles month boundary', () => {
+    const base = new Date('2026-05-31T00:00:00');
+    const result = dayOffset(base, 1);
+    expect(result.getDate()).toBe(1);
+    expect(result.getMonth()).toBe(5); // June
   });
 });

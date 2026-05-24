@@ -235,6 +235,12 @@ export function dayOfWeekOffset(d: Date): number {
   return d.getDay() === 0 ? 6 : d.getDay() - 1;
 }
 
+export function dayOffset(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
 export function shiftPeriodDate(period: Period, offset: number, now = new Date()): Date {
   const d = new Date(now);
   switch (period) {
