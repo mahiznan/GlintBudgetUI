@@ -12,11 +12,26 @@ vi.mock('../components/transactions/AddTransactionDrawer', () => ({
     open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
 }));
 
+vi.mock('../context/ThemeContext', () => ({
+  useTheme: vi.fn(() => ({
+    themeId: 'lime',
+    setTheme: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
+
+vi.mock('../context/LayoutContext', () => ({
+  useLayout: vi.fn(() => ({
+    layoutWidth: 'fixed' as const,
+    setLayoutWidth: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
+import { useLayout } from '../context/LayoutContext';
 
 vi.mock('../firebase/client', () => ({ auth: { kind: 'mock-auth' }, app: {} }));
 vi.mock('../firebase/auth', () => ({
@@ -27,12 +42,6 @@ vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn(() => 'doc-ref'),
   getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
-}));
-vi.mock('../context/ThemeContext', () => ({
-  useTheme: vi.fn(() => ({
-    themeId: 'lime',
-    setTheme: vi.fn().mockResolvedValue(undefined),
-  })),
 }));
 
 import AppShell from './AppShell';
@@ -116,3 +125,37 @@ describe('AppShell — FAB', () => {
   });
 });
 
+describe('AppShell — layout width', () => {
+  beforeEach(() => {
+    vi.mocked(useLayout).mockReturnValue({
+      layoutWidth: 'fixed',
+      setLayoutWidth: vi.fn().mockResolvedValue(undefined),
+    });
+  });
+
+  it('applies max-w-5xl class in fixed mode', () => {
+    const { container } = render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(container.querySelector('main .max-w-5xl')).not.toBeNull();
+  });
+
+  it('does not apply max-w-5xl class in full mode', () => {
+    vi.mocked(useLayout).mockReturnValue({
+      layoutWidth: 'full',
+      setLayoutWidth: vi.fn().mockResolvedValue(undefined),
+    });
+    const { container } = render(
+      <AuthContext.Provider value={authedCtx}>
+        <MemoryRouter initialEntries={['/app/dashboard']}>
+          <AppShell />
+        </MemoryRouter>
+      </AuthContext.Provider>,
+    );
+    expect(container.querySelector('main .max-w-5xl')).toBeNull();
+  });
+});

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import type { Period } from '../lib/dateUtils';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactionContext } from '../context/TransactionContext';
+import { useLayout } from '../context/LayoutContext';
 import Sidebar from '../components/layout/Sidebar';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 
@@ -14,6 +15,7 @@ export interface AppShellOutletContext {
 export default function AppShell() {
   const auth = useAuth();
   const { refetch } = useTransactionContext();
+  const { layoutWidth } = useLayout();
   const [period, setPeriod] = useState<Period>('month');
   const [fabOpen, setFabOpen] = useState(false);
 
@@ -23,7 +25,7 @@ export default function AppShell() {
     <div className="flex flex-col h-screen overflow-hidden">
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-surface-alt">
-        <div className="w-full">
+        <div className={layoutWidth === 'fixed' ? 'max-w-5xl mx-auto w-full' : 'w-full'}>
           <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
         </div>
       </main>
