@@ -64,6 +64,7 @@ describe('LayoutProvider', () => {
 
     function Capture() {
       const { setLayoutWidth } = useLayout();
+      // eslint-disable-next-line react-hooks/globals
       capturedSet = setLayoutWidth;
       return null;
     }

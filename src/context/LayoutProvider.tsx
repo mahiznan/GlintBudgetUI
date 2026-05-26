@@ -16,6 +16,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
   const [layoutWidth, setLayoutWidthState] = useState<'fixed' | 'full'>(DEFAULT_LAYOUT_WIDTH);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLayoutWidthState(preference?.layoutWidth ?? DEFAULT_LAYOUT_WIDTH);
   }, [preference?.layoutWidth]);
 
