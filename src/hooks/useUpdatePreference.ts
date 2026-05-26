@@ -17,6 +17,7 @@ export interface FirestorePreferencePartial {
   default_entries?: Record<string, string>;
   theme?: string;
   spendingChartType?: 'bar' | 'line';
+  layoutWidth?: 'fixed' | 'full';
 }
 
 // Swift Codable encodes [BudgetDataType:String] (non-String enum key) as a flat alternating array:

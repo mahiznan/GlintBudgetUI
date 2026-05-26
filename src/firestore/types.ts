@@ -43,4 +43,5 @@ export interface Preference {
   defaultEntries: Record<string, string> | null;
   theme?: string;  // theme ID: "lime" | "forest" | "ocean" | "amber"
   spendingChartType?: 'bar' | 'line';
+  layoutWidth?: 'fixed' | 'full';
 }
