@@ -211,7 +211,9 @@ describe('firebase/client', () => {
   it('initializes the app exactly once across multiple imports', async () => {
     const { initializeApp, getApps } = await import('firebase/app');
     // getApps returns [] first call, then [app] on subsequent calls
-    (getApps as ReturnType<typeof vi.fn>).mockReturnValueOnce([]).mockReturnValue([{ name: 'cached' }]);
+    (getApps as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce([])
+      .mockReturnValue([{ name: 'cached' }]);
 
     const mod1 = await import('./client');
     const mod2 = await import('./client');
@@ -943,7 +945,11 @@ const SignIn = lazy(() => import('./routes/SignIn'));
 const AppShell = lazy(() => import('./routes/AppShell'));
 
 const RouteFallback = () => (
-  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center text-slate-500"
+  >
     Loading…
   </div>
 );
@@ -1100,9 +1106,7 @@ describe('SignIn route', () => {
     signInWithGoogle.mockRejectedValue({ code: 'auth/popup-blocked' });
     harness({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /continue with google/i }));
-    await waitFor(() =>
-      expect(screen.getByText(/popup blocked/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/popup blocked/i)).toBeInTheDocument());
   });
 
   it('stays silent when the user closes the popup themselves', async () => {
@@ -1117,9 +1121,7 @@ describe('SignIn route', () => {
     signInWithGoogle.mockRejectedValue({ code: 'auth/network-request-failed' });
     harness({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /continue with google/i }));
-    await waitFor(() =>
-      expect(screen.getByText(/sign-in failed/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/sign-in failed/i)).toBeInTheDocument());
   });
 });
 ```
@@ -1436,7 +1438,7 @@ import { useAuth } from '../auth/AuthContext';
 import UserMenu from '../components/UserMenu';
 
 function firstName(name: string | null, email: string | null): string {
-  return ((name ?? email) ?? 'there').split(/[\s@]/)[0] ?? 'there';
+  return (name ?? email ?? 'there').split(/[\s@]/)[0] ?? 'there';
 }
 
 export default function AppShell() {
@@ -1801,29 +1803,29 @@ git commit -m "docs(stage2): record manual browser smoke pass"
 
 **Owner prerequisite (cannot be done from code):** add the 6 secrets to GitHub repo Settings → Secrets and variables → Actions:
 
-| Secret name                     | Source (Firebase Console)                                  |
-| ------------------------------- | ---------------------------------------------------------- |
-| `FIREBASE_API_KEY`              | Project settings → General → Web app config → `apiKey`     |
-| `FIREBASE_AUTH_DOMAIN`          | … `authDomain`                                             |
-| `FIREBASE_PROJECT_ID`           | … `projectId`                                              |
-| `FIREBASE_APP_ID`               | … `appId`                                                  |
-| `FIREBASE_MESSAGING_SENDER_ID`  | … `messagingSenderId`                                      |
-| `FIREBASE_STORAGE_BUCKET`       | … `storageBucket`                                          |
+| Secret name                    | Source (Firebase Console)                              |
+| ------------------------------ | ------------------------------------------------------ |
+| `FIREBASE_API_KEY`             | Project settings → General → Web app config → `apiKey` |
+| `FIREBASE_AUTH_DOMAIN`         | … `authDomain`                                         |
+| `FIREBASE_PROJECT_ID`          | … `projectId`                                          |
+| `FIREBASE_APP_ID`              | … `appId`                                              |
+| `FIREBASE_MESSAGING_SENDER_ID` | … `messagingSenderId`                                  |
+| `FIREBASE_STORAGE_BUCKET`      | … `storageBucket`                                      |
 
 - [ ] **Step 1: Update `deploy.yml` to pass env vars into the Build step**
 
 Open `/Users/rajeshkumar/workspace/GlintBudgetUI/.github/workflows/deploy.yml` and replace the "Build" step with:
 
 ```yaml
-      - name: Build
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-        run: npm run build
+- name: Build
+  env:
+    VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+    VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+    VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+    VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+    VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+    VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+  run: npm run build
 ```
 
 (Other steps — Checkout, Set up Node, Install, Typecheck, Lint, Test, Deploy — are unchanged.)
@@ -2017,12 +2019,12 @@ dist/assets/react-DIdu0ghs.js             283.50 kB │ gzip: 90.09 kB
 
 ### Route gzip totals
 
-| Route               | Chunks summed                                    | Gzipped size | Target | Verdict |
-|---------------------|--------------------------------------------------|--------------|--------|---------|
-| `/` (loose)         | entry + CSS                                      | 39.94 KB     | < 50 KB  | **PASS** |
-| `/` (strict, info)  | entry + react vendor + CSS                       | 130.03 KB    | < 50 KB  | FAIL |
-| `/signin` cold      | entry + react + CSS + SignIn + auth + runtime    | 131.33 KB    | < 150 KB | **PASS** |
-| `/app` cold cached  | entry + react + CSS + AppShell + runtime         | 131.48 KB    | < 60 KB  | FAIL |
+| Route              | Chunks summed                                 | Gzipped size | Target   | Verdict  |
+| ------------------ | --------------------------------------------- | ------------ | -------- | -------- |
+| `/` (loose)        | entry + CSS                                   | 39.94 KB     | < 50 KB  | **PASS** |
+| `/` (strict, info) | entry + react vendor + CSS                    | 130.03 KB    | < 50 KB  | FAIL     |
+| `/signin` cold     | entry + react + CSS + SignIn + auth + runtime | 131.33 KB    | < 150 KB | **PASS** |
+| `/app` cold cached | entry + react + CSS + AppShell + runtime      | 131.48 KB    | < 60 KB  | FAIL     |
 
 ### Budget interpretation note
 

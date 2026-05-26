@@ -60,9 +60,7 @@ describe('SignIn route', () => {
     signInWithGoogle.mockRejectedValue({ code: 'auth/popup-blocked' });
     harness({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /continue with google/i }));
-    await waitFor(() =>
-      expect(screen.getByText(/popup blocked/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/popup blocked/i)).toBeInTheDocument());
   });
 
   it('stays silent when the user closes the popup themselves', async () => {
@@ -76,8 +74,6 @@ describe('SignIn route', () => {
     signInWithGoogle.mockRejectedValue({ code: 'auth/network-request-failed' });
     harness({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /continue with google/i }));
-    await waitFor(() =>
-      expect(screen.getByText(/sign-in failed/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/sign-in failed/i)).toBeInTheDocument());
   });
 });

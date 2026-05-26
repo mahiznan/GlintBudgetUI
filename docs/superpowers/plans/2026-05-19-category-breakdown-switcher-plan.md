@@ -13,6 +13,7 @@
 ### Task 1: Write failing tests
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx`
 
 - [ ] **Step 1: Replace the test file with the updated + new tests**
@@ -65,8 +66,12 @@ describe('CategoryBreakdown', () => {
 
   it('shows top categories by expense spend (negative amounts)', () => {
     const txns = [
-      ...Array(3).fill(null).map(() => makeTx('Food', -500)),
-      ...Array(2).fill(null).map(() => makeTx('Transport', -200)),
+      ...Array(3)
+        .fill(null)
+        .map(() => makeTx('Food', -500)),
+      ...Array(2)
+        .fill(null)
+        .map(() => makeTx('Transport', -200)),
       makeTx('Health', -100),
     ];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
@@ -113,6 +118,7 @@ Expected: Several FAIL entries including "renders Expense and Income toggle butt
 ### Task 2: Implement the switcher in CategoryBreakdown
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 
 - [ ] **Step 1: Replace CategoryBreakdown.tsx with the new implementation**
@@ -133,7 +139,10 @@ interface CategoryBreakdownProps {
   currencySymbol: string;
 }
 
-export default function CategoryBreakdown({ transactions, currencySymbol }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({
+  transactions,
+  currencySymbol,
+}: CategoryBreakdownProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
   const [mode, setMode] = useState<Mode>('expense');
@@ -143,14 +152,11 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
       mode === 'expense'
         ? transactions.filter((t) => t.amount < 0)
         : transactions.filter((t) => t.amount > 0);
-    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-      (acc, t) => {
-        if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-        acc[t.category]!.total += Math.abs(t.amount);
-        return acc;
-      },
-      {},
-    );
+    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+      if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+      acc[t.category]!.total += Math.abs(t.amount);
+      return acc;
+    }, {});
     const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
     return Object.entries(totals)
       .sort(([, a], [, b]) => b.total - a.total)
@@ -166,7 +172,9 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+          By Category
+        </h2>
         <div className="inline-flex rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5">
           {(['expense', 'income'] as Mode[]).map((m) => (
             <button
@@ -181,7 +189,9 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
                     : 'text-white shadow-sm'
                   : 'text-text-muted hover:text-text',
               ].join(' ')}
-              style={mode === m && m === 'income' ? { background: 'var(--brand-gradient)' } : undefined}
+              style={
+                mode === m && m === 'income' ? { background: 'var(--brand-gradient)' } : undefined
+              }
             >
               {m}
             </button>
@@ -205,7 +215,10 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
                 <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: theme.categoryColors[i % theme.categoryColors.length]! }}
+                    style={{
+                      width: `${pct}%`,
+                      background: theme.categoryColors[i % theme.categoryColors.length]!,
+                    }}
                   />
                 </div>
               </div>
@@ -241,6 +254,7 @@ git commit -m "feat: add income/expense switcher to CategoryBreakdown widget"
 ### Task 3: Pass heroTxns from Dashboard
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx:86`
 
 - [ ] **Step 1: Update the CategoryBreakdown prop in Dashboard.tsx**
@@ -248,13 +262,13 @@ git commit -m "feat: add income/expense switcher to CategoryBreakdown widget"
 In `src/routes/Dashboard.tsx`, find line 86:
 
 ```tsx
-        <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
+<CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
 ```
 
 Change it to:
 
 ```tsx
-        <CategoryBreakdown transactions={heroTxns} currencySymbol={currencySymbol} />
+<CategoryBreakdown transactions={heroTxns} currencySymbol={currencySymbol} />
 ```
 
 No other changes needed — `heroTxns` is already computed on lines 32–40 of Dashboard.tsx.

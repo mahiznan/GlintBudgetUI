@@ -37,9 +37,5 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [mutate],
   );
 
-  return (
-    <ThemeContext.Provider value={{ themeId, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ themeId, setTheme }}>{children}</ThemeContext.Provider>;
 }

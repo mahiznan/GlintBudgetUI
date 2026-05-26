@@ -13,14 +13,14 @@ Three targeted improvements to the dashboard right-column widgets:
 
 ## Scope
 
-| File | Change |
-|---|---|
-| `src/styles/index.css` | Add `--expense-gradient` CSS variable |
-| `src/components/dashboard/CategoryBreakdown.tsx` | Lift mode+categories to props; export `CategoryItem` type |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Update for new prop interface |
-| `src/components/dashboard/IncomeExpenseDonut.tsx` | Replace income/expenses props with mode+categories; render category slices |
-| `src/components/dashboard/IncomeExpenseDonut.test.tsx` | Update for new prop interface |
-| `src/routes/Dashboard.tsx` | Own `categoryMode` state + `categoryItems` memo; pass to both widgets; pass `heroTxns` to QuickStats |
+| File                                                   | Change                                                                                               |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `src/styles/index.css`                                 | Add `--expense-gradient` CSS variable                                                                |
+| `src/components/dashboard/CategoryBreakdown.tsx`       | Lift mode+categories to props; export `CategoryItem` type                                            |
+| `src/components/dashboard/CategoryBreakdown.test.tsx`  | Update for new prop interface                                                                        |
+| `src/components/dashboard/IncomeExpenseDonut.tsx`      | Replace income/expenses props with mode+categories; render category slices                           |
+| `src/components/dashboard/IncomeExpenseDonut.test.tsx` | Update for new prop interface                                                                        |
+| `src/routes/Dashboard.tsx`                             | Own `categoryMode` state + `categoryItems` memo; pass to both widgets; pass `heroTxns` to QuickStats |
 
 No changes to QuickStats component itself — only the prop passed from Dashboard changes.
 
@@ -43,11 +43,13 @@ This is a fixed red gradient (not theme-dependent — expense/danger is always r
 Replace the active Expense button's class-based solid color with an inline style, mirroring the Income button pattern:
 
 **Before:**
+
 ```tsx
 mode === m && m === 'expense' ? 'bg-red-600 text-white shadow-sm' : ...
 ```
 
 **After:**
+
 ```tsx
 // class: 'text-white shadow-sm' (no bg-* class)
 // style: { background: 'var(--expense-gradient)' }  when mode === 'expense'
@@ -72,14 +74,11 @@ const categoryItems = useMemo(() => {
     categoryMode === 'expense'
       ? heroTxns.filter((t) => t.amount < 0)
       : heroTxns.filter((t) => t.amount > 0);
-  const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-    (acc, t) => {
-      if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-      acc[t.category]!.total += Math.abs(t.amount);
-      return acc;
-    },
-    {},
-  );
+  const totals = filtered.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+    if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+    acc[t.category]!.total += Math.abs(t.amount);
+    return acc;
+  }, {});
   const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
   return Object.entries(totals)
     .sort(([, a], [, b]) => b.total - a.total)

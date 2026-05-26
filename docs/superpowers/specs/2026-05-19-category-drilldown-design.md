@@ -39,11 +39,11 @@ All derived from `heroTxns` (the already-filtered, same set used by HeroStatsRow
 
 ### `categoryItems: CategoryItem[]`
 
-| Level | Filter | Group key | Notes |
-|-------|--------|-----------|-------|
-| 0 | expense or income | `t.category` | All categories, sorted desc by total |
-| 1 | expense/income + `t.category === drillState.category` | `t.subCategory` | All subcategories, sorted desc |
-| 2 | expense/income + category + subCategory match | — | Single item: `{ name, icon, total, pct: 100 }` |
+| Level | Filter                                                | Group key       | Notes                                          |
+| ----- | ----------------------------------------------------- | --------------- | ---------------------------------------------- |
+| 0     | expense or income                                     | `t.category`    | All categories, sorted desc by total           |
+| 1     | expense/income + `t.category === drillState.category` | `t.subCategory` | All subcategories, sorted desc                 |
+| 2     | expense/income + category + subCategory match         | —               | Single item: `{ name, icon, total, pct: 100 }` |
 
 `pct` at levels 0 and 1: `Math.round((total / periodSum) * 100)` where `periodSum` is the total for that level's filtered set.
 
@@ -78,13 +78,14 @@ transactions?: Transaction[]      // level-2 transaction rows
 
 **Header rendering:**
 
-| Level | Left side | Right side |
-|-------|-----------|------------|
-| 0 | "BY CATEGORY" label | expense/income toggle |
-| 1 | `← Back` button + `drillLabel` chip | expense/income toggle |
-| 2 | `backLabel` button + `drillLabel` chip | hidden |
+| Level | Left side                              | Right side            |
+| ----- | -------------------------------------- | --------------------- |
+| 0     | "BY CATEGORY" label                    | expense/income toggle |
+| 1     | `← Back` button + `drillLabel` chip    | expense/income toggle |
+| 2     | `backLabel` button + `drillLabel` chip | hidden                |
 
 **Body rendering:**
+
 - Levels 0 and 1: existing bar-list UI, rows are clickable (cursor-pointer, `onItemClick` callback, chevron `›` on each row).
 - Level 2: transaction rows — icon, vendor, date, amount. Each row is a `<Link to="/app/transactions/{id}/edit">`.
 
@@ -94,11 +95,11 @@ No changes. Receives `categories: CategoryItem[]` as before; at level 2 this is 
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `src/routes/Dashboard.tsx` | Add `drillState`, recompute `categoryItems`, add `drillTransactions`, pass new props |
-| `src/components/dashboard/CategoryBreakdown.tsx` | Add drill-level header, back button, transaction-row mode |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Update smoke tests for new props |
+| File                                                  | Change                                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/routes/Dashboard.tsx`                            | Add `drillState`, recompute `categoryItems`, add `drillTransactions`, pass new props |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Add drill-level header, back button, transaction-row mode                            |
+| `src/components/dashboard/CategoryBreakdown.test.tsx` | Update smoke tests for new props                                                     |
 
 ## Out of Scope
 

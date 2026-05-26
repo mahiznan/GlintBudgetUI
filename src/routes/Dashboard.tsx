@@ -9,7 +9,10 @@ import { filterByPeriod, getPeriodRange, shiftPeriodDate } from '../lib/dateUtil
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
-import CategoryBreakdown, { type Mode as CategoryMode, type GroupBy } from '../components/dashboard/CategoryBreakdown';
+import CategoryBreakdown, {
+  type Mode as CategoryMode,
+  type GroupBy,
+} from '../components/dashboard/CategoryBreakdown';
 import IncomeExpenseDonut from '../components/dashboard/IncomeExpenseDonut';
 import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
@@ -21,7 +24,10 @@ interface DrillState {
   path: string[];
 }
 
-function getGroupField(t: { account: string; currency: string; vendor: string; payment: string; category: string }, groupBy: GroupBy): string {
+function getGroupField(
+  t: { account: string; currency: string; vendor: string; payment: string; category: string },
+  groupBy: GroupBy,
+): string {
   if (groupBy === 'account') return t.account;
   if (groupBy === 'currency') return t.currency;
   if (groupBy === 'vendor') return t.vendor;
@@ -36,7 +42,9 @@ function formatPathLabel(label: string): string {
 
 function getCurrencySymbol(code: string): string {
   try {
-    const parts = new Intl.NumberFormat('en', { style: 'currency', currency: code }).formatToParts(1);
+    const parts = new Intl.NumberFormat('en', { style: 'currency', currency: code }).formatToParts(
+      1,
+    );
     return parts.find((p) => p.type === 'currency')?.value ?? code;
   } catch {
     return code;
@@ -148,10 +156,7 @@ export default function Dashboard() {
         ? txns.filter((t) => t.amount < 0)
         : txns.filter((t) => t.amount > 0);
 
-    const toItems = (
-      txns: typeof filtered,
-      keyFn: (t: (typeof filtered)[number]) => string,
-    ) => {
+    const toItems = (txns: typeof filtered, keyFn: (t: (typeof filtered)[number]) => string) => {
       const totals = txns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
         const k = keyFn(t);
         if (!acc[k]) acc[k] = { total: 0, icon: t.icon };
@@ -186,16 +191,15 @@ export default function Dashboard() {
     // account | vendor: composite top level (groupItem|currency), then category → subCategory → transactions
     if (groupBy === 'account' || groupBy === 'vendor') {
       if (path.length === 0) {
-        const totals = filtered.reduce<Record<string, { total: number; groupName: string; currency: string }>>(
-          (acc, t) => {
-            const groupName = getGroupField(t, groupBy);
-            const composite = `${groupName}|${t.currency}`;
-            if (!acc[composite]) acc[composite] = { total: 0, groupName, currency: t.currency };
-            acc[composite]!.total += Math.abs(t.amount);
-            return acc;
-          },
-          {},
-        );
+        const totals = filtered.reduce<
+          Record<string, { total: number; groupName: string; currency: string }>
+        >((acc, t) => {
+          const groupName = getGroupField(t, groupBy);
+          const composite = `${groupName}|${t.currency}`;
+          if (!acc[composite]) acc[composite] = { total: 0, groupName, currency: t.currency };
+          acc[composite]!.total += Math.abs(t.amount);
+          return acc;
+        }, {});
         const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
         return Object.entries(totals)
           .sort(([, a], [, b]) => b.total - a.total)
@@ -315,9 +319,14 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
         Couldn't load transactions.{' '}
-        <button className="underline ml-1" onClick={refetch}>Retry</button>
+        <button className="underline ml-1" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -361,7 +370,11 @@ export default function Dashboard() {
             groupBy={drillState.groupBy}
             onGroupByChange={handleGroupByChange}
             drillLevel={drillState.path.length}
-            drillLabel={drillState.path.at(-1) !== undefined ? formatPathLabel(drillState.path.at(-1)!) : undefined}
+            drillLabel={
+              drillState.path.at(-1) !== undefined
+                ? formatPathLabel(drillState.path.at(-1)!)
+                : undefined
+            }
             backLabel={
               drillState.path.length === 1
                 ? '← Back'
@@ -376,15 +389,22 @@ export default function Dashboard() {
             }
             onItemClick={
               drillTransactions === undefined
-                ? (name) =>
-                    setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
+                ? (name) => setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
                 : undefined
             }
             transactions={drillTransactions}
             onEdit={(id) => setEditingId(id)}
           />
-          <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
-          <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} periodDays={periodDays} />
+          <IncomeExpenseDonut
+            categories={categoryItems}
+            mode={categoryMode}
+            currencySymbol={currencySymbol}
+          />
+          <QuickStats
+            transactions={heroTxns}
+            currencySymbol={currencySymbol}
+            periodDays={periodDays}
+          />
         </div>
       </div>
 

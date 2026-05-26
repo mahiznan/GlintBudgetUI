@@ -5,13 +5,13 @@ import SubcategoriesTab from './SubcategoriesTab';
 import type { BudgetData } from '../../firestore/types';
 
 const categories: BudgetData[] = [
-  { name: 'Food',           emoji: '🍲', type: 'category', parent: null },
+  { name: 'Food', emoji: '🍲', type: 'category', parent: null },
   { name: 'Transportation', emoji: '🚗', type: 'category', parent: null },
 ];
 
 const defaultSubs: BudgetData[] = [
   { name: 'Lunch', emoji: '🍱', type: 'sub_category', parent: 'Food' },
-  { name: 'Car',   emoji: '🚗', type: 'sub_category', parent: 'Transportation' },
+  { name: 'Car', emoji: '🚗', type: 'sub_category', parent: 'Transportation' },
 ];
 
 const userSub: BudgetData = { name: 'Snacks', emoji: '🍿', type: 'sub_category', parent: 'Food' };
@@ -71,7 +71,10 @@ describe('SubcategoriesTab — add', () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     renderTab({ onSave });
     // 'Lunch' exists under 'Food'; adding 'Lunch' under 'Transportation' should succeed
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /category/i }), 'Transportation');
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: /category/i }),
+      'Transportation',
+    );
     await userEvent.type(screen.getByLabelText(/^name$/i), 'Lunch');
     await userEvent.click(screen.getByRole('button', { name: /^add$/i }));
     expect(onSave).toHaveBeenCalled();

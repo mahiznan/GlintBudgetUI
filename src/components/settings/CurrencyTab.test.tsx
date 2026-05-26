@@ -55,10 +55,7 @@ describe('CurrencyTab — bookmarked currencies', () => {
   it('adds a bookmarked currency', async () => {
     const onSaveBookmarks = vi.fn().mockResolvedValue(undefined);
     renderTab({ bookmarkedCurrencies: ['SGD'], onSaveBookmarks });
-    await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: /add currency/i }),
-      'INR',
-    );
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /add currency/i }), 'INR');
     await userEvent.click(screen.getByRole('button', { name: /^add$/i }));
     expect(onSaveBookmarks).toHaveBeenCalledWith(['SGD', 'INR']);
   });
@@ -70,9 +67,7 @@ describe('CurrencyTab — bookmarked currencies', () => {
     renderTab({ bookmarkedCurrencies: ['SGD'], onSaveBookmarks });
     // The combobox should not contain SGD since it's already bookmarked
     const options = screen.getByRole('combobox', { name: /add currency/i });
-    const sgdOption = Array.from(options.querySelectorAll('option')).find(
-      (o) => o.value === 'SGD',
-    );
+    const sgdOption = Array.from(options.querySelectorAll('option')).find((o) => o.value === 'SGD');
     expect(sgdOption).toBeUndefined();
   });
 });

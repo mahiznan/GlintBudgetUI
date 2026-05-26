@@ -24,7 +24,10 @@ describe('PreferenceContext', () => {
   it('provides preference state to consumers', async () => {
     render(
       <AuthContext.Provider
-        value={{ status: 'authenticated', user: { uid: 'u1', name: null, email: null, photoUrl: null } }}
+        value={{
+          status: 'authenticated',
+          user: { uid: 'u1', name: null, email: null, photoUrl: null },
+        }}
       >
         <PreferenceProvider>
           <Consumer />
@@ -37,7 +40,9 @@ describe('PreferenceContext', () => {
 
   it('throws when used outside provider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => render(<Consumer />)).toThrow('usePreferenceContext must be used within PreferenceProvider');
+    expect(() => render(<Consumer />)).toThrow(
+      'usePreferenceContext must be used within PreferenceProvider',
+    );
     spy.mockRestore();
   });
 });

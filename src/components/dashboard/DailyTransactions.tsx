@@ -16,7 +16,9 @@ import {
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import MiniCalendar from '../form/MiniCalendar';
 
-const SYMBOL: Record<string, string> = Object.fromEntries(CURRENCIES.map((c) => [c.code, c.symbol]));
+const SYMBOL: Record<string, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.symbol]),
+);
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
@@ -65,13 +67,14 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span
-                    className={`text-sm font-semibold ${
-                      isExpense ? 'text-red-600' : 'text-brand'
-                    }`}
+                    className={`text-sm font-semibold ${isExpense ? 'text-red-600' : 'text-brand'}`}
                   >
                     {isExpense ? '−' : '+'}
                     <span className="text-[10px] mr-0.5">{txSymbol}</span>
-                    {Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {Math.abs(tx.amount).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </span>
                   <button
                     type="button"
@@ -104,10 +107,17 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-base font-bold text-red-600">
               −<span className="text-xs mr-0.5">{currencySymbol}</span>
-              {dayExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {dayExpenses.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </span>
-            <span className="p-1 invisible select-none" aria-hidden="true">✏️</span>
-            <span className="p-1 invisible select-none" aria-hidden="true">🗑</span>
+            <span className="p-1 invisible select-none" aria-hidden="true">
+              ✏️
+            </span>
+            <span className="p-1 invisible select-none" aria-hidden="true">
+              🗑
+            </span>
           </div>
         </div>
       )}
@@ -153,7 +163,7 @@ export default function DailyTransactions({
     target.setHours(0, 0, 0, 0);
     if (isSameDay(target, panels.center)) return;
     const dir: 'left' | 'right' = target > panels.center ? 'left' : 'right';
-    setPanels(prev => ({
+    setPanels((prev) => ({
       ...prev,
       [dir === 'left' ? 'right' : 'left']: target,
     }));
@@ -262,10 +272,7 @@ export default function DailyTransactions({
             </button>
             {calendarOpen && (
               <div className="absolute left-0 top-full mt-1 z-50 bg-surface rounded-xl border border-border shadow-lg p-3 w-64 overflow-hidden">
-                <MiniCalendar
-                  value={localDateStr(selectedDate)}
-                  onChange={handleCalendarPick}
-                />
+                <MiniCalendar value={localDateStr(selectedDate)} onChange={handleCalendarPick} />
               </div>
             )}
           </div>
@@ -370,8 +377,8 @@ export default function DailyTransactions({
               sliding === 'left'
                 ? 'translateX(-66.66%)'
                 : sliding === 'right'
-                ? 'translateX(0%)'
-                : 'translateX(-33.33%)',
+                  ? 'translateX(0%)'
+                  : 'translateX(-33.33%)',
             transition: sliding ? 'transform 280ms ease' : 'none',
           }}
           onTransitionEnd={onTransitionEnd}
@@ -383,7 +390,10 @@ export default function DailyTransactions({
                 transactions={transactions}
                 currencySymbol={currencySymbol}
                 onDelete={onDelete}
-                onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+                onEdit={(id) => {
+                  setEditingId(id);
+                  setDrawerOpen(true);
+                }}
               />
             </div>
           ))}
@@ -391,8 +401,13 @@ export default function DailyTransactions({
       </div>
       <AddTransactionDrawer
         open={drawerOpen}
-        onClose={() => { setDrawerOpen(false); setEditingId(null); }}
-        onSaved={() => { onTransactionAdded?.(); }}
+        onClose={() => {
+          setDrawerOpen(false);
+          setEditingId(null);
+        }}
+        onSaved={() => {
+          onTransactionAdded?.();
+        }}
         selectedDate={editingId ? undefined : selectedDate}
         transactions={transactions}
         editId={editingId ?? undefined}

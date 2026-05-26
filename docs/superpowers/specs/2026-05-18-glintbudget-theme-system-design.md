@@ -15,12 +15,12 @@ A switchable 4-theme color system applied app-wide via CSS custom properties, wi
 
 Four built-in themes. **Lime** is the new default (replaces the current Forest default).
 
-| ID | Name | Emoji | Description |
-|---|---|---|---|
-| `lime` | Lime | 🍋 | `rgb(150,191,13)` → `#22c55e` — energetic lime-to-green; matches transaction widget |
-| `forest` | Forest | 🌲 | `#005c2a` → `#007836` — deep forest green; the current app theme |
-| `ocean` | Ocean | 🌊 | `#1e4d9b` → `#2563eb` — deep blue to sky; classic finance feel |
-| `amber` | Amber | 🌅 | `#92400e` → `#b45309` — warm amber-gold; earthy and distinctive |
+| ID       | Name   | Emoji | Description                                                                         |
+| -------- | ------ | ----- | ----------------------------------------------------------------------------------- |
+| `lime`   | Lime   | 🍋    | `rgb(150,191,13)` → `#22c55e` — energetic lime-to-green; matches transaction widget |
+| `forest` | Forest | 🌲    | `#005c2a` → `#007836` — deep forest green; the current app theme                    |
+| `ocean`  | Ocean  | 🌊    | `#1e4d9b` → `#2563eb` — deep blue to sky; classic finance feel                      |
+| `amber`  | Amber  | 🌅    | `#92400e` → `#b45309` — warm amber-gold; earthy and distinctive                     |
 
 ---
 
@@ -30,23 +30,23 @@ Four built-in themes. **Lime** is the new default (replaces the current Forest d
 
 `@theme` creates Tailwind utility classes (`bg-brand`, `text-brand`, `border-brand`, etc.) AND CSS custom properties on `:root`. Updated to Lime as the new default.
 
-| Token | Lime value | Forest value | Ocean value | Amber value |
-|---|---|---|---|---|
-| `--color-brand` | `rgb(150,191,13)` | `#007836` | `#2563eb` | `#b45309` |
-| `--color-brand-dark` | `rgb(80,120,0)` | `#003d1c` | `#0c2d5e` | `#78350f` |
-| `--color-accent` | `#22c55e` | `#1fa32e` | `#0ea5e9` | `#f59e0b` |
-| `--color-highlight` | `rgb(150,191,13)` | `#96bf0d` | `#60a5fa` | `#fbbf24` |
+| Token                | Lime value        | Forest value | Ocean value | Amber value |
+| -------------------- | ----------------- | ------------ | ----------- | ----------- |
+| `--color-brand`      | `rgb(150,191,13)` | `#007836`    | `#2563eb`   | `#b45309`   |
+| `--color-brand-dark` | `rgb(80,120,0)`   | `#003d1c`    | `#0c2d5e`   | `#78350f`   |
+| `--color-accent`     | `#22c55e`         | `#1fa32e`    | `#0ea5e9`   | `#f59e0b`   |
+| `--color-highlight`  | `rgb(150,191,13)` | `#96bf0d`    | `#60a5fa`   | `#fbbf24`   |
 
 ### Layer 2: Runtime CSS variables on `:root` (gradient strings — cannot live in `@theme`)
 
 These cannot live in `@theme` (Tailwind doesn't support gradient strings as design tokens). Defined on `:root` with Lime values; overridden by `[data-theme]` attribute blocks.
 
-| Variable | Lime value | Purpose |
-|---|---|---|
-| `--sidebar-gradient` | `linear-gradient(180deg, rgb(80,120,0) 0%, rgb(150,191,13) 60%, #22c55e 100%)` | Sidebar background |
-| `--brand-gradient` | `linear-gradient(135deg, rgb(150,191,13), #22c55e)` | Selected tiles, active tab pills, buttons |
-| `--brand-glow` | `rgba(150,191,13,0.45)` | Box-shadow glow for selected state |
-| `--brand-gradient-text` | `linear-gradient(135deg, rgb(150,191,13), #22c55e)` | Gradient text (e.g. "See all →") |
+| Variable                | Lime value                                                                     | Purpose                                   |
+| ----------------------- | ------------------------------------------------------------------------------ | ----------------------------------------- |
+| `--sidebar-gradient`    | `linear-gradient(180deg, rgb(80,120,0) 0%, rgb(150,191,13) 60%, #22c55e 100%)` | Sidebar background                        |
+| `--brand-gradient`      | `linear-gradient(135deg, rgb(150,191,13), #22c55e)`                            | Selected tiles, active tab pills, buttons |
+| `--brand-glow`          | `rgba(150,191,13,0.45)`                                                        | Box-shadow glow for selected state        |
+| `--brand-gradient-text` | `linear-gradient(135deg, rgb(150,191,13), #22c55e)`                            | Gradient text (e.g. "See all →")          |
 
 ### Layer 3: `[data-theme]` override blocks
 
@@ -56,12 +56,12 @@ No `[data-theme="lime"]` block is needed — Lime is the `@theme` default.
 
 **Runtime variable values per theme:**
 
-| Variable | Forest | Ocean | Amber |
-|---|---|---|---|
-| `--sidebar-gradient` | `linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%)` | `linear-gradient(180deg, #0c2d5e 0%, #1e4d9b 50%, #2563eb 100%)` | `linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%)` |
-| `--brand-gradient` | `linear-gradient(135deg, #007836, #1fa32e)` | `linear-gradient(135deg, #2563eb, #0ea5e9)` | `linear-gradient(135deg, #b45309, #f59e0b)` |
-| `--brand-glow` | `rgba(0,120,54,0.45)` | `rgba(37,99,235,0.45)` | `rgba(180,83,9,0.45)` |
-| `--brand-gradient-text` | `linear-gradient(135deg, #007836, #1fa32e)` | `linear-gradient(135deg, #2563eb, #0ea5e9)` | `linear-gradient(135deg, #b45309, #f59e0b)` |
+| Variable                | Forest                                                           | Ocean                                                            | Amber                                                            |
+| ----------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `--sidebar-gradient`    | `linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%)` | `linear-gradient(180deg, #0c2d5e 0%, #1e4d9b 50%, #2563eb 100%)` | `linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%)` |
+| `--brand-gradient`      | `linear-gradient(135deg, #007836, #1fa32e)`                      | `linear-gradient(135deg, #2563eb, #0ea5e9)`                      | `linear-gradient(135deg, #b45309, #f59e0b)`                      |
+| `--brand-glow`          | `rgba(0,120,54,0.45)`                                            | `rgba(37,99,235,0.45)`                                           | `rgba(180,83,9,0.45)`                                            |
+| `--brand-gradient-text` | `linear-gradient(135deg, #007836, #1fa32e)`                      | `linear-gradient(135deg, #2563eb, #0ea5e9)`                      | `linear-gradient(135deg, #b45309, #f59e0b)`                      |
 
 ---
 
@@ -81,13 +81,13 @@ A new `.glass` utility class in `index.css`. Applied where a frosted surface is 
 
 Applied to these surfaces:
 
-| Surface | Treatment |
-|---|---|
-| Sidebar active nav item | Already uses `bg-white/20 backdrop-blur-sm border border-white/30` — keep as-is |
-| AppShell topbar | Add `.glass` + `border-b border-white/50` (replaces opaque white) |
-| Settings tab bar pill container | `bg-slate-100/70 backdrop-blur-sm border border-white/80` |
-| `DeleteConfirmDialog` | `bg-white/90 backdrop-blur-md` |
-| Dashboard cards (HeroStatsRow panels, QuickStats, etc.) | `.glass` replaces current `.card-surface` |
+| Surface                                                 | Treatment                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Sidebar active nav item                                 | Already uses `bg-white/20 backdrop-blur-sm border border-white/30` — keep as-is |
+| AppShell topbar                                         | Add `.glass` + `border-b border-white/50` (replaces opaque white)               |
+| Settings tab bar pill container                         | `bg-slate-100/70 backdrop-blur-sm border border-white/80`                       |
+| `DeleteConfirmDialog`                                   | `bg-white/90 backdrop-blur-md`                                                  |
+| Dashboard cards (HeroStatsRow panels, QuickStats, etc.) | `.glass` replaces current `.card-surface`                                       |
 
 ---
 
@@ -155,6 +155,7 @@ export function useTheme(): ThemeContextValue {
 ### `src/context/ThemeProvider.tsx`
 
 Responsibilities:
+
 - Reads `preference?.theme` from `usePreferenceContext()` (falls back to `DEFAULT_THEME_ID` while loading or unset)
 - Reads uid from `useAuth()`
 - On mount and whenever `themeId` changes: sets `document.documentElement.dataset.theme = themeId`
@@ -211,7 +212,9 @@ export default function AppearanceTab() {
   return (
     <div className="flex flex-col gap-6 py-4">
       <div>
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-text-muted">App Theme</p>
+        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-text-muted">
+          App Theme
+        </p>
         <div className="grid grid-cols-2 gap-3">
           {THEMES.map((theme) => {
             const isActive = themeId === theme.id;
@@ -226,10 +229,7 @@ export default function AppearanceTab() {
                     : 'border-border hover:border-brand/50',
                 ].join(' ')}
               >
-                <div
-                  className="h-10 w-full"
-                  style={{ background: theme.swatchGradient }}
-                />
+                <div className="h-10 w-full" style={{ background: theme.swatchGradient }} />
                 <div className="flex items-center justify-between px-3 py-2">
                   <span className="text-xs font-bold">
                     {theme.emoji} {theme.name}
@@ -265,6 +265,7 @@ export default function AppearanceTab() {
 ### `src/firestore/types.ts`
 
 Add to `Preference` interface:
+
 ```ts
 theme?: string;  // theme ID: "lime" | "forest" | "ocean" | "amber". Optional — defaults to "lime" on client.
 ```
@@ -299,6 +300,7 @@ Import `ThemeProvider` from `'./context/ThemeProvider'`.
 ### `src/components/layout/Sidebar.tsx`
 
 Change inline style:
+
 ```tsx
 // Before
 style={{ background: 'linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%)' }}
@@ -321,16 +323,17 @@ style={{ background: 'var(--sidebar-gradient)' }}
 
 Replace three hardcoded inline color values:
 
-| Before | After |
-|---|---|
-| `background: 'linear-gradient(135deg, rgb(150,191,13), #22c55e)'` | `background: 'var(--brand-gradient)'` |
-| `boxShadow: '0 3px 12px rgba(150,191,13,0.45)'` | `boxShadow: \`0 3px 12px var(--brand-glow)\`` |
-| `background: '#22c55e'` (dot indicator) | `background: 'var(--color-accent)'` |
-| gradient text on "See all →" | use `var(--brand-gradient-text)` |
+| Before                                                            | After                                         |
+| ----------------------------------------------------------------- | --------------------------------------------- |
+| `background: 'linear-gradient(135deg, rgb(150,191,13), #22c55e)'` | `background: 'var(--brand-gradient)'`         |
+| `boxShadow: '0 3px 12px rgba(150,191,13,0.45)'`                   | `boxShadow: \`0 3px 12px var(--brand-glow)\`` |
+| `background: '#22c55e'` (dot indicator)                           | `background: 'var(--color-accent)'`           |
+| gradient text on "See all →"                                      | use `var(--brand-gradient-text)`              |
 
 ### Dashboard card components
 
 Add `.glass` class (or equivalent Tailwind `bg-white/60 backdrop-blur-md border border-white/80`) to the card wrapper `<div>` in:
+
 - `src/components/dashboard/HeroStatsRow.tsx` — each stat panel
 - `src/components/dashboard/QuickStats.tsx` — card wrapper
 - `src/components/dashboard/SpendingChart.tsx` — card wrapper
@@ -341,11 +344,13 @@ Add `.glass` class (or equivalent Tailwind `bg-white/60 backdrop-blur-md border 
 ### AppShell topbar
 
 In `src/routes/AppShell.tsx`, update the topbar `<header>` to add glassmorphism:
+
 - Replace opaque `bg-white` with `bg-white/75 backdrop-blur-md border-b border-white/50`
 
 ### `src/components/transactions/DeleteConfirmDialog.tsx`
 
 Update dialog panel background:
+
 - Add `backdrop-blur-md bg-white/90` to the modal inner container
 
 ---
@@ -377,16 +382,19 @@ The Appearance tab is the 8th tab in Settings, added after "Defaults". The tab c
 ## Tests
 
 ### `src/lib/themes.test.ts`
+
 - `THEMES` array has exactly 4 entries
 - Each theme has non-empty `id`, `name`, `emoji`, `swatchGradient`
 - `DEFAULT_THEME_ID` matches an entry in `THEMES`
 
 ### `src/context/ThemeProvider.test.tsx`
+
 - When `preference?.theme` is undefined, `data-theme` is set to `"lime"`
 - When `preference?.theme` is `"ocean"`, `data-theme` is set to `"ocean"`
 - Calling `setTheme("forest")` updates `data-theme` immediately and calls `mutate`
 
 ### `src/components/settings/AppearanceTab.test.tsx`
+
 - Renders 4 theme swatches
 - Active theme has a check indicator; others have an empty circle
 - Clicking an inactive swatch calls `setTheme` with that theme's id

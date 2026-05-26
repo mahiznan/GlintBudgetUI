@@ -4,10 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 import DefaultsTab from './DefaultsTab';
 import type { BudgetData } from '../../firestore/types';
 
-const accounts: BudgetData[]      = [{ name: 'Monthly Budget', emoji: '💼', type: 'account',      parent: null   }];
-const categories: BudgetData[]    = [{ name: 'Food',           emoji: '🍲', type: 'category',     parent: null   }];
-const payments: BudgetData[]      = [{ name: 'Cash',           emoji: '💵', type: 'payment',      parent: null   }];
-const subCategories: BudgetData[] = [{ name: 'Lunch',          emoji: '🍱', type: 'sub_category', parent: 'Food' }];
+const accounts: BudgetData[] = [
+  { name: 'Monthly Budget', emoji: '💼', type: 'account', parent: null },
+];
+const categories: BudgetData[] = [{ name: 'Food', emoji: '🍲', type: 'category', parent: null }];
+const payments: BudgetData[] = [{ name: 'Cash', emoji: '💵', type: 'payment', parent: null }];
+const subCategories: BudgetData[] = [
+  { name: 'Lunch', emoji: '🍱', type: 'sub_category', parent: 'Food' },
+];
 
 function renderTab(overrides: Partial<Parameters<typeof DefaultsTab>[0]> = {}) {
   return render(

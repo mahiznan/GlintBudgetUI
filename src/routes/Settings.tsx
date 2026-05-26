@@ -16,17 +16,17 @@ import DefaultsTab from '../components/settings/DefaultsTab';
 import AppearanceTab from '../components/settings/AppearanceTab';
 
 const TABS = [
-  { key: 'accounts',      label: 'Accounts'      },
-  { key: 'categories',    label: 'Categories'    },
+  { key: 'accounts', label: 'Accounts' },
+  { key: 'categories', label: 'Categories' },
   { key: 'subcategories', label: 'Subcategories' },
-  { key: 'vendors',       label: 'Vendors'       },
-  { key: 'payments',      label: 'Payments'      },
-  { key: 'currency',      label: 'Currency'      },
-  { key: 'defaults',      label: 'Defaults'      },
-  { key: 'appearance',    label: 'Appearance'    },
+  { key: 'vendors', label: 'Vendors' },
+  { key: 'payments', label: 'Payments' },
+  { key: 'currency', label: 'Currency' },
+  { key: 'defaults', label: 'Defaults' },
+  { key: 'appearance', label: 'Appearance' },
 ] as const;
 
-type TabKey = typeof TABS[number]['key'];
+type TabKey = (typeof TABS)[number]['key'];
 
 export default function Settings() {
   const auth = useAuth();
@@ -79,7 +79,10 @@ export default function Settings() {
 
   if (error || !preference) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
         Couldn't load preferences.{' '}
         <button className="underline ml-1" onClick={refetch}>
           Retry
@@ -100,15 +103,9 @@ export default function Settings() {
               onClick={() => setTab(key)}
               className={[
                 'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
-                activeTab === key
-                  ? 'text-white shadow-sm'
-                  : 'text-text-muted hover:text-text',
+                activeTab === key ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
               ].join(' ')}
-              style={
-                activeTab === key
-                  ? { background: 'var(--brand-gradient)' }
-                  : undefined
-              }
+              style={activeTab === key ? { background: 'var(--brand-gradient)' } : undefined}
             >
               {label}
             </button>

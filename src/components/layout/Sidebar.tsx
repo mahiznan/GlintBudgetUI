@@ -5,17 +5,15 @@ import { useTheme } from '../../context/ThemeContext';
 import { THEMES } from '../../lib/themes';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',    icon: '◈', to: '/app/dashboard'    },
+  { label: 'Dashboard', icon: '◈', to: '/app/dashboard' },
   { label: 'Transactions', icon: '⇌', to: '/app/transactions' },
-  { label: 'Settings',     icon: '⚙', to: '/app/settings'     },
+  { label: 'Settings', icon: '⚙', to: '/app/settings' },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-    isActive
-      ? 'bg-surface-alt text-text'
-      : 'text-text-muted hover:bg-surface-alt hover:text-text',
+    isActive ? 'bg-surface-alt text-text' : 'text-text-muted hover:bg-surface-alt hover:text-text',
   ].join(' ');
 
 export default function Sidebar() {
@@ -32,13 +30,13 @@ export default function Sidebar() {
   return (
     <nav className="border-b border-border bg-surface">
       <div className="max-w-5xl mx-auto px-4 md:px-6">
-
         {/* Single row — collapses to wordmark + hamburger on mobile */}
         <div className="flex items-center gap-2 h-12">
-
           {/* Wordmark */}
           <span className="text-base font-bold tracking-tight text-text mr-2 flex-shrink-0">
-            <span aria-hidden="true" style={{ color: '#96bf0d' }}>●</span>{' '}
+            <span aria-hidden="true" style={{ color: '#96bf0d' }}>
+              ●
+            </span>{' '}
             GlintBudget
           </span>
 
@@ -46,7 +44,9 @@ export default function Sidebar() {
           <div className="hidden md:flex gap-1 flex-1">
             {NAV_ITEMS.map(({ label, icon, to }) => (
               <NavLink key={to} to={to} className={navLinkClass}>
-                <span aria-hidden="true" className="text-sm">{icon}</span>
+                <span aria-hidden="true" className="text-sm">
+                  {icon}
+                </span>
                 {label}
               </NavLink>
             ))}
@@ -92,7 +92,6 @@ export default function Sidebar() {
           >
             {mobileOpen ? '✕' : '☰'}
           </button>
-
         </div>
 
         {/* Mobile dropdown */}
@@ -105,7 +104,9 @@ export default function Sidebar() {
                 className={navLinkClass}
                 onClick={() => setMobileOpen(false)}
               >
-                <span aria-hidden="true" className="text-sm">{icon}</span>
+                <span aria-hidden="true" className="text-sm">
+                  {icon}
+                </span>
                 {label}
               </NavLink>
             ))}
@@ -140,7 +141,6 @@ export default function Sidebar() {
             </div>
           </div>
         )}
-
       </div>
     </nav>
   );

@@ -17,6 +17,7 @@ Replace the four disabled sidebar items (Reports, Categories, Accounts, Preferen
 ## 2. Sidebar Changes
 
 **Before:**
+
 - Dashboard ✅
 - Transactions ✅
 - ─── divider ───
@@ -26,6 +27,7 @@ Replace the four disabled sidebar items (Reports, Categories, Accounts, Preferen
 - Preference ❌ (disabled)
 
 **After:**
+
 - Dashboard ✅
 - Transactions ✅
 - ─── divider ───
@@ -56,15 +58,15 @@ No nested sub-routes. The active tab is tracked via URL query param `?tab=<tabKe
 
 A horizontal pill row at the top of the page — same visual style as the period switcher in TopBar. Seven tabs in order:
 
-| Key | Label |
-|-----|-------|
-| `accounts` | Accounts |
-| `categories` | Categories |
+| Key             | Label         |
+| --------------- | ------------- |
+| `accounts`      | Accounts      |
+| `categories`    | Categories    |
 | `subcategories` | Subcategories |
-| `vendors` | Vendors |
-| `payments` | Payments |
-| `currency` | Currency |
-| `defaults` | Defaults |
+| `vendors`       | Vendors       |
+| `payments`      | Payments      |
+| `currency`      | Currency      |
+| `defaults`      | Defaults      |
 
 Clicking a tab calls `setSearchParams({ tab: key })`. The active tab renders its component below the tab bar. All tabs read from `usePreferenceContext()` and write via `useUpdatePreference()`.
 
@@ -165,12 +167,12 @@ The list of currencies to pick from is a static curated list of ~30 major world 
 
 Four dropdown pickers (matching the keys `TransactionForm` already reads from `defaultEntries`):
 
-| Label | Firestore key inside `default_entries` | Source |
-|-------|----------------------------------------|--------|
-| Default Account | `account` | `preference.accounts` |
-| Default Category | `category` | `preference.categories` |
-| Default Sub-Category | `sub_category` | `preference.subCategories` filtered to selected category |
-| Default Payment | `payment` | `preference.payments` |
+| Label                | Firestore key inside `default_entries` | Source                                                   |
+| -------------------- | -------------------------------------- | -------------------------------------------------------- |
+| Default Account      | `account`                              | `preference.accounts`                                    |
+| Default Category     | `category`                             | `preference.categories`                                  |
+| Default Sub-Category | `sub_category`                         | `preference.subCategories` filtered to selected category |
+| Default Payment      | `payment`                              | `preference.payments`                                    |
 
 Each picker saves on change (no Save button). Writes `{ default_entries: { ...existing, [key]: value } }` with merge. A "None" option is available for each to clear the default.
 
@@ -204,30 +206,30 @@ interface UseUpdatePreferenceResult {
 
 ## 11. File Map
 
-| File | Change |
-|------|--------|
-| `src/components/layout/Sidebar.tsx` | Remove `DISABLED_ITEMS`; add Settings nav item |
-| `src/components/layout/Sidebar.test.tsx` | Update to reflect 3-item nav |
-| `src/routes/AppShell.tsx` | Add `/app/settings` to `TITLE_MAP` |
-| `src/routes/AppShell.test.tsx` | Add Settings title test |
-| `src/App.tsx` | Add `/app/settings` child route (lazy) |
-| `src/context/PreferenceContext.tsx` | Add `refetch` to context value type |
-| `src/context/PreferenceProvider.tsx` | Expose `refetch` from `usePreferences` |
-| `src/hooks/usePreferences.ts` | Return `refetch` callback |
-| `src/hooks/usePreferences.test.ts` | Update tests |
-| `src/hooks/useUpdatePreference.ts` | **NEW** — Firestore write hook |
-| `src/hooks/useUpdatePreference.test.ts` | **NEW** — unit tests |
-| `src/lib/currencies.ts` | **NEW** — static list of ~30 world currencies |
-| `src/routes/Settings.tsx` | **NEW** — tab bar + tab routing |
-| `src/routes/Settings.test.tsx` | **NEW** — renders correct tab content |
-| `src/components/settings/BudgetDataTab.tsx` | **NEW** — shared list tab (Accounts, Categories, Vendors, Payments) |
-| `src/components/settings/BudgetDataTab.test.tsx` | **NEW** — add/edit/delete/duplicate tests |
-| `src/components/settings/SubcategoriesTab.tsx` | **NEW** — grouped subcategories |
-| `src/components/settings/SubcategoriesTab.test.tsx` | **NEW** |
-| `src/components/settings/CurrencyTab.tsx` | **NEW** — default currency + bookmarks |
-| `src/components/settings/CurrencyTab.test.tsx` | **NEW** |
-| `src/components/settings/DefaultsTab.tsx` | **NEW** — default entries pickers |
-| `src/components/settings/DefaultsTab.test.tsx` | **NEW** |
+| File                                                | Change                                                              |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| `src/components/layout/Sidebar.tsx`                 | Remove `DISABLED_ITEMS`; add Settings nav item                      |
+| `src/components/layout/Sidebar.test.tsx`            | Update to reflect 3-item nav                                        |
+| `src/routes/AppShell.tsx`                           | Add `/app/settings` to `TITLE_MAP`                                  |
+| `src/routes/AppShell.test.tsx`                      | Add Settings title test                                             |
+| `src/App.tsx`                                       | Add `/app/settings` child route (lazy)                              |
+| `src/context/PreferenceContext.tsx`                 | Add `refetch` to context value type                                 |
+| `src/context/PreferenceProvider.tsx`                | Expose `refetch` from `usePreferences`                              |
+| `src/hooks/usePreferences.ts`                       | Return `refetch` callback                                           |
+| `src/hooks/usePreferences.test.ts`                  | Update tests                                                        |
+| `src/hooks/useUpdatePreference.ts`                  | **NEW** — Firestore write hook                                      |
+| `src/hooks/useUpdatePreference.test.ts`             | **NEW** — unit tests                                                |
+| `src/lib/currencies.ts`                             | **NEW** — static list of ~30 world currencies                       |
+| `src/routes/Settings.tsx`                           | **NEW** — tab bar + tab routing                                     |
+| `src/routes/Settings.test.tsx`                      | **NEW** — renders correct tab content                               |
+| `src/components/settings/BudgetDataTab.tsx`         | **NEW** — shared list tab (Accounts, Categories, Vendors, Payments) |
+| `src/components/settings/BudgetDataTab.test.tsx`    | **NEW** — add/edit/delete/duplicate tests                           |
+| `src/components/settings/SubcategoriesTab.tsx`      | **NEW** — grouped subcategories                                     |
+| `src/components/settings/SubcategoriesTab.test.tsx` | **NEW**                                                             |
+| `src/components/settings/CurrencyTab.tsx`           | **NEW** — default currency + bookmarks                              |
+| `src/components/settings/CurrencyTab.test.tsx`      | **NEW**                                                             |
+| `src/components/settings/DefaultsTab.tsx`           | **NEW** — default entries pickers                                   |
+| `src/components/settings/DefaultsTab.test.tsx`      | **NEW**                                                             |
 
 ---
 

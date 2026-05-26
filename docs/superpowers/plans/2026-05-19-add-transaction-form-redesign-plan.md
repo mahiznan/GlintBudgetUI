@@ -12,22 +12,22 @@
 
 ## File Map
 
-| File | Action |
-|------|--------|
-| `src/components/form/TypeToggle.tsx` | Modify — full redesign |
-| `src/components/form/TypeToggle.test.tsx` | Create |
-| `src/components/form/MiniCalendar.tsx` | Create |
-| `src/components/form/MiniCalendar.test.tsx` | Create |
-| `src/components/form/AmountInput.tsx` | Modify — full redesign |
-| `src/components/form/AmountInput.test.tsx` | Create |
-| `src/components/form/SearchPicker.tsx` | Create — shared search+list UI |
-| `src/components/form/SearchPicker.test.tsx` | Create |
-| `src/components/form/FieldPicker.tsx` | Modify — full redesign (uses SearchPicker) |
-| `src/components/form/FieldPicker.test.tsx` | Create |
-| `src/components/transactions/AddTransactionDrawer.tsx` | Modify — full overhaul |
-| `src/components/transactions/AddTransactionDrawer.test.tsx` | Modify — update to new DOM |
-| `src/components/dashboard/DailyTransactions.tsx` | Modify — pass selectedDate |
-| `src/components/dashboard/DailyTransactions.test.tsx` | Modify — add selectedDate assertion |
+| File                                                        | Action                                     |
+| ----------------------------------------------------------- | ------------------------------------------ |
+| `src/components/form/TypeToggle.tsx`                        | Modify — full redesign                     |
+| `src/components/form/TypeToggle.test.tsx`                   | Create                                     |
+| `src/components/form/MiniCalendar.tsx`                      | Create                                     |
+| `src/components/form/MiniCalendar.test.tsx`                 | Create                                     |
+| `src/components/form/AmountInput.tsx`                       | Modify — full redesign                     |
+| `src/components/form/AmountInput.test.tsx`                  | Create                                     |
+| `src/components/form/SearchPicker.tsx`                      | Create — shared search+list UI             |
+| `src/components/form/SearchPicker.test.tsx`                 | Create                                     |
+| `src/components/form/FieldPicker.tsx`                       | Modify — full redesign (uses SearchPicker) |
+| `src/components/form/FieldPicker.test.tsx`                  | Create                                     |
+| `src/components/transactions/AddTransactionDrawer.tsx`      | Modify — full overhaul                     |
+| `src/components/transactions/AddTransactionDrawer.test.tsx` | Modify — update to new DOM                 |
+| `src/components/dashboard/DailyTransactions.tsx`            | Modify — pass selectedDate                 |
+| `src/components/dashboard/DailyTransactions.test.tsx`       | Modify — add selectedDate assertion        |
 
 ---
 
@@ -36,6 +36,7 @@
 Full-width 50/50 toggle. Active half gets its gradient; inactive half is solid grey.
 
 **Files:**
+
 - Modify: `src/components/form/TypeToggle.tsx`
 - Create: `src/components/form/TypeToggle.test.tsx`
 
@@ -151,6 +152,7 @@ git commit -m "feat: redesign TypeToggle — full-width gradient active / grey i
 Standalone inline calendar. Renders a Mon-first 7-column grid; nav buttons advance/retreat the viewed month. Selected day gets the active-type gradient.
 
 **Files:**
+
 - Create: `src/components/form/MiniCalendar.tsx`
 - Create: `src/components/form/MiniCalendar.test.tsx`
 
@@ -344,6 +346,7 @@ git commit -m "feat: add MiniCalendar component — inline Mon-first grid with m
 Replace the bordered input row with: currency badge (left, clickable) + giant right-aligned number input (right).
 
 **Files:**
+
 - Modify: `src/components/form/AmountInput.tsx`
 - Create: `src/components/form/AmountInput.test.tsx`
 
@@ -500,6 +503,7 @@ git commit -m "feat: redesign AmountInput — big number display with clickable 
 Shared inner component: a search input + filtered suggestion list. Used by FieldPicker and directly by AddTransactionDrawer for account/payment/currency pickers.
 
 **Files:**
+
 - Create: `src/components/form/SearchPicker.tsx`
 - Create: `src/components/form/SearchPicker.test.tsx`
 
@@ -782,6 +786,7 @@ git commit -m "feat: add SearchPicker — reusable search-and-filter list compon
 Replace the native `<select>` / `<datalist>` with a row header that expands inline using `SearchPicker`. The parent controls `isOpen`; `FieldPicker` owns only its row rendering.
 
 **Files:**
+
 - Modify: `src/components/form/FieldPicker.tsx`
 - Create: `src/components/form/FieldPicker.test.tsx`
 
@@ -991,6 +996,7 @@ git commit -m "feat: redesign FieldPicker — inline expand row with SearchPicke
 Wire all new components. Add `selectedDate` prop, `activeField` single-open-picker state, currency picker, side-by-side account+payment row, notes textarea expand, Enter-key navigation, and Save button gradient that tracks the active type.
 
 **Files:**
+
 - Modify: `src/components/transactions/AddTransactionDrawer.tsx`
 - Modify: `src/components/transactions/AddTransactionDrawer.test.tsx`
 
@@ -1685,6 +1691,7 @@ git commit -m "feat: overhaul AddTransactionDrawer — inline pickers, big amoun
 Thread the widget's selected date into the drawer so the form pre-fills it.
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx` (line 257–261)
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -1735,7 +1742,9 @@ In `src/components/dashboard/DailyTransactions.tsx`, find the `<AddTransactionDr
 <AddTransactionDrawer
   open={drawerOpen}
   onClose={() => setDrawerOpen(false)}
-  onSaved={() => { onTransactionAdded?.(); }}
+  onSaved={() => {
+    onTransactionAdded?.();
+  }}
   selectedDate={selectedDate}
 />
 ```

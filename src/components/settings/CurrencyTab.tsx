@@ -108,7 +108,10 @@ export default function CurrencyTab({
           <div className="flex items-center gap-2">
             <select
               value={selectedAdd}
-              onChange={(e) => { setSelectedAdd(e.target.value); setBookmarkError(''); }}
+              onChange={(e) => {
+                setSelectedAdd(e.target.value);
+                setBookmarkError('');
+              }}
               className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-surface"
               aria-label="Add currency"
             >

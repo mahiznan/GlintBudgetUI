@@ -20,11 +20,11 @@ Stage 2 ships **Firebase SDK + Authentication UI + React Router as a read-only s
 
 ## 3. Route shape
 
-| Path             | Public?   | Purpose                                                                                 |
-| ---------------- | --------- | --------------------------------------------------------------------------------------- |
-| `/`              | public    | Marketing landing page (current Stage 1 page). Always served at this URL.               |
-| `/signin`        | public    | Google sign-in button. On success → redirect to `/app`.                                 |
-| `/app`           | protected | Read-only dashboard shell. If accessed while signed out → redirect to `/signin`.        |
+| Path      | Public?   | Purpose                                                                          |
+| --------- | --------- | -------------------------------------------------------------------------------- |
+| `/`       | public    | Marketing landing page (current Stage 1 page). Always served at this URL.        |
+| `/signin` | public    | Google sign-in button. On success → redirect to `/app`.                          |
+| `/app`    | protected | Read-only dashboard shell. If accessed while signed out → redirect to `/signin`. |
 
 - The landing-page CTA flips based on auth state: signed-out → "Sign in" (links to `/signin`); signed-in → "Open dashboard" (links to `/app`).
 - The landing page itself is **not** auto-redirected for signed-in users; `/` stays as the marketing surface even when authenticated. Rationale: keeps marketing vs. product surfaces cleanly separated; a signed-in user can re-share the marketing URL without it bouncing to their private dashboard.
@@ -111,12 +111,12 @@ src/
 Single React Context holding:
 
 ```ts
-type AuthStatus = "loading" | "anonymous" | "authenticated";
+type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
 type AuthState =
-  | { status: "loading"; user: null }
-  | { status: "anonymous"; user: null }
-  | { status: "authenticated"; user: BudgetUser };
+  | { status: 'loading'; user: null }
+  | { status: 'anonymous'; user: null }
+  | { status: 'authenticated'; user: BudgetUser };
 
 type BudgetUser = {
   uid: string;
@@ -156,14 +156,14 @@ The web `BudgetUser` shape is **intentionally a subset** of the iOS `BudgetUser`
 
 ## 9. Performance budget (Stage 2)
 
-| Surface                                   | Target              |
-| ----------------------------------------- | ------------------- |
-| `/` initial payload (HTML + CSS + JS)     | < 50 KB gzipped     |
-| `/signin` cold load (incl. Firebase)      | < 150 KB gzipped    |
-| `/app` cold load (with Firebase cached)   | < 60 KB gzipped     |
-| Lighthouse Performance (`/`)              | ≥ 95                |
-| Lighthouse Accessibility (`/`, `/signin`, `/app`) | ≥ 95        |
-| Lighthouse Best Practices (all routes)    | ≥ 95                |
+| Surface                                           | Target           |
+| ------------------------------------------------- | ---------------- |
+| `/` initial payload (HTML + CSS + JS)             | < 50 KB gzipped  |
+| `/signin` cold load (incl. Firebase)              | < 150 KB gzipped |
+| `/app` cold load (with Firebase cached)           | < 60 KB gzipped  |
+| Lighthouse Performance (`/`)                      | ≥ 95             |
+| Lighthouse Accessibility (`/`, `/signin`, `/app`) | ≥ 95             |
+| Lighthouse Best Practices (all routes)            | ≥ 95             |
 
 These are gates the implementation plan should verify before claiming Stage 2 done.
 

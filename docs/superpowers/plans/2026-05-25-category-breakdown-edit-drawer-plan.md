@@ -12,17 +12,18 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/CategoryBreakdown.tsx` | Add `onEdit` prop; replace `<Link>` with `<button>`; remove unused `Link` import |
+| File                                                  | Change                                                                                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Add `onEdit` prop; replace `<Link>` with `<button>`; remove unused `Link` import                                 |
 | `src/components/dashboard/CategoryBreakdown.test.tsx` | Update drilled-transaction test: remove `MemoryRouter`, replace link-href assertion with `onEdit` callback check |
-| `src/routes/Dashboard.tsx` | Add `editingId` state; import `AddTransactionDrawer`; pass `onEdit` to `CategoryBreakdown`; render drawer |
+| `src/routes/Dashboard.tsx`                            | Add `editingId` state; import `AddTransactionDrawer`; pass `onEdit` to `CategoryBreakdown`; render drawer        |
 
 ---
 
 ## Task 1: Update CategoryBreakdown tests (TDD — write failing tests first)
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx:192-232`
 
 - [ ] **Step 1: Update the "renders transaction vendor names" test to remove MemoryRouter**
@@ -30,25 +31,25 @@
 The `<Link>` will be gone, so `MemoryRouter` is no longer needed. Replace lines 192–212 in `CategoryBreakdown.test.tsx`:
 
 ```tsx
-  it('renders transaction vendor names when transactions prop is passed', () => {
-    const txns = [
-      makeTxn('t1', 'Pizza Hut', new Date('2026-05-18')),
-      makeTxn('t2', "Domino's", new Date('2026-05-15')),
-    ];
-    render(
-      <CategoryBreakdown
-        {...baseProps}
-        categories={[makeCategory('Dining Out', 1000, 100)]}
-        drillLevel={2}
-        drillLabel="Dining Out"
-        backLabel="← Food"
-        onBack={vi.fn()}
-        transactions={txns}
-      />,
-    );
-    expect(screen.getByText('Pizza Hut')).toBeInTheDocument();
-    expect(screen.getByText("Domino's")).toBeInTheDocument();
-  });
+it('renders transaction vendor names when transactions prop is passed', () => {
+  const txns = [
+    makeTxn('t1', 'Pizza Hut', new Date('2026-05-18')),
+    makeTxn('t2', "Domino's", new Date('2026-05-15')),
+  ];
+  render(
+    <CategoryBreakdown
+      {...baseProps}
+      categories={[makeCategory('Dining Out', 1000, 100)]}
+      drillLevel={2}
+      drillLabel="Dining Out"
+      backLabel="← Food"
+      onBack={vi.fn()}
+      transactions={txns}
+    />,
+  );
+  expect(screen.getByText('Pizza Hut')).toBeInTheDocument();
+  expect(screen.getByText("Domino's")).toBeInTheDocument();
+});
 ```
 
 - [ ] **Step 2: Replace the link-href test with an onEdit callback test**
@@ -56,25 +57,25 @@ The `<Link>` will be gone, so `MemoryRouter` is no longer needed. Replace lines 
 Replace lines 214–232 (the `'transaction rows link to the edit form...'` test) with:
 
 ```tsx
-  it('calls onEdit with transaction id when a drilled transaction row is clicked', async () => {
-    const user = userEvent.setup();
-    const onEdit = vi.fn();
-    const txns = [makeTxn('txn-abc', 'Pizza Hut', new Date())];
-    render(
-      <CategoryBreakdown
-        {...baseProps}
-        categories={[makeCategory('Dining Out', 500, 100)]}
-        drillLevel={2}
-        drillLabel="Dining Out"
-        backLabel="← Food"
-        onBack={vi.fn()}
-        transactions={txns}
-        onEdit={onEdit}
-      />,
-    );
-    await user.click(screen.getByRole('button', { name: /Pizza Hut/i }));
-    expect(onEdit).toHaveBeenCalledWith('txn-abc');
-  });
+it('calls onEdit with transaction id when a drilled transaction row is clicked', async () => {
+  const user = userEvent.setup();
+  const onEdit = vi.fn();
+  const txns = [makeTxn('txn-abc', 'Pizza Hut', new Date())];
+  render(
+    <CategoryBreakdown
+      {...baseProps}
+      categories={[makeCategory('Dining Out', 500, 100)]}
+      drillLevel={2}
+      drillLabel="Dining Out"
+      backLabel="← Food"
+      onBack={vi.fn()}
+      transactions={txns}
+      onEdit={onEdit}
+    />,
+  );
+  await user.click(screen.getByRole('button', { name: /Pizza Hut/i }));
+  expect(onEdit).toHaveBeenCalledWith('txn-abc');
+});
 ```
 
 Also remove the `MemoryRouter` import from line 4 if it is now unused:
@@ -99,14 +100,17 @@ Expected: the `'calls onEdit...'` test fails because `CategoryBreakdown` doesn't
 ## Task 2: Update CategoryBreakdown component
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 
 - [ ] **Step 1: Remove the Link import and add onEdit to the props interface**
 
 Replace line 1:
+
 ```tsx
 import { Link } from 'react-router-dom';
 ```
+
 with nothing (delete it — `Link` will no longer be used).
 
 Add `onEdit?: (id: string) => void;` to `CategoryBreakdownProps` (after `transactions?`):
@@ -154,28 +158,30 @@ export default function CategoryBreakdown({
 Find the `transactions.map((t) => (` block (currently renders a `<Link>`). Replace the entire `<Link>` element with a `<button>`:
 
 ```tsx
-{transactions.map((t) => (
-  <button
-    key={t.id}
-    type="button"
-    onClick={() => onEdit?.(t.id)}
-    className="w-full flex items-center gap-3 px-1 py-2 rounded-xl hover:bg-surface-alt transition-colors text-left"
-  >
-    <span className="text-lg w-6 text-center">{t.icon || '📦'}</span>
-    <div className="flex-1 min-w-0">
-      <span className="text-sm font-medium text-text truncate block">{t.vendor}</span>
-      <span className="text-xs text-text-muted">{formatDateShort(t.date)}</span>
-    </div>
-    <span
-      className={`text-xs font-bold flex-shrink-0 ${
-        t.amount < 0 ? 'text-red-600' : 'text-brand'
-      }`}
+{
+  transactions.map((t) => (
+    <button
+      key={t.id}
+      type="button"
+      onClick={() => onEdit?.(t.id)}
+      className="w-full flex items-center gap-3 px-1 py-2 rounded-xl hover:bg-surface-alt transition-colors text-left"
     >
-      {t.amount < 0 ? '-' : '+'}
-      {formatCurrency(Math.abs(t.amount), currencySymbol)}
-    </span>
-  </button>
-))}
+      <span className="text-lg w-6 text-center">{t.icon || '📦'}</span>
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-medium text-text truncate block">{t.vendor}</span>
+        <span className="text-xs text-text-muted">{formatDateShort(t.date)}</span>
+      </div>
+      <span
+        className={`text-xs font-bold flex-shrink-0 ${
+          t.amount < 0 ? 'text-red-600' : 'text-brand'
+        }`}
+      >
+        {t.amount < 0 ? '-' : '+'}
+        {formatCurrency(Math.abs(t.amount), currencySymbol)}
+      </span>
+    </button>
+  ));
+}
 ```
 
 - [ ] **Step 3: Run the CategoryBreakdown tests and verify they all pass**
@@ -198,6 +204,7 @@ git commit -m "feat: replace CategoryBreakdown Link with onEdit callback button"
 ## Task 3: Wire edit drawer in Dashboard
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 - [ ] **Step 1: Import AddTransactionDrawer and add editingId state**
@@ -228,7 +235,9 @@ In the `CategoryBreakdown` JSX (around line 354), add the `onEdit` prop:
   groupBy={drillState.groupBy}
   onGroupByChange={handleGroupByChange}
   drillLevel={drillState.path.length}
-  drillLabel={drillState.path.at(-1) !== undefined ? formatPathLabel(drillState.path.at(-1)!) : undefined}
+  drillLabel={
+    drillState.path.at(-1) !== undefined ? formatPathLabel(drillState.path.at(-1)!) : undefined
+  }
   backLabel={
     drillState.path.length === 1
       ? '← Back'
@@ -243,8 +252,7 @@ In the `CategoryBreakdown` JSX (around line 354), add the `onEdit` prop:
   }
   onItemClick={
     drillTransactions === undefined
-      ? (name) =>
-          setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
+      ? (name) => setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
       : undefined
   }
   transactions={drillTransactions}
@@ -257,19 +265,21 @@ In the `CategoryBreakdown` JSX (around line 354), add the `onEdit` prop:
 Find the `{deletingId && <DeleteConfirmDialog ... />}` block at the bottom of the Dashboard JSX return and add the drawer after it:
 
 ```tsx
-      {deletingId && (
-        <DeleteConfirmDialog
-          onConfirm={() => handleDelete(deletingId)}
-          onCancel={() => setDeletingId(null)}
-        />
-      )}
-      <AddTransactionDrawer
-        open={editingId !== null}
-        editId={editingId ?? undefined}
-        onClose={() => setEditingId(null)}
-        onSaved={refetch}
-        transactions={periodTxns}
-      />
+{
+  deletingId && (
+    <DeleteConfirmDialog
+      onConfirm={() => handleDelete(deletingId)}
+      onCancel={() => setDeletingId(null)}
+    />
+  );
+}
+<AddTransactionDrawer
+  open={editingId !== null}
+  editId={editingId ?? undefined}
+  onClose={() => setEditingId(null)}
+  onSaved={refetch}
+  transactions={periodTxns}
+/>;
 ```
 
 - [ ] **Step 4: Run all tests and typecheck**

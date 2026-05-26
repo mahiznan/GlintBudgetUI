@@ -13,6 +13,7 @@
 ### Task 1: Add `shiftPeriodDate` and `getPeriodLabel` to dateUtils
 
 **Files:**
+
 - Modify: `src/lib/dateUtils.ts`
 - Modify: `src/lib/dateUtils.test.ts`
 
@@ -167,8 +168,7 @@ export function getPeriodLabel(period: Period, referenceDate: Date): string {
       const monday = getMondayOf(referenceDate);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
-      const fmt = (d: Date) =>
-        d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       return `${fmt(monday)} – ${fmt(sunday)}`;
     }
     case 'month':
@@ -206,6 +206,7 @@ git commit -m "feat: add shiftPeriodDate and getPeriodLabel utilities"
 ### Task 2: Update SpendingChart with offset props and navigator UI
 
 **Files:**
+
 - Modify: `src/components/dashboard/SpendingChart.tsx`
 - Modify: `src/components/dashboard/SpendingChart.test.tsx`
 
@@ -326,35 +327,39 @@ export default function SpendingChart({
 Locate the comment `{/* Chart type switcher */}` in the JSX (around line 193). Insert the navigator block immediately before it:
 
 ```tsx
-          {/* Period navigator */}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onOffsetChange(-1)}
-              aria-label="Previous period"
-              className="w-6 h-6 flex items-center justify-center rounded text-sm text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
-            >
-              ‹
-            </button>
-            <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold text-text">
-              {periodLabel}
-            </span>
-            <button
-              type="button"
-              onClick={() => onOffsetChange(1)}
-              disabled={offset === 0}
-              aria-label="Next period"
-              className={`w-6 h-6 flex items-center justify-center rounded text-sm transition-colors ${
-                offset === 0
-                  ? 'text-border cursor-not-allowed'
-                  : 'text-text-muted hover:text-text hover:bg-surface-alt'
-              }`}
-            >
-              ›
-            </button>
-          </div>
+{
+  /* Period navigator */
+}
+<div className="flex items-center gap-1">
+  <button
+    type="button"
+    onClick={() => onOffsetChange(-1)}
+    aria-label="Previous period"
+    className="w-6 h-6 flex items-center justify-center rounded text-sm text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
+  >
+    ‹
+  </button>
+  <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold text-text">
+    {periodLabel}
+  </span>
+  <button
+    type="button"
+    onClick={() => onOffsetChange(1)}
+    disabled={offset === 0}
+    aria-label="Next period"
+    className={`w-6 h-6 flex items-center justify-center rounded text-sm transition-colors ${
+      offset === 0
+        ? 'text-border cursor-not-allowed'
+        : 'text-text-muted hover:text-text hover:bg-surface-alt'
+    }`}
+  >
+    ›
+  </button>
+</div>;
 
-          {/* Chart type switcher */}
+{
+  /* Chart type switcher */
+}
 ```
 
 - [ ] **Step 8: Run tests to confirm all pass**
@@ -385,6 +390,7 @@ git commit -m "feat: add period navigator UI to SpendingChart"
 ### Task 3: Wire `periodOffset` into Dashboard
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 - [ ] **Step 1: Add `shiftPeriodDate` to the dateUtils import**
@@ -419,10 +425,7 @@ useEffect(() => {
 Replace the `periodTxns` and `periodDays` useMemo blocks (lines 53–58):
 
 ```ts
-const referenceDate = useMemo(
-  () => shiftPeriodDate(period, periodOffset),
-  [period, periodOffset],
-);
+const referenceDate = useMemo(() => shiftPeriodDate(period, periodOffset), [period, periodOffset]);
 
 const periodTxns = useMemo(
   () => filterByPeriod(allTxns, period, referenceDate),
@@ -440,16 +443,16 @@ const periodDays = useMemo(() => {
 Replace the `<SpendingChart ... />` JSX (around lines 202–209):
 
 ```tsx
-          <SpendingChart
-            transactions={chartTxns}
-            period={period}
-            onPeriodChange={setPeriod}
-            currencySymbol={currencySymbol}
-            chartType={chartType}
-            onChartTypeChange={handleChartTypeChange}
-            offset={periodOffset}
-            onOffsetChange={(delta) => setPeriodOffset((o) => Math.min(0, o + delta))}
-          />
+<SpendingChart
+  transactions={chartTxns}
+  period={period}
+  onPeriodChange={setPeriod}
+  currencySymbol={currencySymbol}
+  chartType={chartType}
+  onChartTypeChange={handleChartTypeChange}
+  offset={periodOffset}
+  onOffsetChange={(delta) => setPeriodOffset((o) => Math.min(0, o + delta))}
+/>
 ```
 
 Note: `Math.min(0, o + delta)` prevents the offset from going above 0 (no future periods), acting as a guard even if the disabled button is somehow clicked.

@@ -99,10 +99,10 @@ Add a "Layout Width" section **below** the existing "App Theme" section in `src/
 
 Two option cards using the same card style as theme cards:
 
-| Card | Icon / Illustration | Label |
-|------|---------------------|-------|
+| Card        | Icon / Illustration                         | Label       |
+| ----------- | ------------------------------------------- | ----------- |
 | Fixed width | `▐█████▌` (centred block with side margins) | Fixed width |
-| Full width  | `████████` (edge-to-edge block) | Full width |
+| Full width  | `████████` (edge-to-edge block)             | Full width  |
 
 - Active card: accent border + green checkmark (same as theme cards).
 - Subtext below both cards: "Layout saved to your account — syncs across all devices."

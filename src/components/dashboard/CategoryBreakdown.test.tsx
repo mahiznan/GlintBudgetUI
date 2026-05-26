@@ -90,7 +90,6 @@ describe('CategoryBreakdown', () => {
     render(<CategoryBreakdown {...baseProps} mode="income" />);
     expect(screen.getByText(/no income for this period/i)).toBeInTheDocument();
   });
-
 });
 
 const makeTxn = (id: string, vendor: string, date: Date): Transaction => ({
@@ -145,13 +144,7 @@ describe('CategoryBreakdown — drill-down', () => {
     const user = userEvent.setup();
     const onItemClick = vi.fn();
     const cats = [makeCategory('Food', 1500, 60)];
-    render(
-      <CategoryBreakdown
-        {...baseProps}
-        categories={cats}
-        onItemClick={onItemClick}
-      />,
-    );
+    render(<CategoryBreakdown {...baseProps} categories={cats} onItemClick={onItemClick} />);
     await user.click(screen.getByText('Food'));
     expect(onItemClick).toHaveBeenCalledWith('Food');
   });

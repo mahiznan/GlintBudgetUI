@@ -109,9 +109,7 @@ export default function SearchPicker({
             <span className="flex-1 text-[13px] font-semibold text-text min-w-0 truncate">
               {highlightMatch(o.name, query)}
             </span>
-            {o.name === value && (
-              <span className="text-[13px] text-brand flex-shrink-0">✓</span>
-            )}
+            {o.name === value && <span className="text-[13px] text-brand flex-shrink-0">✓</span>}
           </button>
         ))}
 

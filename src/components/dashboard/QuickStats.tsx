@@ -33,7 +33,10 @@ export default function QuickStats({ transactions, currencySymbol, periodDays }:
   const topCategory = Object.entries(topCatMap).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '—';
 
   const items = [
-    { label: 'Highest spend', value: highest ? formatCurrency(highest.amount, currencySymbol) : '—' },
+    {
+      label: 'Highest spend',
+      value: highest ? formatCurrency(highest.amount, currencySymbol) : '—',
+    },
     { label: 'Avg / day', value: formatCurrency(avgPerDay, currencySymbol) },
     { label: 'Top payment', value: mostUsedPayment },
     { label: 'Top category', value: topCategory },
@@ -46,7 +49,10 @@ export default function QuickStats({ transactions, currencySymbol, periodDays }:
       </h2>
       <div className="flex flex-col gap-2">
         {items.map(({ label, value }) => (
-          <div key={label} className="flex justify-between items-center py-1 border-b border-border last:border-0">
+          <div
+            key={label}
+            className="flex justify-between items-center py-1 border-b border-border last:border-0"
+          >
             <span className="text-xs text-text-muted">{label}</span>
             <span className="text-sm font-semibold text-text">{value}</span>
           </div>

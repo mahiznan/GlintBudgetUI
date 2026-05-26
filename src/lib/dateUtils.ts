@@ -2,10 +2,7 @@ import type { Transaction } from '../firestore/types';
 
 export type Period = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
-export function getPeriodRange(
-  period: Period,
-  now = new Date(),
-): { start: Date; end: Date } {
+export function getPeriodRange(period: Period, now = new Date()): { start: Date; end: Date } {
   const start = new Date(now);
   const end = new Date(now);
 
@@ -72,10 +69,7 @@ export function getPeriodRange(
   return { start, end };
 }
 
-export function getChartDateRange(
-  period: Period,
-  now = new Date(),
-): { start: Date; end: Date } {
+export function getChartDateRange(period: Period, now = new Date()): { start: Date; end: Date } {
   const start = new Date(now);
   const end = new Date(now);
   end.setHours(23, 59, 59, 999);
@@ -163,7 +157,9 @@ export function localDateStr(d: Date): string {
 }
 
 // Groups transactions by YYYY-MM-DD, summing amounts
-export function groupByDay(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
+export function groupByDay(
+  txns: Array<Pick<Transaction, 'date' | 'amount'>>,
+): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
     const key = localDateStr(t.date);
     acc[key] = (acc[key] ?? 0) + t.amount;
@@ -172,7 +168,9 @@ export function groupByDay(txns: Array<Pick<Transaction, 'date' | 'amount'>>): R
 }
 
 // Groups transactions by YYYY-MM, summing amounts
-export function groupByMonth(txns: Array<Pick<Transaction, 'date' | 'amount'>>): Record<string, number> {
+export function groupByMonth(
+  txns: Array<Pick<Transaction, 'date' | 'amount'>>,
+): Record<string, number> {
   return txns.reduce<Record<string, number>>((acc, t) => {
     const key = `${t.date.getFullYear()}-${String(t.date.getMonth() + 1).padStart(2, '0')}`;
     acc[key] = (acc[key] ?? 0) + t.amount;
@@ -277,8 +275,7 @@ export function getPeriodLabel(period: Period, referenceDate: Date): string {
       const monday = getMondayOf(referenceDate);
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
-      const fmt = (d: Date) =>
-        d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       return `${fmt(monday)} – ${fmt(sunday)}`;
     }
     case 'month':

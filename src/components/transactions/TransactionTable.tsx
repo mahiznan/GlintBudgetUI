@@ -9,7 +9,11 @@ interface TransactionTableProps {
 
 const HEADERS = ['Transaction', 'Category', 'Date & Time', 'Payment', 'Amount', ''];
 
-export default function TransactionTable({ transactions, currencySymbol, onDelete }: TransactionTableProps) {
+export default function TransactionTable({
+  transactions,
+  currencySymbol,
+  onDelete,
+}: TransactionTableProps) {
   if (transactions.length === 0) {
     return (
       <div className="text-center py-16 text-text-muted">

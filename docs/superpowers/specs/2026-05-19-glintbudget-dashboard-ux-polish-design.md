@@ -14,6 +14,7 @@ Seven focused UX improvements to the Dashboard and global shell: a personalised 
 **What changes:** On the `/app/dashboard` route, the TopBar title changes from the static string `'Dashboard'` to `'Hello, <firstName>'`.
 
 **Implementation:**
+
 - `AppShell` already passes `title={getTitle(location.pathname)}` to `TopBar`.
 - `getTitle` is updated: when `pathname === '/app/dashboard'`, it receives the authenticated user's first name (first word of `auth.user.name`, e.g. `'Rajesh Kumar'` → `'Rajesh'`). Falls back to `'there'` if `auth.user.name` is null.
 - `AppShell` already has access to `auth` via `useAuth()`. It extracts `firstName` and passes it through to `getTitle` (or handles the substitution inline).
@@ -28,10 +29,12 @@ Seven focused UX improvements to the Dashboard and global shell: a personalised 
 **What changes:** The `+ Add Transaction` button is removed from `TopBar` and added to the `DailyTransactions` widget header.
 
 **TopBar (`src/components/layout/TopBar.tsx`):**
+
 - Remove the `<Link to="/app/transactions/new">` button entirely.
 - Remove the `showAddButton` concern — the TopBar no longer owns this action.
 
 **DailyTransactions (`src/components/dashboard/DailyTransactions.tsx`):**
+
 - Add `<Link to="/app/transactions/new">` button labelled `+ Add` in the widget header, right side (next to "See all →").
 - Styled the same as the previous TopBar button: brand gradient background, white text, small rounded pill.
 
@@ -52,6 +55,7 @@ This is already architecturally correct after change 2; the TopBar flex layout j
 **What changes:** A "Sign out" button is added at the bottom of the `Sidebar`, below the nav links.
 
 **Sidebar (`src/components/layout/Sidebar.tsx`):**
+
 - Import `useNavigate` from `react-router-dom` and `signOutCurrentUser` from `../../firebase/auth`.
 - The sidebar currently has no access to auth state — it doesn't need it; calling `signOutCurrentUser()` is enough.
 - Layout: `nav` flex-grows to fill space; a `<div className="sidebar-footer">` below it contains the Sign out button.
@@ -85,12 +89,13 @@ After:  newSelected = getWeekDays(newMonday)[6]  (Sunday = index 6 of Mon-based 
 
 **Two visual states — determined by `isSameDay(selectedDate, new Date())`:**
 
-| State | Condition | Style |
-|---|---|---|
-| **Filled** | `selectedDate` is today | Brand gradient background, white text |
-| **Outline** | `selectedDate` is not today | White background, border, muted text |
+| State       | Condition                   | Style                                 |
+| ----------- | --------------------------- | ------------------------------------- |
+| **Filled**  | `selectedDate` is today     | Brand gradient background, white text |
+| **Outline** | `selectedDate` is not today | White background, border, muted text  |
 
 **Behaviour:**
+
 - **Filled state:** button is still rendered but click is a no-op (user is already on today).
 - **Outline state:** clicking resets `weekStart` to `getMondayOf(new Date())` and `selectedDate` to today (midnight).
 
@@ -107,6 +112,7 @@ After:  newSelected = getWeekDays(newMonday)[6]  (Sunday = index 6 of Mon-based 
 **Calculation:** Sum of `Math.abs(t.amount)` for all `dayTxns` where `t.amount < 0`.
 
 **Label adapts to selected date:**
+
 - Selected date is today → `"Today's expenses"`
 - Any other date → `"<DayName> <date> expenses"` e.g. `"Fri 9 expenses"` using `day.toLocaleDateString('en-US', { weekday: 'short' })` and `day.getDate()`.
 
@@ -116,15 +122,15 @@ After:  newSelected = getWeekDays(newMonday)[6]  (Sunday = index 6 of Mon-based 
 
 ## Files Changed
 
-| File | Change |
-|---|---|
-| `src/routes/AppShell.tsx` | Extract firstName from auth.user.name; pass to getTitle for dashboard route |
-| `src/components/layout/TopBar.tsx` | Remove Add Transaction button; add flex-1 spacer between title and period switcher |
-| `src/components/layout/Sidebar.tsx` | Add logout button in footer; navigate('/') then signOutCurrentUser() |
-| `src/components/dashboard/DailyTransactions.tsx` | Add Today button (left); Add Transaction link (right); update goToPrevWeek to select Sunday; add expense sum row |
-| `src/components/layout/TopBar.test.tsx` | Update test: no Add Transaction button expected |
-| `src/components/layout/Sidebar.test.tsx` | Add test: Sign out button present |
-| `src/components/dashboard/DailyTransactions.test.tsx` | Add tests: Today button states, expense sum row, goToPrevWeek selects Sunday |
+| File                                                  | Change                                                                                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `src/routes/AppShell.tsx`                             | Extract firstName from auth.user.name; pass to getTitle for dashboard route                                      |
+| `src/components/layout/TopBar.tsx`                    | Remove Add Transaction button; add flex-1 spacer between title and period switcher                               |
+| `src/components/layout/Sidebar.tsx`                   | Add logout button in footer; navigate('/') then signOutCurrentUser()                                             |
+| `src/components/dashboard/DailyTransactions.tsx`      | Add Today button (left); Add Transaction link (right); update goToPrevWeek to select Sunday; add expense sum row |
+| `src/components/layout/TopBar.test.tsx`               | Update test: no Add Transaction button expected                                                                  |
+| `src/components/layout/Sidebar.test.tsx`              | Add test: Sign out button present                                                                                |
+| `src/components/dashboard/DailyTransactions.test.tsx` | Add tests: Today button states, expense sum row, goToPrevWeek selects Sunday                                     |
 
 ---
 

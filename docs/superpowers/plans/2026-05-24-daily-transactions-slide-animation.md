@@ -13,6 +13,7 @@
 ### Task 1: Add `dayOffset` to `src/lib/dateUtils.ts`
 
 **Files:**
+
 - Modify: `src/lib/dateUtils.ts`
 - Modify: `src/lib/dateUtils.test.ts`
 
@@ -112,6 +113,7 @@ git commit -m "feat: add dayOffset utility to dateUtils"
 ### Task 2: Extract `DayPanel` internal component
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 
 Pull the day heading + expense total + transaction list out of `DailyTransactions` into an internal (non-exported) `DayPanel` component. All existing tests must still pass — this is a pure refactor.
@@ -234,7 +236,10 @@ In `DailyTransactions`, locate the comment `{/* Selected date heading + daily ex
   transactions={transactions}
   currencySymbol={currencySymbol}
   onDelete={onDelete}
-  onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+  onEdit={(id) => {
+    setEditingId(id);
+    setDrawerOpen(true);
+  }}
 />
 ```
 
@@ -260,6 +265,7 @@ git commit -m "refactor: extract DayPanel internal component in DailyTransaction
 ### Task 3: Add carousel state and `navigateTo`
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -390,7 +396,7 @@ function navigateTo(targetDate: Date) {
   target.setHours(0, 0, 0, 0);
   if (isSameDay(target, panels.center)) return;
   const dir: 'left' | 'right' = target > panels.center ? 'left' : 'right';
-  setPanels(prev => ({
+  setPanels((prev) => ({
     ...prev,
     [dir === 'left' ? 'right' : 'left']: target,
   }));
@@ -471,7 +477,10 @@ Replace:
   transactions={transactions}
   currencySymbol={currencySymbol}
   onDelete={onDelete}
-  onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+  onEdit={(id) => {
+    setEditingId(id);
+    setDrawerOpen(true);
+  }}
 />
 ```
 
@@ -479,17 +488,16 @@ With:
 
 ```tsx
 <div className="overflow-hidden">
-  <div
-    data-testid="carousel-track"
-    ref={trackRef}
-    onTransitionEnd={onTransitionEnd}
-  >
+  <div data-testid="carousel-track" ref={trackRef} onTransitionEnd={onTransitionEnd}>
     <DayPanel
       date={panels.center}
       transactions={transactions}
       currencySymbol={currencySymbol}
       onDelete={onDelete}
-      onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+      onEdit={(id) => {
+        setEditingId(id);
+        setDrawerOpen(true);
+      }}
     />
   </div>
 </div>
@@ -555,6 +563,7 @@ git commit -m "feat: add carousel state and navigateTo to DailyTransactions"
 ### Task 4: Replace stub with full three-panel carousel JSX
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 
 Expand the single-panel stub from Task 3 into the full sliding three-panel track with CSS transitions.
@@ -582,8 +591,8 @@ Locate the `overflow-hidden` wrapper added in Task 3 and replace its entire cont
         sliding === 'left'
           ? 'translateX(-66.66%)'
           : sliding === 'right'
-          ? 'translateX(0%)'
-          : 'translateX(-33.33%)',
+            ? 'translateX(0%)'
+            : 'translateX(-33.33%)',
       transition: sliding ? 'transform 280ms ease' : 'none',
     }}
     onTransitionEnd={onTransitionEnd}
@@ -595,7 +604,10 @@ Locate the `overflow-hidden` wrapper added in Task 3 and replace its entire cont
           transactions={transactions}
           currencySymbol={currencySymbol}
           onDelete={onDelete}
-          onEdit={(id) => { setEditingId(id); setDrawerOpen(true); }}
+          onEdit={(id) => {
+            setEditingId(id);
+            setDrawerOpen(true);
+          }}
         />
       </div>
     ))}

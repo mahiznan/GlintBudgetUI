@@ -12,37 +12,38 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/lib/currencies.ts` | NEW — 30 world currencies constant |
-| `src/hooks/usePreferences.ts` | Add `refetch: () => void` return value |
-| `src/hooks/usePreferences.test.ts` | Add refetch test |
-| `src/context/PreferenceContext.tsx` | Add `refetch` to `PreferenceContextValue` |
-| `src/context/PreferenceProvider.tsx` | Pass `refetch` to context value |
-| `src/hooks/useUpdatePreference.ts` | NEW — `setDoc(merge:true)` write hook |
-| `src/hooks/useUpdatePreference.test.ts` | NEW |
-| `src/routes/TransactionForm.test.tsx` | Add `refetch: vi.fn()` to `prefCtx` |
-| `src/components/layout/Sidebar.tsx` | Remove disabled items; add Settings link |
-| `src/components/layout/Sidebar.test.tsx` | Add Settings link test |
-| `src/routes/AppShell.tsx` | Add `/app/settings` to `TITLE_MAP` |
-| `src/routes/AppShell.test.tsx` | Add Settings title test |
-| `src/App.tsx` | Add lazy `/app/settings` child route |
-| `src/components/settings/BudgetDataTab.tsx` | NEW |
-| `src/components/settings/BudgetDataTab.test.tsx` | NEW |
-| `src/components/settings/SubcategoriesTab.tsx` | NEW |
-| `src/components/settings/SubcategoriesTab.test.tsx` | NEW |
-| `src/components/settings/CurrencyTab.tsx` | NEW |
-| `src/components/settings/CurrencyTab.test.tsx` | NEW |
-| `src/components/settings/DefaultsTab.tsx` | NEW |
-| `src/components/settings/DefaultsTab.test.tsx` | NEW |
-| `src/routes/Settings.tsx` | NEW |
-| `src/routes/Settings.test.tsx` | NEW |
+| File                                                | Change                                    |
+| --------------------------------------------------- | ----------------------------------------- |
+| `src/lib/currencies.ts`                             | NEW — 30 world currencies constant        |
+| `src/hooks/usePreferences.ts`                       | Add `refetch: () => void` return value    |
+| `src/hooks/usePreferences.test.ts`                  | Add refetch test                          |
+| `src/context/PreferenceContext.tsx`                 | Add `refetch` to `PreferenceContextValue` |
+| `src/context/PreferenceProvider.tsx`                | Pass `refetch` to context value           |
+| `src/hooks/useUpdatePreference.ts`                  | NEW — `setDoc(merge:true)` write hook     |
+| `src/hooks/useUpdatePreference.test.ts`             | NEW                                       |
+| `src/routes/TransactionForm.test.tsx`               | Add `refetch: vi.fn()` to `prefCtx`       |
+| `src/components/layout/Sidebar.tsx`                 | Remove disabled items; add Settings link  |
+| `src/components/layout/Sidebar.test.tsx`            | Add Settings link test                    |
+| `src/routes/AppShell.tsx`                           | Add `/app/settings` to `TITLE_MAP`        |
+| `src/routes/AppShell.test.tsx`                      | Add Settings title test                   |
+| `src/App.tsx`                                       | Add lazy `/app/settings` child route      |
+| `src/components/settings/BudgetDataTab.tsx`         | NEW                                       |
+| `src/components/settings/BudgetDataTab.test.tsx`    | NEW                                       |
+| `src/components/settings/SubcategoriesTab.tsx`      | NEW                                       |
+| `src/components/settings/SubcategoriesTab.test.tsx` | NEW                                       |
+| `src/components/settings/CurrencyTab.tsx`           | NEW                                       |
+| `src/components/settings/CurrencyTab.test.tsx`      | NEW                                       |
+| `src/components/settings/DefaultsTab.tsx`           | NEW                                       |
+| `src/components/settings/DefaultsTab.test.tsx`      | NEW                                       |
+| `src/routes/Settings.tsx`                           | NEW                                       |
+| `src/routes/Settings.test.tsx`                      | NEW                                       |
 
 ---
 
 ## Task 1: `src/lib/currencies.ts` — static currency list
 
 **Files:**
+
 - Create: `src/lib/currencies.ts`
 
 - [ ] **Step 1: Create the file**
@@ -55,36 +56,36 @@ export interface CurrencyOption {
 }
 
 export const CURRENCIES: CurrencyOption[] = [
-  { code: 'AED', name: 'UAE Dirham',           symbol: 'د.إ' },
-  { code: 'AUD', name: 'Australian Dollar',     symbol: 'A$'  },
-  { code: 'BDT', name: 'Bangladeshi Taka',      symbol: '৳'   },
-  { code: 'BRL', name: 'Brazilian Real',         symbol: 'R$'  },
-  { code: 'CAD', name: 'Canadian Dollar',        symbol: 'CA$' },
-  { code: 'CHF', name: 'Swiss Franc',            symbol: 'Fr'  },
-  { code: 'CNY', name: 'Chinese Yuan',           symbol: '¥'   },
-  { code: 'EUR', name: 'Euro',                   symbol: '€'   },
-  { code: 'GBP', name: 'British Pound',          symbol: '£'   },
-  { code: 'HKD', name: 'Hong Kong Dollar',       symbol: 'HK$' },
-  { code: 'IDR', name: 'Indonesian Rupiah',      symbol: 'Rp'  },
-  { code: 'INR', name: 'Indian Rupee',           symbol: '₹'   },
-  { code: 'JPY', name: 'Japanese Yen',           symbol: '¥'   },
-  { code: 'KRW', name: 'South Korean Won',       symbol: '₩'   },
-  { code: 'MYR', name: 'Malaysian Ringgit',      symbol: 'RM'  },
-  { code: 'NGN', name: 'Nigerian Naira',         symbol: '₦'   },
-  { code: 'NOK', name: 'Norwegian Krone',        symbol: 'kr'  },
-  { code: 'NZD', name: 'New Zealand Dollar',     symbol: 'NZ$' },
-  { code: 'PHP', name: 'Philippine Peso',        symbol: '₱'   },
-  { code: 'PKR', name: 'Pakistani Rupee',        symbol: '₨'   },
-  { code: 'QAR', name: 'Qatari Riyal',           symbol: '﷼'  },
-  { code: 'SAR', name: 'Saudi Riyal',            symbol: '﷼'  },
-  { code: 'SEK', name: 'Swedish Krona',          symbol: 'kr'  },
-  { code: 'SGD', name: 'Singapore Dollar',       symbol: 'S$'  },
-  { code: 'THB', name: 'Thai Baht',              symbol: '฿'   },
-  { code: 'TRY', name: 'Turkish Lira',           symbol: '₺'   },
-  { code: 'TWD', name: 'Taiwan Dollar',          symbol: 'NT$' },
-  { code: 'USD', name: 'US Dollar',              symbol: '$'   },
-  { code: 'VND', name: 'Vietnamese Dong',        symbol: '₫'   },
-  { code: 'ZAR', name: 'South African Rand',     symbol: 'R'   },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
+  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
+  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+  { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
+  { code: 'QAR', name: 'Qatari Riyal', symbol: '﷼' },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+  { code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
+  { code: 'TWD', name: 'Taiwan Dollar', symbol: 'NT$' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
+  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
 ];
 ```
 
@@ -108,6 +109,7 @@ git commit -m "feat: add static world currencies list"
 ## Task 2: `usePreferences` refetch + PreferenceContext/Provider
 
 **Files:**
+
 - Modify: `src/hooks/usePreferences.ts`
 - Modify: `src/hooks/usePreferences.test.ts`
 - Modify: `src/context/PreferenceContext.tsx`
@@ -133,11 +135,11 @@ describe('usePreferences — refetch', () => {
 
     const callsBefore = vi.mocked(getDoc).mock.calls.length;
 
-    act(() => { result.current.refetch(); });
+    act(() => {
+      result.current.refetch();
+    });
 
-    await waitFor(() =>
-      expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore),
-    );
+    await waitFor(() => expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore));
   });
 });
 ```
@@ -282,6 +284,7 @@ git commit -m "feat: add refetch to usePreferences and PreferenceContext"
 ## Task 3: `useUpdatePreference` — Firestore write hook
 
 **Files:**
+
 - Create: `src/hooks/useUpdatePreference.ts`
 - Create: `src/hooks/useUpdatePreference.test.ts`
 
@@ -308,22 +311,25 @@ describe('useUpdatePreference', () => {
     await act(async () => {
       await result.current.mutate({ accounts: [] });
     });
-    expect(vi.mocked(setDoc)).toHaveBeenCalledWith(
-      'pref-ref',
-      { accounts: [] },
-      { merge: true },
-    );
+    expect(vi.mocked(setDoc)).toHaveBeenCalledWith('pref-ref', { accounts: [] }, { merge: true });
   });
 
   it('sets loading true during mutation and false after', async () => {
     let resolve!: () => void;
     vi.mocked(setDoc).mockImplementationOnce(
-      () => new Promise<void>((res) => { resolve = res; }),
+      () =>
+        new Promise<void>((res) => {
+          resolve = res;
+        }),
     );
     const { result } = renderHook(() => useUpdatePreference('u1'));
-    act(() => { void result.current.mutate({ vendors: [] }); });
+    act(() => {
+      void result.current.mutate({ vendors: [] });
+    });
     expect(result.current.loading).toBe(true);
-    await act(async () => { resolve(); });
+    await act(async () => {
+      resolve();
+    });
     expect(result.current.loading).toBe(false);
   });
 
@@ -339,11 +345,15 @@ describe('useUpdatePreference', () => {
   it('clears error on next successful mutate', async () => {
     vi.mocked(setDoc).mockRejectedValueOnce(new Error('fail'));
     const { result } = renderHook(() => useUpdatePreference('u1'));
-    await act(async () => { await result.current.mutate({}).catch(() => {}); });
+    await act(async () => {
+      await result.current.mutate({}).catch(() => {});
+    });
     expect(result.current.error).not.toBeNull();
 
     vi.mocked(setDoc).mockResolvedValueOnce(undefined as never);
-    await act(async () => { await result.current.mutate({}); });
+    await act(async () => {
+      await result.current.mutate({});
+    });
     expect(result.current.error).toBeNull();
   });
 });
@@ -430,6 +440,7 @@ git commit -m "feat: add useUpdatePreference Firestore write hook"
 ## Task 4: Sidebar — simplify to 3 items
 
 **Files:**
+
 - Modify: `src/components/layout/Sidebar.tsx`
 - Modify: `src/components/layout/Sidebar.test.tsx`
 
@@ -473,9 +484,9 @@ Replace the entire file with:
 import { NavLink } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',    icon: '◈', to: '/app/dashboard'    },
+  { label: 'Dashboard', icon: '◈', to: '/app/dashboard' },
   { label: 'Transactions', icon: '⇌', to: '/app/transactions' },
-  { label: 'Settings',     icon: '⚙', to: '/app/settings'     },
+  { label: 'Settings', icon: '⚙', to: '/app/settings' },
 ];
 
 export default function Sidebar() {
@@ -492,7 +503,11 @@ export default function Sidebar() {
       <div
         aria-hidden="true"
         style={{
-          position: 'absolute', top: -40, right: -40, width: 160, height: 160,
+          position: 'absolute',
+          top: -40,
+          right: -40,
+          width: 160,
+          height: 160,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(150,191,13,0.15) 0%, transparent 70%)',
           pointerEvents: 'none',
@@ -501,7 +516,11 @@ export default function Sidebar() {
       <div
         aria-hidden="true"
         style={{
-          position: 'absolute', bottom: 80, left: -30, width: 120, height: 120,
+          position: 'absolute',
+          bottom: 80,
+          left: -30,
+          width: 120,
+          height: 120,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(31,163,46,0.2) 0%, transparent 70%)',
           pointerEvents: 'none',
@@ -511,7 +530,9 @@ export default function Sidebar() {
       {/* Wordmark */}
       <div className="mb-8 px-5">
         <span className="text-xl font-bold tracking-tight text-white">
-          <span aria-hidden="true" style={{ color: '#96bf0d' }}>●</span>{' '}
+          <span aria-hidden="true" style={{ color: '#96bf0d' }}>
+            ●
+          </span>{' '}
           GlintBudget
         </span>
       </div>
@@ -531,7 +552,9 @@ export default function Sidebar() {
               ].join(' ')
             }
           >
-            <span aria-hidden="true" className="text-base">{icon}</span>
+            <span aria-hidden="true" className="text-base">
+              {icon}
+            </span>
             {label}
           </NavLink>
         ))}
@@ -561,6 +584,7 @@ git commit -m "feat: simplify sidebar to Dashboard, Transactions, Settings"
 ## Task 5: AppShell title map + App.tsx route
 
 **Files:**
+
 - Modify: `src/routes/AppShell.tsx`
 - Modify: `src/routes/AppShell.test.tsx`
 - Modify: `src/App.tsx`
@@ -650,6 +674,7 @@ git commit -m "feat: add Settings to AppShell TITLE_MAP and App route"
 ## Task 6: `BudgetDataTab` — collapsible defaults + full CRUD
 
 **Files:**
+
 - Create: `src/components/settings/BudgetDataTab.tsx`
 - Create: `src/components/settings/BudgetDataTab.test.tsx`
 
@@ -664,9 +689,14 @@ import { describe, expect, it, vi } from 'vitest';
 import BudgetDataTab from './BudgetDataTab';
 import type { BudgetData } from '../../firestore/types';
 
-const defaultItem: BudgetData = { name: 'Monthly Budget', emoji: '💼', type: 'account', parent: null };
-const userItemA: BudgetData  = { name: 'HDFC',           emoji: '🏦', type: 'account', parent: null };
-const userItemB: BudgetData  = { name: 'ICICI',          emoji: '🏦', type: 'account', parent: null };
+const defaultItem: BudgetData = {
+  name: 'Monthly Budget',
+  emoji: '💼',
+  type: 'account',
+  parent: null,
+};
+const userItemA: BudgetData = { name: 'HDFC', emoji: '🏦', type: 'account', parent: null };
+const userItemB: BudgetData = { name: 'ICICI', emoji: '🏦', type: 'account', parent: null };
 
 function renderTab(overrides: Partial<Parameters<typeof BudgetDataTab>[0]> = {}) {
   return render(
@@ -760,9 +790,7 @@ describe('BudgetDataTab — My Items (edit)', () => {
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'HDFC Savings');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    expect(onSave).toHaveBeenCalledWith([
-      expect.objectContaining({ name: 'HDFC Savings' }),
-    ]);
+    expect(onSave).toHaveBeenCalledWith([expect.objectContaining({ name: 'HDFC Savings' })]);
   });
 
   it('rejects edit when new name is a duplicate', async () => {
@@ -939,7 +967,9 @@ export default function BudgetDataTab({
       {/* My Items section */}
       <div className="card-surface rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">My Items</h3>
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">
+            My Items
+          </h3>
         </div>
 
         {userItems.length > 0 && (
@@ -961,7 +991,10 @@ export default function BudgetDataTab({
                       <input
                         type="text"
                         value={editName}
-                        onChange={(e) => { setEditName(e.target.value); setEditError(''); }}
+                        onChange={(e) => {
+                          setEditName(e.target.value);
+                          setEditError('');
+                        }}
                         className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
                         aria-label="Name"
                       />
@@ -1027,7 +1060,10 @@ export default function BudgetDataTab({
             <input
               type="text"
               value={addName}
-              onChange={(e) => { setAddName(e.target.value); setAddError(''); }}
+              onChange={(e) => {
+                setAddName(e.target.value);
+                setAddError('');
+              }}
               className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
               placeholder="Name"
               aria-label="Name"
@@ -1070,6 +1106,7 @@ git commit -m "feat: add BudgetDataTab with collapsible defaults and full CRUD"
 ## Task 7: `SubcategoriesTab` — grouped defaults + CRUD
 
 **Files:**
+
 - Create: `src/components/settings/SubcategoriesTab.tsx`
 - Create: `src/components/settings/SubcategoriesTab.test.tsx`
 
@@ -1085,13 +1122,13 @@ import SubcategoriesTab from './SubcategoriesTab';
 import type { BudgetData } from '../../firestore/types';
 
 const categories: BudgetData[] = [
-  { name: 'Food',           emoji: '🍲', type: 'category', parent: null },
+  { name: 'Food', emoji: '🍲', type: 'category', parent: null },
   { name: 'Transportation', emoji: '🚗', type: 'category', parent: null },
 ];
 
 const defaultSubs: BudgetData[] = [
   { name: 'Lunch', emoji: '🍱', type: 'sub_category', parent: 'Food' },
-  { name: 'Car',   emoji: '🚗', type: 'sub_category', parent: 'Transportation' },
+  { name: 'Car', emoji: '🚗', type: 'sub_category', parent: 'Transportation' },
 ];
 
 const userSub: BudgetData = { name: 'Snacks', emoji: '🍿', type: 'sub_category', parent: 'Food' };
@@ -1151,7 +1188,10 @@ describe('SubcategoriesTab — add', () => {
     const onSave = vi.fn().mockResolvedValue(undefined);
     renderTab({ onSave });
     // 'Lunch' exists under 'Food'; adding 'Lunch' under 'Transportation' should succeed
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /category/i }), 'Transportation');
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: /category/i }),
+      'Transportation',
+    );
     await userEvent.type(screen.getByLabelText(/^name$/i), 'Lunch');
     await userEvent.click(screen.getByRole('button', { name: /^add$/i }));
     expect(onSave).toHaveBeenCalled();
@@ -1210,8 +1250,7 @@ export default function SubcategoriesTab({
   const userItems = allItems.filter(
     (item) =>
       !defaultItems.some(
-        (d) =>
-          d.name.toLowerCase() === item.name.toLowerCase() && d.parent === item.parent,
+        (d) => d.name.toLowerCase() === item.name.toLowerCase() && d.parent === item.parent,
       ),
   );
 
@@ -1322,7 +1361,9 @@ export default function SubcategoriesTab({
       {/* My Items */}
       <div className="card-surface rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">My Items</h3>
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">
+            My Items
+          </h3>
         </div>
         {userItems.length > 0 && (
           <div className="divide-y divide-border">
@@ -1331,10 +1372,41 @@ export default function SubcategoriesTab({
                 {editingKey === itemKey(item) ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <input type="text" value={editEmoji} onChange={(e) => setEditEmoji(e.target.value.slice(0, 2))} className="w-10 text-center border border-border rounded-lg p-1.5 text-sm" placeholder="😀" aria-label="Emoji" maxLength={2} />
-                      <input type="text" value={editName} onChange={(e) => { setEditName(e.target.value); setEditError(''); }} className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm" aria-label="Name" />
-                      <button type="button" onClick={() => handleSaveEdit(item)} disabled={saving} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}>Save</button>
-                      <button type="button" onClick={cancelEdit} className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border text-text-muted hover:text-text">Cancel</button>
+                      <input
+                        type="text"
+                        value={editEmoji}
+                        onChange={(e) => setEditEmoji(e.target.value.slice(0, 2))}
+                        className="w-10 text-center border border-border rounded-lg p-1.5 text-sm"
+                        placeholder="😀"
+                        aria-label="Emoji"
+                        maxLength={2}
+                      />
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => {
+                          setEditName(e.target.value);
+                          setEditError('');
+                        }}
+                        className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
+                        aria-label="Name"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveEdit(item)}
+                        disabled={saving}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50"
+                        style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEdit}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border text-text-muted hover:text-text"
+                      >
+                        Cancel
+                      </button>
                     </div>
                     {editError && <p className="text-xs text-red-600 mt-1">{editError}</p>}
                   </>
@@ -1342,9 +1414,26 @@ export default function SubcategoriesTab({
                   <div className="flex items-center gap-3">
                     <span className="w-6 text-center text-sm">{item.emoji ?? ''}</span>
                     <span className="flex-1 text-sm text-text">{item.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-surface-alt text-text-muted border border-border">{item.parent}</span>
-                    <button type="button" onClick={() => startEdit(item)} className="text-text-muted hover:text-brand p-1" aria-label={`Edit ${item.name}`}>✏️</button>
-                    <button type="button" onClick={() => handleDelete(item)} disabled={saving} className="text-text-muted hover:text-red-600 p-1" aria-label={`Delete ${item.name}`}>🗑</button>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-surface-alt text-text-muted border border-border">
+                      {item.parent}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => startEdit(item)}
+                      className="text-text-muted hover:text-brand p-1"
+                      aria-label={`Edit ${item.name}`}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item)}
+                      disabled={saving}
+                      className="text-text-muted hover:text-red-600 p-1"
+                      aria-label={`Delete ${item.name}`}
+                    >
+                      🗑
+                    </button>
                   </div>
                 )}
               </div>
@@ -1355,13 +1444,48 @@ export default function SubcategoriesTab({
         {/* Add form */}
         <div className="px-5 py-4 border-t border-border flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <input type="text" value={addEmoji} onChange={(e) => setAddEmoji(e.target.value.slice(0, 2))} className="w-10 text-center border border-border rounded-lg p-1.5 text-sm" placeholder="😀" aria-label="Emoji" maxLength={2} />
-            <input type="text" value={addName} onChange={(e) => { setAddName(e.target.value); setAddError(''); }} className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm" placeholder="Name" aria-label="Name" />
-            <select value={addParent} onChange={(e) => setAddParent(e.target.value)} className="border border-border rounded-lg px-3 py-1.5 text-sm bg-surface" aria-label="Category">
+            <input
+              type="text"
+              value={addEmoji}
+              onChange={(e) => setAddEmoji(e.target.value.slice(0, 2))}
+              className="w-10 text-center border border-border rounded-lg p-1.5 text-sm"
+              placeholder="😀"
+              aria-label="Emoji"
+              maxLength={2}
+            />
+            <input
+              type="text"
+              value={addName}
+              onChange={(e) => {
+                setAddName(e.target.value);
+                setAddError('');
+              }}
+              className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
+              placeholder="Name"
+              aria-label="Name"
+            />
+            <select
+              value={addParent}
+              onChange={(e) => setAddParent(e.target.value)}
+              className="border border-border rounded-lg px-3 py-1.5 text-sm bg-surface"
+              aria-label="Category"
+            >
               <option value="">Category</option>
-              {categories.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+              {categories.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
             </select>
-            <button type="button" onClick={handleAdd} disabled={saving || !addName.trim() || !addParent} className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}>Add</button>
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={saving || !addName.trim() || !addParent}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #007836, #1fa32e)' }}
+            >
+              Add
+            </button>
           </div>
           {addError && <p className="text-xs text-red-600">{addError}</p>}
         </div>
@@ -1391,6 +1515,7 @@ git commit -m "feat: add SubcategoriesTab with grouped defaults and CRUD"
 ## Task 8: `CurrencyTab` — default currency + bookmarks
 
 **Files:**
+
 - Create: `src/components/settings/CurrencyTab.tsx`
 - Create: `src/components/settings/CurrencyTab.test.tsx`
 
@@ -1456,10 +1581,7 @@ describe('CurrencyTab — bookmarked currencies', () => {
   it('adds a bookmarked currency', async () => {
     const onSaveBookmarks = vi.fn().mockResolvedValue(undefined);
     renderTab({ bookmarkedCurrencies: ['SGD'], onSaveBookmarks });
-    await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: /add currency/i }),
-      'INR',
-    );
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /add currency/i }), 'INR');
     await userEvent.click(screen.getByRole('button', { name: /^add$/i }));
     expect(onSaveBookmarks).toHaveBeenCalledWith(['SGD', 'INR']);
   });
@@ -1471,9 +1593,7 @@ describe('CurrencyTab — bookmarked currencies', () => {
     renderTab({ bookmarkedCurrencies: ['SGD'], onSaveBookmarks });
     // The combobox should not contain SGD since it's already bookmarked
     const options = screen.getByRole('combobox', { name: /add currency/i });
-    const sgdOption = Array.from(options.querySelectorAll('option')).find(
-      (o) => o.value === 'SGD',
-    );
+    const sgdOption = Array.from(options.querySelectorAll('option')).find((o) => o.value === 'SGD');
     expect(sgdOption).toBeUndefined();
   });
 });
@@ -1600,7 +1720,10 @@ export default function CurrencyTab({
           <div className="flex items-center gap-2">
             <select
               value={selectedAdd}
-              onChange={(e) => { setSelectedAdd(e.target.value); setBookmarkError(''); }}
+              onChange={(e) => {
+                setSelectedAdd(e.target.value);
+                setBookmarkError('');
+              }}
               className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-surface"
               aria-label="Add currency"
             >
@@ -1649,6 +1772,7 @@ git commit -m "feat: add CurrencyTab with default currency picker and bookmarks"
 ## Task 9: `DefaultsTab` — 4 pre-fill pickers
 
 **Files:**
+
 - Create: `src/components/settings/DefaultsTab.tsx`
 - Create: `src/components/settings/DefaultsTab.test.tsx`
 
@@ -1663,10 +1787,14 @@ import { describe, expect, it, vi } from 'vitest';
 import DefaultsTab from './DefaultsTab';
 import type { BudgetData } from '../../firestore/types';
 
-const accounts: BudgetData[]    = [{ name: 'Monthly Budget', emoji: '💼', type: 'account',      parent: null   }];
-const categories: BudgetData[]  = [{ name: 'Food',           emoji: '🍲', type: 'category',     parent: null   }];
-const payments: BudgetData[]    = [{ name: 'Cash',           emoji: '💵', type: 'payment',      parent: null   }];
-const subCategories: BudgetData[] = [{ name: 'Lunch',        emoji: '🍱', type: 'sub_category', parent: 'Food' }];
+const accounts: BudgetData[] = [
+  { name: 'Monthly Budget', emoji: '💼', type: 'account', parent: null },
+];
+const categories: BudgetData[] = [{ name: 'Food', emoji: '🍲', type: 'category', parent: null }];
+const payments: BudgetData[] = [{ name: 'Cash', emoji: '💵', type: 'payment', parent: null }];
+const subCategories: BudgetData[] = [
+  { name: 'Lunch', emoji: '🍱', type: 'sub_category', parent: 'Food' },
+];
 
 function renderTab(overrides: Partial<Parameters<typeof DefaultsTab>[0]> = {}) {
   return render(
@@ -1905,6 +2033,7 @@ git commit -m "feat: add DefaultsTab with four pre-fill pickers"
 ## Task 10: `Settings.tsx` — tab bar + tab routing
 
 **Files:**
+
 - Create: `src/routes/Settings.tsx`
 - Create: `src/routes/Settings.test.tsx`
 
@@ -1943,9 +2072,7 @@ vi.mock('../hooks/useUpdatePreference', () => ({
   useUpdatePreference: () => ({ mutate: vi.fn(), loading: false, error: null }),
 }));
 vi.mock('../components/settings/BudgetDataTab', () => ({
-  default: ({ itemType }: { itemType: string }) => (
-    <div data-testid={`budget-tab-${itemType}`} />
-  ),
+  default: ({ itemType }: { itemType: string }) => <div data-testid={`budget-tab-${itemType}`} />,
 }));
 vi.mock('../components/settings/SubcategoriesTab', () => ({
   default: () => <div data-testid="subcategories-tab" />,
@@ -1973,9 +2100,15 @@ function renderSettings(tab = '') {
 describe('Settings — tab bar', () => {
   it('renders all 7 tab buttons', () => {
     renderSettings();
-    ['Accounts', 'Categories', 'Subcategories', 'Vendors', 'Payments', 'Currency', 'Defaults'].forEach(
-      (label) => expect(screen.getByRole('button', { name: label })).toBeInTheDocument(),
-    );
+    [
+      'Accounts',
+      'Categories',
+      'Subcategories',
+      'Vendors',
+      'Payments',
+      'Currency',
+      'Defaults',
+    ].forEach((label) => expect(screen.getByRole('button', { name: label })).toBeInTheDocument());
   });
 
   it('defaults to Accounts tab when no query param', () => {
@@ -2022,13 +2155,14 @@ describe('Settings — tab bar', () => {
 
 describe('Settings — loading and error states', () => {
   it('shows loading spinner when preference is loading', () => {
-    vi.mocked(
-      (await import('../context/PreferenceContext')).usePreferenceContext,
-    );
+    vi.mocked((await import('../context/PreferenceContext')).usePreferenceContext);
     // Override mock inline
     const { usePreferenceContext } = await import('../context/PreferenceContext');
     vi.mocked(usePreferenceContext).mockReturnValueOnce({
-      preference: null, loading: true, error: null, refetch: vi.fn(),
+      preference: null,
+      loading: true,
+      error: null,
+      refetch: vi.fn(),
     });
     renderSettings();
     expect(screen.getByRole('status')).toBeInTheDocument();
@@ -2064,16 +2198,16 @@ import CurrencyTab from '../components/settings/CurrencyTab';
 import DefaultsTab from '../components/settings/DefaultsTab';
 
 const TABS = [
-  { key: 'accounts',       label: 'Accounts'       },
-  { key: 'categories',     label: 'Categories'     },
-  { key: 'subcategories',  label: 'Subcategories'  },
-  { key: 'vendors',        label: 'Vendors'        },
-  { key: 'payments',       label: 'Payments'       },
-  { key: 'currency',       label: 'Currency'       },
-  { key: 'defaults',       label: 'Defaults'       },
+  { key: 'accounts', label: 'Accounts' },
+  { key: 'categories', label: 'Categories' },
+  { key: 'subcategories', label: 'Subcategories' },
+  { key: 'vendors', label: 'Vendors' },
+  { key: 'payments', label: 'Payments' },
+  { key: 'currency', label: 'Currency' },
+  { key: 'defaults', label: 'Defaults' },
 ] as const;
 
-type TabKey = typeof TABS[number]['key'];
+type TabKey = (typeof TABS)[number]['key'];
 
 export default function Settings() {
   const auth = useAuth();
@@ -2126,7 +2260,10 @@ export default function Settings() {
 
   if (error || !preference) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
         Couldn't load preferences.{' '}
         <button className="underline ml-1" onClick={refetch}>
           Retry
@@ -2147,9 +2284,7 @@ export default function Settings() {
               onClick={() => setTab(key)}
               className={[
                 'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
-                activeTab === key
-                  ? 'text-white shadow-sm'
-                  : 'text-text-muted hover:text-text',
+                activeTab === key ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
               ].join(' ')}
               style={
                 activeTab === key

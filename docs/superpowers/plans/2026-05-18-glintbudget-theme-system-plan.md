@@ -15,6 +15,7 @@
 ## File Map
 
 **Create:**
+
 - `src/lib/themes.ts` — Theme type, THEMES array, getTheme helper
 - `src/lib/themes.test.ts` — unit tests for themes data
 - `src/context/ThemeContext.tsx` — ThemeContextValue + useTheme hook
@@ -24,6 +25,7 @@
 - `src/components/settings/AppearanceTab.test.tsx` — unit tests
 
 **Modify:**
+
 - `src/styles/index.css` — @theme Lime defaults, runtime CSS vars, [data-theme] blocks, .glass class
 - `src/firestore/types.ts` — add `theme?: string` to Preference
 - `src/hooks/useUpdatePreference.ts` — add `theme?: string` to FirestorePreferencePartial
@@ -47,6 +49,7 @@
 ## Task 1: CSS Foundations
 
 **Files:**
+
 - Modify: `src/styles/index.css` (full replacement)
 
 The `@theme {}` block changes from Forest defaults to Lime defaults. Six runtime gradient variables are added to `:root` (and overridden by `[data-theme]` blocks). `.card-surface` becomes glassmorphism. `.glass` utility class is added. `.hero-gradient` and `.gradient-text` are updated to use CSS vars.
@@ -62,15 +65,15 @@ The `@theme {}` block changes from Forest defaults to Lime defaults. Six runtime
 
 @theme {
   /* GlintBudget brand palette — Lime is the default theme */
-  --color-brand:       rgb(150,191,13);
-  --color-brand-dark:  rgb(80,120,0);
-  --color-accent:      #22c55e;
-  --color-highlight:   rgb(150,191,13);
-  --color-text:        #0f172a;       /* slate-900 */
-  --color-text-muted:  #475569;       /* slate-600 */
-  --color-surface:     #ffffff;
-  --color-surface-alt: #f8fafc;       /* slate-50 */
-  --color-border:      #e2e8f0;       /* slate-200 */
+  --color-brand: rgb(150, 191, 13);
+  --color-brand-dark: rgb(80, 120, 0);
+  --color-accent: #22c55e;
+  --color-highlight: rgb(150, 191, 13);
+  --color-text: #0f172a; /* slate-900 */
+  --color-text-muted: #475569; /* slate-600 */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc; /* slate-50 */
+  --color-border: #e2e8f0; /* slate-200 */
 
   /* Typography */
   --font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -81,50 +84,61 @@ The `@theme {}` block changes from Forest defaults to Lime defaults. Six runtime
 /* Gradient strings cannot live in @theme; they live here as plain CSS     */
 /* custom properties. [data-theme] blocks below override them per theme.   */
 :root {
-  --sidebar-gradient:    linear-gradient(180deg, rgb(80,120,0) 0%, rgb(150,191,13) 60%, #22c55e 100%);
-  --hero-gradient:       linear-gradient(120deg, rgb(80,120,0) 0%, rgb(150,191,13) 40%, #22c55e 70%, #ecfccb 100%);
-  --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150,191,13) 100%);
-  --brand-gradient:      linear-gradient(135deg, rgb(150,191,13), #22c55e);
-  --brand-glow:          rgba(150,191,13,0.45);
-  --brand-gradient-text: linear-gradient(135deg, rgb(150,191,13), #22c55e);
+  --sidebar-gradient: linear-gradient(
+    180deg,
+    rgb(80, 120, 0) 0%,
+    rgb(150, 191, 13) 60%,
+    #22c55e 100%
+  );
+  --hero-gradient: linear-gradient(
+    120deg,
+    rgb(80, 120, 0) 0%,
+    rgb(150, 191, 13) 40%,
+    #22c55e 70%,
+    #ecfccb 100%
+  );
+  --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150, 191, 13) 100%);
+  --brand-gradient: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
+  --brand-glow: rgba(150, 191, 13, 0.45);
+  --brand-gradient-text: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
 }
 
-[data-theme="forest"] {
-  --color-brand:         #007836;
-  --color-brand-dark:    #003d1c;
-  --color-accent:        #1fa32e;
-  --color-highlight:     #96bf0d;
-  --sidebar-gradient:    linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%);
-  --hero-gradient:       linear-gradient(120deg, #003d1c 0%, #007836 40%, #1fa32e 70%, #e8f5e9 100%);
-  --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #96bf0d 100%);
-  --brand-gradient:      linear-gradient(135deg, #007836, #1fa32e);
-  --brand-glow:          rgba(0,120,54,0.45);
+[data-theme='forest'] {
+  --color-brand: #007836;
+  --color-brand-dark: #003d1c;
+  --color-accent: #1fa32e;
+  --color-highlight: #96bf0d;
+  --sidebar-gradient: linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%);
+  --hero-gradient: linear-gradient(120deg, #003d1c 0%, #007836 40%, #1fa32e 70%, #e8f5e9 100%);
+  --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #96bf0d 100%);
+  --brand-gradient: linear-gradient(135deg, #007836, #1fa32e);
+  --brand-glow: rgba(0, 120, 54, 0.45);
   --brand-gradient-text: linear-gradient(135deg, #007836, #1fa32e);
 }
 
-[data-theme="ocean"] {
-  --color-brand:         #2563eb;
-  --color-brand-dark:    #0c2d5e;
-  --color-accent:        #0ea5e9;
-  --color-highlight:     #60a5fa;
-  --sidebar-gradient:    linear-gradient(180deg, #0c2d5e 0%, #1e4d9b 50%, #2563eb 100%);
-  --hero-gradient:       linear-gradient(120deg, #0c2d5e 0%, #2563eb 40%, #0ea5e9 70%, #e0f2fe 100%);
-  --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #dbeafe 60%, #60a5fa 100%);
-  --brand-gradient:      linear-gradient(135deg, #2563eb, #0ea5e9);
-  --brand-glow:          rgba(37,99,235,0.45);
+[data-theme='ocean'] {
+  --color-brand: #2563eb;
+  --color-brand-dark: #0c2d5e;
+  --color-accent: #0ea5e9;
+  --color-highlight: #60a5fa;
+  --sidebar-gradient: linear-gradient(180deg, #0c2d5e 0%, #1e4d9b 50%, #2563eb 100%);
+  --hero-gradient: linear-gradient(120deg, #0c2d5e 0%, #2563eb 40%, #0ea5e9 70%, #e0f2fe 100%);
+  --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #dbeafe 60%, #60a5fa 100%);
+  --brand-gradient: linear-gradient(135deg, #2563eb, #0ea5e9);
+  --brand-glow: rgba(37, 99, 235, 0.45);
   --brand-gradient-text: linear-gradient(135deg, #2563eb, #0ea5e9);
 }
 
-[data-theme="amber"] {
-  --color-brand:         #b45309;
-  --color-brand-dark:    #78350f;
-  --color-accent:        #f59e0b;
-  --color-highlight:     #fbbf24;
-  --sidebar-gradient:    linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%);
-  --hero-gradient:       linear-gradient(120deg, #78350f 0%, #b45309 40%, #f59e0b 70%, #fef3c7 100%);
-  --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #fef3c7 60%, #fbbf24 100%);
-  --brand-gradient:      linear-gradient(135deg, #b45309, #f59e0b);
-  --brand-glow:          rgba(180,83,9,0.45);
+[data-theme='amber'] {
+  --color-brand: #b45309;
+  --color-brand-dark: #78350f;
+  --color-accent: #f59e0b;
+  --color-highlight: #fbbf24;
+  --sidebar-gradient: linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%);
+  --hero-gradient: linear-gradient(120deg, #78350f 0%, #b45309 40%, #f59e0b 70%, #fef3c7 100%);
+  --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #fef3c7 60%, #fbbf24 100%);
+  --brand-gradient: linear-gradient(135deg, #b45309, #f59e0b);
+  --brand-glow: rgba(180, 83, 9, 0.45);
   --brand-gradient-text: linear-gradient(135deg, #b45309, #f59e0b);
 }
 
@@ -154,9 +168,13 @@ body {
 }
 
 /* ── Named gradient utilities ────────────────────────────────────────── */
-.sidebar-gradient { background: var(--sidebar-gradient); }
+.sidebar-gradient {
+  background: var(--sidebar-gradient);
+}
 
-.hero-gradient { background: var(--hero-gradient); }
+.hero-gradient {
+  background: var(--hero-gradient);
+}
 
 .gradient-text {
   background: var(--hero-text-gradient);
@@ -203,6 +221,7 @@ git commit -m "feat: add CSS theme variables and glassmorphism utilities"
 ## Task 2: Theme Library + Type Updates
 
 **Files:**
+
 - Create: `src/lib/themes.ts`
 - Create: `src/lib/themes.test.ts`
 - Modify: `src/firestore/types.ts`
@@ -336,7 +355,7 @@ export interface Preference {
   defaultCurrency: Currency;
   bookmarkedCurrencies: string[];
   defaultEntries: Record<string, string> | null;
-  theme?: string;  // theme ID: "lime" | "forest" | "ocean" | "amber"
+  theme?: string; // theme ID: "lime" | "forest" | "ocean" | "amber"
 }
 ```
 
@@ -376,6 +395,7 @@ git commit -m "feat: add theme definitions and extend Preference/FirestorePrefer
 ## Task 3: ThemeContext + ThemeProvider
 
 **Files:**
+
 - Create: `src/context/ThemeContext.tsx`
 - Create: `src/context/ThemeProvider.tsx`
 - Create: `src/context/ThemeProvider.test.tsx`
@@ -408,7 +428,11 @@ function setupMocks(theme?: string) {
     refetch: vi.fn(),
   });
   vi.mocked(useAuth).mockReturnValue({ status: 'authenticated', user: { uid: 'u1' } } as never);
-  vi.mocked(useUpdatePreference).mockReturnValue({ mutate: mockMutate, loading: false, error: null });
+  vi.mocked(useUpdatePreference).mockReturnValue({
+    mutate: mockMutate,
+    loading: false,
+    error: null,
+  });
 }
 
 function ThemeIdDisplay() {
@@ -424,19 +448,31 @@ describe('ThemeProvider', () => {
 
   it('defaults to lime when preference has no theme', () => {
     setupMocks(undefined);
-    render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(document.documentElement.dataset.theme).toBe('lime');
   });
 
   it('applies theme from preference', () => {
     setupMocks('ocean');
-    render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(document.documentElement.dataset.theme).toBe('ocean');
   });
 
   it('exposes themeId via useTheme', () => {
     setupMocks('forest');
-    const { getByTestId } = render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(getByTestId('id').textContent).toBe('forest');
   });
 
@@ -450,7 +486,11 @@ describe('ThemeProvider', () => {
       return null;
     }
 
-    render(<ThemeProvider><Capture /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <Capture />
+      </ThemeProvider>,
+    );
 
     await act(async () => {
       await capturedSetTheme('amber');
@@ -521,11 +561,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [mutate],
   );
 
-  return (
-    <ThemeContext.Provider value={{ themeId, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ themeId, setTheme }}>{children}</ThemeContext.Provider>;
 }
 ```
 
@@ -557,6 +593,7 @@ git commit -m "feat: add ThemeContext and ThemeProvider"
 ## Task 4: Wire ThemeProvider into App.tsx
 
 **Files:**
+
 - Modify: `src/App.tsx`
 
 `ThemeProvider` must be inside `PreferenceProvider` (it reads `usePreferenceContext()`) and inside `AuthProvider` (it reads `useAuth()`). The current nesting is `AuthProvider > PreferenceProvider > RouterProvider`, so add `ThemeProvider` between `PreferenceProvider` and `RouterProvider`.
@@ -580,7 +617,11 @@ const TransactionForm = lazy(() => import('./routes/TransactionForm'));
 const Settings = lazy(() => import('./routes/Settings'));
 
 const RouteFallback = () => (
-  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center text-slate-500"
+  >
     Loading…
   </div>
 );
@@ -683,6 +724,7 @@ git commit -m "feat: wire ThemeProvider into App"
 ## Task 5: Mechanical Brand Gradient Refactor
 
 **Files:**
+
 - Modify: `src/components/layout/Sidebar.tsx`
 - Modify: `src/components/layout/TopBar.tsx`
 - Modify: `src/routes/Settings.tsx` (tab bar only — Appearance tab wired in Task 8)
@@ -694,6 +736,7 @@ git commit -m "feat: wire ThemeProvider into App"
 - Modify: `src/components/transactions/DateRangeFilter.tsx`
 
 All changes in this task are the same mechanical substitution:
+
 - `'linear-gradient(135deg, #007836, #1fa32e)'` → `'var(--brand-gradient)'`
 - In Sidebar: `'linear-gradient(180deg, #003d1c 0%, #005c2a 50%, #007836 100%)'` → `'var(--sidebar-gradient)'`
 
@@ -702,6 +745,7 @@ No tests needed — existing tests use RTL which doesn't evaluate inline styles.
 - [ ] **Step 1: Update `src/components/layout/Sidebar.tsx`**
 
 Find the inline `style` on the `<aside>` element (line ~13) and change:
+
 ```tsx
 // Before
 style={{
@@ -721,6 +765,7 @@ style={{
 - [ ] **Step 2: Update `src/components/layout/TopBar.tsx`**
 
 There are two places: the period selector active button and the "Add Transaction" link. Change both:
+
 ```tsx
 // Before (both occurrences)
 style={
@@ -744,6 +789,7 @@ style={{ background: 'var(--brand-gradient)' }}
 - [ ] **Step 3: Update `src/routes/Settings.tsx` — active tab only**
 
 Find the active tab `style` prop (around line 106):
+
 ```tsx
 // Before
 style={
@@ -869,6 +915,7 @@ git commit -m "refactor: replace hardcoded brand hex with CSS variable reference
 ## Task 6: DailyTransactions CSS Variable Refactor
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 
 Four inline values need updating. The `DailyTransactions.test.tsx` doesn't assert on inline styles, so existing tests should continue to pass unchanged.
@@ -965,6 +1012,7 @@ git commit -m "refactor: DailyTransactions inline gradients → CSS variables"
 ## Task 7: Chart Components — Theme-Aware Colors
 
 **Files:**
+
 - Modify: `src/components/dashboard/SpendingChart.tsx`
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 - Modify: `src/components/dashboard/IncomeExpenseDonut.tsx`
@@ -974,18 +1022,21 @@ SVG `fill` attributes don't resolve CSS `var()` references — this is a browser
 - [ ] **Step 1: Update `src/components/dashboard/SpendingChart.tsx`**
 
 Add imports at the top:
+
 ```tsx
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 ```
 
 Inside the `SpendingChart` component body (before the `data` useMemo), add:
+
 ```tsx
 const { themeId } = useTheme();
 const theme = getTheme(themeId);
 ```
 
 Update the `<Bar>` fill prop:
+
 ```tsx
 // Before
 <Bar
@@ -1005,26 +1056,28 @@ Update the `<Bar>` fill prop:
 - [ ] **Step 2: Update `src/components/dashboard/CategoryBreakdown.tsx`**
 
 Add imports at the top:
+
 ```tsx
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 ```
 
 Remove the module-level `CATEGORY_COLORS` constant:
+
 ```tsx
 // Delete this:
-const CATEGORY_COLORS = [
-  '#007836', '#1fa32e', '#96bf0d', '#059669', '#0d9488',
-];
+const CATEGORY_COLORS = ['#007836', '#1fa32e', '#96bf0d', '#059669', '#0d9488'];
 ```
 
 Inside the `CategoryBreakdown` component body (before the `categories` useMemo), add:
+
 ```tsx
 const { themeId } = useTheme();
 const theme = getTheme(themeId);
 ```
 
 Update the progress bar fill (inside the `.map()` callback). The `!` non-null assertion is required because TypeScript strict mode treats `readonly string[]` index access as `string | undefined`; the bounds are safe (5-element array, `i` ≤ 4 from `.slice(0,5)`):
+
 ```tsx
 // Before
 style={{ width: `${pct}%`, background: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }}
@@ -1036,18 +1089,21 @@ style={{ width: `${pct}%`, background: theme.categoryColors[i % theme.categoryCo
 - [ ] **Step 3: Update `src/components/dashboard/IncomeExpenseDonut.tsx`**
 
 Add imports at the top:
+
 ```tsx
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 ```
 
 Remove the module-level `COLORS` constant:
+
 ```tsx
 // Delete this:
 const COLORS = ['#007836', '#dc2626'];
 ```
 
 Inside the `IncomeExpenseDonut` component body (before `data` and `savingsRate`), add:
+
 ```tsx
 const { themeId } = useTheme();
 const theme = getTheme(themeId);
@@ -1056,10 +1112,11 @@ const CHART_COLORS = [theme.chartColor, '#dc2626'] as const;
 ```
 
 Update the Cell fill (no other changes needed; `CHART_COLORS` replaces `COLORS`):
+
 ```tsx
-{data.map((_, i) => (
-  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-))}
+{
+  data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />);
+}
 ```
 
 - [ ] **Step 4: Add ThemeContext mock to the 3 chart test files**
@@ -1067,6 +1124,7 @@ Update the Cell fill (no other changes needed; `CHART_COLORS` replaces `COLORS`)
 Since `SpendingChart`, `CategoryBreakdown`, and `IncomeExpenseDonut` now call `useTheme()` internally, their test files need a mock. Add this line near the top of each file (before the component import):
 
 **`src/components/dashboard/SpendingChart.test.tsx`**, **`src/components/dashboard/CategoryBreakdown.test.tsx`**, **`src/components/dashboard/IncomeExpenseDonut.test.tsx`** — add to each:
+
 ```tsx
 vi.mock('../../context/ThemeContext', () => ({
   useTheme: () => ({ themeId: 'lime', setTheme: vi.fn() }),
@@ -1109,6 +1167,7 @@ git commit -m "refactor: chart components use theme.chartColor for SVG fill"
 ## Task 8: AppearanceTab + Settings Wiring
 
 **Files:**
+
 - Create: `src/components/settings/AppearanceTab.tsx`
 - Create: `src/components/settings/AppearanceTab.test.tsx`
 - Modify: `src/routes/Settings.tsx`
@@ -1243,27 +1302,32 @@ Expected: 4 tests PASS
 - [ ] **Step 5: Wire AppearanceTab into `src/routes/Settings.tsx`**
 
 Add import at the top (with other settings tab imports):
+
 ```tsx
 import AppearanceTab from '../components/settings/AppearanceTab';
 ```
 
 Update the `TABS` constant — add `appearance` entry:
+
 ```tsx
 const TABS = [
-  { key: 'accounts',      label: 'Accounts'      },
-  { key: 'categories',    label: 'Categories'    },
+  { key: 'accounts', label: 'Accounts' },
+  { key: 'categories', label: 'Categories' },
   { key: 'subcategories', label: 'Subcategories' },
-  { key: 'vendors',       label: 'Vendors'       },
-  { key: 'payments',      label: 'Payments'      },
-  { key: 'currency',      label: 'Currency'      },
-  { key: 'defaults',      label: 'Defaults'      },
-  { key: 'appearance',    label: 'Appearance'    },
+  { key: 'vendors', label: 'Vendors' },
+  { key: 'payments', label: 'Payments' },
+  { key: 'currency', label: 'Currency' },
+  { key: 'defaults', label: 'Defaults' },
+  { key: 'appearance', label: 'Appearance' },
 ] as const;
 ```
 
 Add the Appearance tab content inside the tab content `<div className="p-6">` block (after the `defaults` case):
+
 ```tsx
-{activeTab === 'appearance' && <AppearanceTab />}
+{
+  activeTab === 'appearance' && <AppearanceTab />;
+}
 ```
 
 - [ ] **Step 6: Run all tests**
@@ -1331,6 +1395,7 @@ Expected: Build succeeds. Check output for any warnings about CSS.
 - [ ] **Step 5: Manual smoke test** (requires `npm run dev` and browser)
 
 Navigate to Settings → Appearance tab. Verify:
+
 1. All 4 theme swatches appear with correct gradient previews
 2. Lime is selected by default (✓ indicator on Lime swatch)
 3. Clicking Forest switches the sidebar gradient and all buttons/active states to forest green

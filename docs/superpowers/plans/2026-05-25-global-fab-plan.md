@@ -12,18 +12,19 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/DailyTransactions.tsx` | Remove the "+ Add" `<button>` from the widget header |
-| `src/components/dashboard/DailyTransactions.test.tsx` | Replace "Add button" describe block with a single test asserting the button is absent |
-| `src/routes/AppShell.tsx` | Add `fabOpen` state, `useTransactionContext`, FAB button, `AddTransactionDrawer` |
-| `src/routes/AppShell.test.tsx` | Add mocks for `TransactionContext` and `AddTransactionDrawer`; add FAB render + click tests |
+| File                                                  | Change                                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `src/components/dashboard/DailyTransactions.tsx`      | Remove the "+ Add" `<button>` from the widget header                                        |
+| `src/components/dashboard/DailyTransactions.test.tsx` | Replace "Add button" describe block with a single test asserting the button is absent       |
+| `src/routes/AppShell.tsx`                             | Add `fabOpen` state, `useTransactionContext`, FAB button, `AddTransactionDrawer`            |
+| `src/routes/AppShell.test.tsx`                        | Add mocks for `TransactionContext` and `AddTransactionDrawer`; add FAB render + click tests |
 
 ---
 
 ## Task 1: Remove Add button from DailyTransactions (TDD)
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx:214-245`
 - Modify: `src/components/dashboard/DailyTransactions.tsx:286-295`
 
@@ -53,34 +54,34 @@ Expected: The new "does not render an Add transaction button" test **fails** (th
 In `src/components/dashboard/DailyTransactions.tsx`, find the "+ Add" button in the header section. It looks like this (around line 286):
 
 ```tsx
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ background: 'var(--brand-gradient)' }}
-            aria-label="Add transaction"
-          >
-            + Add
-          </button>
+<button
+  type="button"
+  onClick={() => setDrawerOpen(true)}
+  className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+  style={{ background: 'var(--brand-gradient)' }}
+  aria-label="Add transaction"
+>
+  + Add
+</button>
 ```
 
 Delete those 8 lines entirely. The header's right-side `<div>` containing "See all →" and the Add button should now contain only the "See all →" link:
 
 ```tsx
-        <div className="flex items-center gap-2">
-          <Link
-            to="/app/transactions"
-            className="text-xs font-medium"
-            style={{
-              background: 'var(--brand-gradient-text)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            See all →
-          </Link>
-        </div>
+<div className="flex items-center gap-2">
+  <Link
+    to="/app/transactions"
+    className="text-xs font-medium"
+    style={{
+      background: 'var(--brand-gradient-text)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}
+  >
+    See all →
+  </Link>
+</div>
 ```
 
 - [ ] **Step 4: Run tests — verify all DailyTransactions tests pass**
@@ -102,6 +103,7 @@ cd /Users/rajeshkumar/workspace/GlintBudgetUI && git add src/components/dashboar
 ## Task 2: Add global FAB to AppShell (TDD)
 
 **Files:**
+
 - Modify: `src/routes/AppShell.test.tsx`
 - Modify: `src/routes/AppShell.tsx`
 
@@ -121,7 +123,11 @@ vi.mock('../context/TransactionContext', () => ({
 
 vi.mock('../components/transactions/AddTransactionDrawer', () => ({
   default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+    open ? (
+      <div role="dialog" aria-label="New Transaction">
+        drawer
+      </div>
+    ) : null,
 }));
 ```
 
@@ -139,7 +145,11 @@ vi.mock('../context/TransactionContext', () => ({
 
 vi.mock('../components/transactions/AddTransactionDrawer', () => ({
   default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+    open ? (
+      <div role="dialog" aria-label="New Transaction">
+        drawer
+      </div>
+    ) : null,
 }));
 
 import { render, screen } from '@testing-library/react';
@@ -260,11 +270,7 @@ export default function AppShell() {
       >
         +
       </button>
-      <AddTransactionDrawer
-        open={fabOpen}
-        onClose={() => setFabOpen(false)}
-        onSaved={refetch}
-      />
+      <AddTransactionDrawer open={fabOpen} onClose={() => setFabOpen(false)} onSaved={refetch} />
     </div>
   );
 }

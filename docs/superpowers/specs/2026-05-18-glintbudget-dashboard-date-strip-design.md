@@ -61,7 +61,7 @@ Replace the existing `PeriodTransactions` widget on the Dashboard with a weekly 
 
 ```ts
 interface DailyTransactionsProps {
-  transactions: Transaction[];   // all transactions for the whole period (pre-fetched by Dashboard)
+  transactions: Transaction[]; // all transactions for the whole period (pre-fetched by Dashboard)
   currencySymbol: string;
   onDelete: (id: string) => void;
 }
@@ -78,12 +78,12 @@ const [selectedDate, setSelectedDate] = useState<Date>(today);
 
 ### Helper functions (add to `src/lib/dateUtils.ts`)
 
-| Function | Signature | Purpose |
-|---|---|---|
-| `getMondayOf` | `(d: Date) => Date` | Return the Monday of the week containing `d` |
-| `getWeekDays` | `(monday: Date) => Date[]` | Return the 7 Date objects Mon–Sun |
-| `isSameDay` | `(a: Date, b: Date) => boolean` | Compare dates ignoring time |
-| `isCurrentWeek` | `(monday: Date) => boolean` | True if the week contains today |
+| Function        | Signature                       | Purpose                                      |
+| --------------- | ------------------------------- | -------------------------------------------- |
+| `getMondayOf`   | `(d: Date) => Date`             | Return the Monday of the week containing `d` |
+| `getWeekDays`   | `(monday: Date) => Date[]`      | Return the 7 Date objects Mon–Sun            |
+| `isSameDay`     | `(a: Date, b: Date) => boolean` | Compare dates ignoring time                  |
+| `isCurrentWeek` | `(monday: Date) => boolean`     | True if the week contains today              |
 
 ### Data flow
 
@@ -104,14 +104,14 @@ const [selectedDate, setSelectedDate] = useState<Date>(today);
 
 All styles via Tailwind utility classes. Custom gradient values applied inline where Tailwind v4 utility doesn't cover them directly.
 
-| Token | Value |
-|---|---|
-| Selected tile gradient | `linear-gradient(135deg, rgb(150,191,13), #22c55e)` |
-| Selected tile shadow | `0 3px 12px rgba(150,191,13,0.45)` |
-| Unselected dot | `#22c55e` |
-| "See all" gradient text | same gradient, `-webkit-background-clip: text` |
-| Tile border-radius | `8px` |
-| Nav button size | `32 × 32 px` |
+| Token                   | Value                                               |
+| ----------------------- | --------------------------------------------------- |
+| Selected tile gradient  | `linear-gradient(135deg, rgb(150,191,13), #22c55e)` |
+| Selected tile shadow    | `0 3px 12px rgba(150,191,13,0.45)`                  |
+| Unselected dot          | `#22c55e`                                           |
+| "See all" gradient text | same gradient, `-webkit-background-clip: text`      |
+| Tile border-radius      | `8px`                                               |
+| Nav button size         | `32 × 32 px`                                        |
 
 ---
 

@@ -122,7 +122,9 @@ export default function BudgetDataTab({
       {/* My Items section */}
       <div className="card-surface rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">My Items</h3>
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-widest">
+            My Items
+          </h3>
         </div>
 
         {userItems.length > 0 && (
@@ -144,7 +146,10 @@ export default function BudgetDataTab({
                       <input
                         type="text"
                         value={editName}
-                        onChange={(e) => { setEditName(e.target.value); setEditError(''); }}
+                        onChange={(e) => {
+                          setEditName(e.target.value);
+                          setEditError('');
+                        }}
                         className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
                         aria-label="Name"
                       />
@@ -210,7 +215,10 @@ export default function BudgetDataTab({
             <input
               type="text"
               value={addName}
-              onChange={(e) => { setAddName(e.target.value); setAddError(''); }}
+              onChange={(e) => {
+                setAddName(e.target.value);
+                setAddError('');
+              }}
               className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
               placeholder="Name"
               aria-label="Name"

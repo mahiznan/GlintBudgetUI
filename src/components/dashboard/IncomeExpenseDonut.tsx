@@ -10,7 +10,11 @@ interface IncomeExpenseDonutProps {
   currencySymbol: string;
 }
 
-export default function IncomeExpenseDonut({ categories, mode, currencySymbol }: IncomeExpenseDonutProps) {
+export default function IncomeExpenseDonut({
+  categories,
+  mode,
+  currencySymbol,
+}: IncomeExpenseDonutProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
   const total = categories.reduce((s, c) => s + c.total, 0);
@@ -18,9 +22,7 @@ export default function IncomeExpenseDonut({ categories, mode, currencySymbol }:
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-        {title}
-      </h2>
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">{title}</h2>
       {categories.length === 0 ? (
         <p className="text-sm text-text-muted py-4 text-center">
           No {mode === 'expense' ? 'expenses' : 'income'} for this period
@@ -44,15 +46,17 @@ export default function IncomeExpenseDonut({ categories, mode, currencySymbol }:
                     <Cell key={i} fill={theme.categoryColors[i % theme.categoryColors.length]!} />
                   ))}
                 </Pie>
-                <Tooltip
-                  formatter={(v: unknown) => formatCurrency(v as number, currencySymbol)}
-                />
+                <Tooltip formatter={(v: unknown) => formatCurrency(v as number, currencySymbol)} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <p className="text-xl font-bold text-text">{formatCurrency(total, currencySymbol)}</p>
-                <p className="text-xs text-text-muted">{mode === 'expense' ? 'expenses' : 'income'}</p>
+                <p className="text-xl font-bold text-text">
+                  {formatCurrency(total, currencySymbol)}
+                </p>
+                <p className="text-xs text-text-muted">
+                  {mode === 'expense' ? 'expenses' : 'income'}
+                </p>
               </div>
             </div>
           </div>

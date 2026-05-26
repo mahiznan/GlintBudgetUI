@@ -8,7 +8,11 @@ interface TransactionRowProps {
   onDelete: (id: string) => void;
 }
 
-export default function TransactionRow({ transaction: tx, currencySymbol, onDelete }: TransactionRowProps) {
+export default function TransactionRow({
+  transaction: tx,
+  currencySymbol,
+  onDelete,
+}: TransactionRowProps) {
   return (
     <tr className="border-b border-border hover:bg-surface-alt transition-colors">
       <td className="py-3 px-4">
@@ -30,11 +34,7 @@ export default function TransactionRow({ transaction: tx, currencySymbol, onDele
       </td>
       <td className="py-3 px-4 text-xs text-text-muted">{tx.payment}</td>
       <td className="py-3 px-4 text-right">
-        <span
-          className={`text-sm font-semibold ${
-            tx.amount < 0 ? 'text-red-600' : 'text-brand'
-          }`}
-        >
+        <span className={`text-sm font-semibold ${tx.amount < 0 ? 'text-red-600' : 'text-brand'}`}>
           {tx.amount < 0 ? '−' : '+'}
           {formatCurrency(Math.abs(tx.amount), currencySymbol)}
         </span>

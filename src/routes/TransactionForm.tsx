@@ -44,7 +44,8 @@ function parseLocalDate(s: string): Date {
 
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.amount || parseFloat(form.amount) <= 0) errors.amount = 'Amount is required and must be positive';
+  if (!form.amount || parseFloat(form.amount) <= 0)
+    errors.amount = 'Amount is required and must be positive';
   if (!form.category) errors.category = 'Category is required';
   if (!form.vendor) errors.vendor = 'Vendor is required';
   if (!form.account) errors.account = 'Account is required';
@@ -104,7 +105,10 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
     if (mode !== 'edit' || !id) return;
     getDoc(doc(db, 'transactions', id))
       .then((snap) => {
-        if (!snap.exists()) { navigate('/app/transactions'); return; }
+        if (!snap.exists()) {
+          navigate('/app/transactions');
+          return;
+        }
         const d = snap.data();
         setForm({
           type: (d['amount'] as number) < 0 ? 'expense' : 'income',
@@ -153,9 +157,10 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       payment: form.payment,
       currency: form.currency,
       notes: form.notes,
-      amount: form.type === 'expense'
-        ? -Math.abs(parseFloat(form.amount))
-        : Math.abs(parseFloat(form.amount)),
+      amount:
+        form.type === 'expense'
+          ? -Math.abs(parseFloat(form.amount))
+          : Math.abs(parseFloat(form.amount)),
       icon: categoryObj?.emoji ?? '',
     };
 
@@ -301,7 +306,9 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="notes-input" className="text-sm font-semibold text-text">Notes</label>
+          <label htmlFor="notes-input" className="text-sm font-semibold text-text">
+            Notes
+          </label>
           <textarea
             id="notes-input"
             value={form.notes}

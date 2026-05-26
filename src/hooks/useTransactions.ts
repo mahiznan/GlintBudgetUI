@@ -35,10 +35,14 @@ type Action =
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'fetch':   return { ...state, loading: true, error: null };
-    case 'success': return { ...state, loading: false, data: action.data };
-    case 'error':   return { ...state, loading: false, error: action.error };
-    case 'refetch': return { ...state, tick: state.tick + 1 };
+    case 'fetch':
+      return { ...state, loading: true, error: null };
+    case 'success':
+      return { ...state, loading: false, data: action.data };
+    case 'error':
+      return { ...state, loading: false, error: action.error };
+    case 'refetch':
+      return { ...state, tick: state.tick + 1 };
   }
 }
 

@@ -1,6 +1,10 @@
 vi.mock('../transactions/AddTransactionDrawer', () => ({
   default: ({ open, editId }: { open: boolean; editId?: string }) =>
-    open ? <div role="dialog" aria-label={editId ? 'Edit Transaction' : 'New Transaction'}>drawer</div> : null,
+    open ? (
+      <div role="dialog" aria-label={editId ? 'Edit Transaction' : 'New Transaction'}>
+        drawer
+      </div>
+    ) : null,
 }));
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -12,9 +16,18 @@ import type { Transaction } from '../../firestore/types';
 
 function makeTx(id: string, vendor: string, amount: number, date: Date): Transaction {
   return {
-    id, user_id: 'u1', category: 'Food', subCategory: '',
-    date, account: 'HDFC', vendor, payment: 'UPI',
-    currency: 'INR', notes: '', amount, icon: '🛒',
+    id,
+    user_id: 'u1',
+    category: 'Food',
+    subCategory: '',
+    date,
+    account: 'HDFC',
+    vendor,
+    payment: 'UPI',
+    currency: 'INR',
+    notes: '',
+    amount,
+    icon: '🛒',
   };
 }
 
@@ -34,11 +47,7 @@ function daysAgo(n: number, hours = 12): Date {
 function renderDT(transactions: Transaction[]) {
   return render(
     <MemoryRouter>
-      <DailyTransactions
-        transactions={transactions}
-        currencySymbol="₹"
-        onDelete={vi.fn()}
-      />
+      <DailyTransactions transactions={transactions} currencySymbol="₹" onDelete={vi.fn()} />
     </MemoryRouter>,
   );
 }
@@ -188,10 +197,7 @@ describe('DailyTransactions — expense sum', () => {
   });
 
   it("shows correct expense sum for today's transactions", () => {
-    renderDT([
-      makeTx('t1', 'Swiggy', -450, todayAt(12)),
-      makeTx('t2', 'Ola', -280, todayAt(9)),
-    ]);
+    renderDT([makeTx('t1', 'Swiggy', -450, todayAt(12)), makeTx('t2', 'Ola', -280, todayAt(9))]);
     // Sum: 450 + 280 = 730 — look for the amount in the expense sum row
     expect(screen.getByText(/−.*730/)).toBeInTheDocument();
   });
@@ -279,7 +285,10 @@ describe('DailyTransactions — Today button', () => {
     // Today's date tile should be selected
     const todayNum = new Date().getDate().toString();
     const pressed = screen.getAllByRole('button', { pressed: true });
-    const todayTile = pressed.find((b) => b.textContent?.includes(todayNum) && b !== screen.getByRole('button', { name: /^today$/i }));
+    const todayTile = pressed.find(
+      (b) =>
+        b.textContent?.includes(todayNum) && b !== screen.getByRole('button', { name: /^today$/i }),
+    );
     expect(todayTile).toBeTruthy();
   });
 });
@@ -310,9 +319,12 @@ describe('DailyTransactions — calendar date picker', () => {
     // Go to last month so all days are in the past
     await userEvent.click(screen.getByRole('button', { name: /previous month/i }));
     // Pick the 15th (always a past date)
-    const dayBtns = screen.getAllByRole('button').filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '15' && !b.hasAttribute('disabled')
-    );
+    const dayBtns = screen
+      .getAllByRole('button')
+      .filter(
+        (b) =>
+          !b.getAttribute('aria-label') && b.textContent === '15' && !b.hasAttribute('disabled'),
+      );
     await userEvent.click(dayBtns[0]!);
     // Popover closed
     expect(screen.queryByRole('button', { name: /previous month/i })).not.toBeInTheDocument();

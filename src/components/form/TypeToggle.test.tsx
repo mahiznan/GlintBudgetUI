@@ -28,7 +28,10 @@ describe('TypeToggle', () => {
 
   it('inactive button has data-inactive attribute for styling', () => {
     render(<TypeToggle value="expense" onChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: /income/i })).toHaveAttribute('data-inactive', 'true');
+    expect(screen.getByRole('button', { name: /income/i })).toHaveAttribute(
+      'data-inactive',
+      'true',
+    );
     expect(screen.getByRole('button', { name: /expense/i })).not.toHaveAttribute('data-inactive');
   });
 });

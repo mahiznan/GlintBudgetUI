@@ -29,6 +29,7 @@ New layout:
 ```
 
 The calendar icon button:
+
 - SVG calendar icon, ~14 px, `text-text-muted` at rest, `text-brand` on hover
 - `aria-label="Pick a date"`, `aria-expanded={calendarOpen}`
 - Toggles `calendarOpen` state; clicking again closes the popover
@@ -108,11 +109,11 @@ The `MiniCalendar` receives the current `selectedDate` formatted as `YYYY-MM-DD`
 
 ## Files affected
 
-| File | Change |
-|---|---|
-| `src/components/form/MiniCalendar.tsx` | Add `'brand'` to `activeType` union; disable future dates |
-| `src/components/dashboard/DailyTransactions.tsx` | Add calendar icon, popover, `calendarOpen` state, outside-click handler |
-| `src/components/form/MiniCalendar.test.tsx` | Test that future dates are disabled when `activeType` is omitted / `'brand'` |
+| File                                                  | Change                                                                              |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `src/components/form/MiniCalendar.tsx`                | Add `'brand'` to `activeType` union; disable future dates                           |
+| `src/components/dashboard/DailyTransactions.tsx`      | Add calendar icon, popover, `calendarOpen` state, outside-click handler             |
+| `src/components/form/MiniCalendar.test.tsx`           | Test that future dates are disabled when `activeType` is omitted / `'brand'`        |
 | `src/components/dashboard/DailyTransactions.test.tsx` | Smoke test: calendar icon opens/closes popover, picking a date updates selected day |
 
 ---

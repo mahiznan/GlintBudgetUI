@@ -41,12 +41,14 @@ The drawer is a right-sliding panel (existing 480 px shell, unchanged). Inside, 
 The existing bordered input row is replaced by a two-element horizontal row inside a lightly tinted band (`background: #fafcff`, `border-bottom: 1px solid #f1f5f9`):
 
 **Currency Badge (left)**
+
 - Pill shape: `background: #f1f5f9`, `border: 1px solid #e2e8f0`, `border-radius: 20px`, `padding: 6px 12px`
 - Shows currency code and symbol: e.g. `₹ INR ▾`
 - Clicking opens a **currency picker** — same inline-expand pattern as other fields, showing `preference.bookmarkedCurrencies` as a searchable list
 - `font-size: 13px`, `font-weight: 700`, `color: #475569`
 
 **Amount Number (right)**
+
 - `font-size: 48px`, `font-weight: 800`, monospaced font (`--font-mono`)
 - `font-variant-numeric: tabular-nums`, `text-align: right`, `flex: 1`
 - Placeholder value: `0.00` in `color: #cbd5e1`
@@ -61,11 +63,13 @@ Each field is rendered as a **row**: icon pill + label/value stack + chevron.
 Tapping a row (or tabbing/entering into it) expands a picker inline immediately below the row header, pushing subsequent fields down. Only one picker is open at a time; opening a new field closes the previous one.
 
 **Row anatomy:**
+
 ```
 [28×28 icon pill]  [label (9px uppercase muted) / value (13px)]  [› chevron]
 ```
 
 **Inline picker anatomy (when expanded):**
+
 ```
 [full-bleed band: background #f8fafc, border-top/bottom 1.5px #e2e8f0]
   [search row: white bg, border 1.5px brand-green, rounded-10px]
@@ -78,14 +82,14 @@ When the search field is empty, the full list is shown. As the user types, the l
 
 **Field order and icons:**
 
-| # | Field | Icon bg | Required | Notes |
-|---|-------|---------|----------|-------|
-| 1 | Vendor | `#eff6ff` (blue-50) | Yes | `allowFreeText` — user can type a new name not in the list |
-| 2 | Category | `#fdf4ff` (purple-50) | Yes | From `preference.categories` |
-| 3 | Sub-category | `#fdf4ff` 70% opacity | No | Conditional — only rendered when the selected category has matching `preference.subCategories`; hidden otherwise |
-| 4 | Date | `#ecfdf5` (green-50) | Yes | See §3.4 |
-| 5 | Account + Payment | `#fff7ed` / `#fff1f2` | Both Yes | Side-by-side in one row (see §3.5) |
-| 6 | Notes | `#f8fafc` (slate-50) | No | Free-text textarea inside the inline expand |
+| #   | Field             | Icon bg               | Required | Notes                                                                                                            |
+| --- | ----------------- | --------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | Vendor            | `#eff6ff` (blue-50)   | Yes      | `allowFreeText` — user can type a new name not in the list                                                       |
+| 2   | Category          | `#fdf4ff` (purple-50) | Yes      | From `preference.categories`                                                                                     |
+| 3   | Sub-category      | `#fdf4ff` 70% opacity | No       | Conditional — only rendered when the selected category has matching `preference.subCategories`; hidden otherwise |
+| 4   | Date              | `#ecfdf5` (green-50)  | Yes      | See §3.4                                                                                                         |
+| 5   | Account + Payment | `#fff7ed` / `#fff1f2` | Both Yes | Side-by-side in one row (see §3.5)                                                                               |
+| 6   | Notes             | `#f8fafc` (slate-50)  | No       | Free-text textarea inside the inline expand                                                                      |
 
 ### 3.4 Date Field — Mini Calendar Picker
 
@@ -147,7 +151,7 @@ interface AddTransactionDrawerProps {
   open: boolean;
   onClose: () => void;
   onSaved: () => void;
-  selectedDate?: Date;   // NEW — pre-fill from DailyTransactions
+  selectedDate?: Date; // NEW — pre-fill from DailyTransactions
 }
 ```
 
@@ -159,8 +163,10 @@ Pass `selectedDate` to `<AddTransactionDrawer>`:
 <AddTransactionDrawer
   open={drawerOpen}
   onClose={() => setDrawerOpen(false)}
-  onSaved={() => { onTransactionAdded?.(); }}
-  selectedDate={selectedDate}   // NEW
+  onSaved={() => {
+    onTransactionAdded?.();
+  }}
+  selectedDate={selectedDate} // NEW
 />
 ```
 
@@ -168,14 +174,14 @@ Pass `selectedDate` to `<AddTransactionDrawer>`:
 
 ## 6. New / Modified Components
 
-| File | Change |
-|------|--------|
-| `src/components/form/TypeToggle.tsx` | Full redesign per §3.1 |
-| `src/components/form/AmountInput.tsx` | Full redesign per §3.2; remove currency symbol prop, add `onCurrencyClick` |
-| `src/components/form/FieldPicker.tsx` | Full redesign per §3.3 — replace `<select>` / `<datalist>` with custom inline-expand search UI |
-| `src/components/form/MiniCalendar.tsx` | **New** — standalone calendar component used by the date field |
+| File                                                   | Change                                                                                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `src/components/form/TypeToggle.tsx`                   | Full redesign per §3.1                                                                         |
+| `src/components/form/AmountInput.tsx`                  | Full redesign per §3.2; remove currency symbol prop, add `onCurrencyClick`                     |
+| `src/components/form/FieldPicker.tsx`                  | Full redesign per §3.3 — replace `<select>` / `<datalist>` with custom inline-expand search UI |
+| `src/components/form/MiniCalendar.tsx`                 | **New** — standalone calendar component used by the date field                                 |
 | `src/components/transactions/AddTransactionDrawer.tsx` | Wire new components, add `selectedDate` prop, implement single-open-picker state, keyboard nav |
-| `src/components/dashboard/DailyTransactions.tsx` | Pass `selectedDate` to drawer |
+| `src/components/dashboard/DailyTransactions.tsx`       | Pass `selectedDate` to drawer                                                                  |
 
 ---
 

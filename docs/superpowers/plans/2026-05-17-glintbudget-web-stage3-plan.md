@@ -17,51 +17,54 @@
 ## File Map
 
 ### New files
-| File | Responsibility |
-|---|---|
-| `src/firebase/db.ts` | Firestore instance export |
-| `src/firestore/types.ts` | Transaction, Preference, BudgetData, Currency interfaces |
-| `src/lib/dateUtils.ts` | Period type + date range helpers + formatters |
-| `src/hooks/useTransactions.ts` | Fetch transactions from Firestore |
-| `src/hooks/usePreferences.ts` | Fetch `preference/{uid}` once |
-| `src/hooks/useMutateTransaction.ts` | useAddTransaction, useUpdateTransaction, useDeleteTransaction |
-| `src/context/PreferenceContext.tsx` | Context + provider; cached for session |
-| `src/components/layout/Sidebar.tsx` | Dark green gradient sidebar nav |
-| `src/components/layout/TopBar.tsx` | Title, period tabs (Day/Week/Month/Quarter/Year), + Add button |
-| `src/components/dashboard/HeroStatsRow.tsx` | Full-width gradient stats banner |
-| `src/components/dashboard/SpendingChart.tsx` | Recharts BarChart by period |
-| `src/components/dashboard/CategoryBreakdown.tsx` | Top 5 categories by spend |
-| `src/components/dashboard/IncomeExpenseDonut.tsx` | Recharts PieChart income vs expense |
-| `src/components/dashboard/TodayTransactions.tsx` | Table of today's transactions |
-| `src/components/dashboard/QuickStats.tsx` | Derived stats card |
-| `src/components/transactions/TransactionTable.tsx` | Shared table used by dashboard + list |
-| `src/components/transactions/TransactionRow.tsx` | Single transaction row with edit/delete |
-| `src/components/transactions/DateRangeFilter.tsx` | Date range tabs for TransactionList |
-| `src/components/transactions/DeleteConfirmDialog.tsx` | Delete confirmation modal |
-| `src/components/form/AmountInput.tsx` | Amount + currency input |
-| `src/components/form/TypeToggle.tsx` | Expense / Income toggle |
-| `src/components/form/FieldPicker.tsx` | Dropdown populated from preference list |
-| `src/routes/Dashboard.tsx` | Dashboard page composing all 6 widgets |
-| `src/routes/TransactionList.tsx` | Paginated + date-filtered transaction list |
-| `src/routes/TransactionForm.tsx` | Add/edit form (mode: 'add' \| 'edit') |
+
+| File                                                  | Responsibility                                                 |
+| ----------------------------------------------------- | -------------------------------------------------------------- |
+| `src/firebase/db.ts`                                  | Firestore instance export                                      |
+| `src/firestore/types.ts`                              | Transaction, Preference, BudgetData, Currency interfaces       |
+| `src/lib/dateUtils.ts`                                | Period type + date range helpers + formatters                  |
+| `src/hooks/useTransactions.ts`                        | Fetch transactions from Firestore                              |
+| `src/hooks/usePreferences.ts`                         | Fetch `preference/{uid}` once                                  |
+| `src/hooks/useMutateTransaction.ts`                   | useAddTransaction, useUpdateTransaction, useDeleteTransaction  |
+| `src/context/PreferenceContext.tsx`                   | Context + provider; cached for session                         |
+| `src/components/layout/Sidebar.tsx`                   | Dark green gradient sidebar nav                                |
+| `src/components/layout/TopBar.tsx`                    | Title, period tabs (Day/Week/Month/Quarter/Year), + Add button |
+| `src/components/dashboard/HeroStatsRow.tsx`           | Full-width gradient stats banner                               |
+| `src/components/dashboard/SpendingChart.tsx`          | Recharts BarChart by period                                    |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Top 5 categories by spend                                      |
+| `src/components/dashboard/IncomeExpenseDonut.tsx`     | Recharts PieChart income vs expense                            |
+| `src/components/dashboard/TodayTransactions.tsx`      | Table of today's transactions                                  |
+| `src/components/dashboard/QuickStats.tsx`             | Derived stats card                                             |
+| `src/components/transactions/TransactionTable.tsx`    | Shared table used by dashboard + list                          |
+| `src/components/transactions/TransactionRow.tsx`      | Single transaction row with edit/delete                        |
+| `src/components/transactions/DateRangeFilter.tsx`     | Date range tabs for TransactionList                            |
+| `src/components/transactions/DeleteConfirmDialog.tsx` | Delete confirmation modal                                      |
+| `src/components/form/AmountInput.tsx`                 | Amount + currency input                                        |
+| `src/components/form/TypeToggle.tsx`                  | Expense / Income toggle                                        |
+| `src/components/form/FieldPicker.tsx`                 | Dropdown populated from preference list                        |
+| `src/routes/Dashboard.tsx`                            | Dashboard page composing all 6 widgets                         |
+| `src/routes/TransactionList.tsx`                      | Paginated + date-filtered transaction list                     |
+| `src/routes/TransactionForm.tsx`                      | Add/edit form (mode: 'add' \| 'edit')                          |
 
 ### Modified files
-| File | Change |
-|---|---|
-| `src/App.tsx` | Nested child routes; lazy-load Dashboard, TransactionList, TransactionForm |
-| `src/routes/AppShell.tsx` | Layout route with `<Outlet>`, Sidebar, TopBar, period state |
-| `src/routes/AppShell.test.tsx` | Update test to match new layout (Sidebar + Outlet) |
-| `src/main.tsx` | Wrap `App` tree with `<PreferenceProvider>` inside `AuthProvider` |
-| `src/styles/index.css` | Add Figtree + JetBrains Mono font vars; sidebar CSS helpers |
-| `vite.config.ts` | Add recharts to manualChunks |
-| `index.html` | Add Google Fonts preconnect + link |
-| `CLAUDE.md` | Update stage status and project structure |
+
+| File                           | Change                                                                     |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `src/App.tsx`                  | Nested child routes; lazy-load Dashboard, TransactionList, TransactionForm |
+| `src/routes/AppShell.tsx`      | Layout route with `<Outlet>`, Sidebar, TopBar, period state                |
+| `src/routes/AppShell.test.tsx` | Update test to match new layout (Sidebar + Outlet)                         |
+| `src/main.tsx`                 | Wrap `App` tree with `<PreferenceProvider>` inside `AuthProvider`          |
+| `src/styles/index.css`         | Add Figtree + JetBrains Mono font vars; sidebar CSS helpers                |
+| `vite.config.ts`               | Add recharts to manualChunks                                               |
+| `index.html`                   | Add Google Fonts preconnect + link                                         |
+| `CLAUDE.md`                    | Update stage status and project structure                                  |
 
 ---
 
 ## Task 1: Install recharts, add Figtree font, update Vite chunks
 
 **Files:**
+
 - Modify: `package.json` (via npm install)
 - Modify: `vite.config.ts:34-45`
 - Modify: `index.html`
@@ -108,8 +111,8 @@ Add after the existing `<title>` tag in `index.html`:
 In `src/styles/index.css`, replace the `--font-sans` line in `@theme`:
 
 ```css
-  --font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+--font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+--font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 ```
 
 Also add sidebar CSS helpers below the `@theme` block:
@@ -163,6 +166,7 @@ git commit -m "feat(stage3): install recharts, add Figtree font, split charts ch
 ## Task 2: Firestore db module + TypeScript types
 
 **Files:**
+
 - Create: `src/firebase/db.ts`
 - Create: `src/firebase/db.test.ts`
 - Create: `src/firestore/types.ts`
@@ -275,6 +279,7 @@ git commit -m "feat(stage3): add Firestore db module and TypeScript types"
 ## Task 3: Date utilities
 
 **Files:**
+
 - Create: `src/lib/dateUtils.ts`
 - Create: `src/lib/dateUtils.test.ts`
 
@@ -283,12 +288,7 @@ git commit -m "feat(stage3): add Firestore db module and TypeScript types"
 ```ts
 // src/lib/dateUtils.test.ts
 import { describe, expect, it } from 'vitest';
-import {
-  getPeriodRange,
-  formatCurrency,
-  groupByDay,
-  groupByMonth,
-} from './dateUtils';
+import { getPeriodRange, formatCurrency, groupByDay, groupByMonth } from './dateUtils';
 
 describe('getPeriodRange', () => {
   const base = new Date('2026-05-17T12:00:00');
@@ -381,10 +381,7 @@ import type { Transaction } from '../firestore/types';
 
 export type Period = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
-export function getPeriodRange(
-  period: Period,
-  now = new Date(),
-): { start: Date; end: Date } {
+export function getPeriodRange(period: Period, now = new Date()): { start: Date; end: Date } {
   const start = new Date(now);
   const end = new Date(now);
 
@@ -499,6 +496,7 @@ git commit -m "feat(stage3): add date utilities and Period type"
 ## Task 4: usePreferences hook
 
 **Files:**
+
 - Create: `src/hooks/usePreferences.ts`
 - Create: `src/hooks/usePreferences.test.ts`
 
@@ -610,10 +608,8 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     vendors: (raw['vendors'] as Preference['vendors']) ?? [],
     payments: (raw['payments'] as Preference['payments']) ?? [],
     defaultCurrency: raw['default_currency'] as Preference['defaultCurrency'],
-    bookmarkedCurrencies:
-      (raw['frequent_currencies'] as string[]) ?? [],
-    defaultEntries:
-      (raw['default_entries'] as Record<string, string>) ?? null,
+    bookmarkedCurrencies: (raw['frequent_currencies'] as string[]) ?? [],
+    defaultEntries: (raw['default_entries'] as Record<string, string>) ?? null,
   };
 }
 
@@ -662,6 +658,7 @@ git commit -m "feat(stage3): add usePreferences hook with snake_case decoding"
 ## Task 5: PreferenceContext
 
 **Files:**
+
 - Create: `src/context/PreferenceContext.tsx`
 - Create: `src/context/PreferenceContext.test.tsx`
 
@@ -694,7 +691,10 @@ describe('PreferenceContext', () => {
   it('provides preference state to consumers', async () => {
     render(
       <AuthContext.Provider
-        value={{ status: 'authenticated', user: { uid: 'u1', name: null, email: null, photoUrl: null } }}
+        value={{
+          status: 'authenticated',
+          user: { uid: 'u1', name: null, email: null, photoUrl: null },
+        }}
       >
         <PreferenceProvider>
           <Consumer />
@@ -707,7 +707,9 @@ describe('PreferenceContext', () => {
 
   it('throws when used outside provider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => render(<Consumer />)).toThrow('usePreferenceContext must be used within PreferenceProvider');
+    expect(() => render(<Consumer />)).toThrow(
+      'usePreferenceContext must be used within PreferenceProvider',
+    );
     spy.mockRestore();
   });
 });
@@ -774,6 +776,7 @@ git commit -m "feat(stage3): add PreferenceContext and provider"
 ## Task 6: useTransactions hook
 
 **Files:**
+
 - Create: `src/hooks/useTransactions.ts`
 - Create: `src/hooks/useTransactions.test.ts`
 
@@ -923,10 +926,7 @@ export function useTransactions(filter: TransactionFilter): UseTransactionsResul
     setError(null);
 
     const col = collection(db, 'transactions');
-    const constraints = [
-      where('user_id', '==', filter.uid),
-      orderBy('date', 'desc'),
-    ];
+    const constraints = [where('user_id', '==', filter.uid), orderBy('date', 'desc')];
 
     if (filter.start) constraints.push(where('date', '>=', filter.start));
     if (filter.end) constraints.push(where('date', '<=', filter.end));
@@ -938,9 +938,7 @@ export function useTransactions(filter: TransactionFilter): UseTransactionsResul
       .then((snap) => {
         setData(snap.docs.map((d) => docToTransaction(d.id, d.data())));
       })
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err : new Error(String(err))),
-      )
+      .catch((err: unknown) => setError(err instanceof Error ? err : new Error(String(err))))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.uid, filter.start?.getTime(), filter.end?.getTime(), filter.limit, tick]);
@@ -967,6 +965,7 @@ git commit -m "feat(stage3): add useTransactions hook with Firestore decode"
 ## Task 7: useMutateTransaction hook
 
 **Files:**
+
 - Create: `src/hooks/useMutateTransaction.ts`
 - Create: `src/hooks/useMutateTransaction.test.ts`
 
@@ -1085,14 +1084,7 @@ npm run test -- --reporter=verbose src/hooks/useMutateTransaction.test.ts
 
 ```ts
 import { useState } from 'react';
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  Timestamp,
-} from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import type { Transaction } from '../firestore/types';
 
@@ -1214,6 +1206,7 @@ git commit -m "feat(stage3): add useAddTransaction, useUpdateTransaction, useDel
 ## Task 8: App routing restructure (nested routes)
 
 **Files:**
+
 - Modify: `src/App.tsx`
 
 The existing `/app` single route becomes a parent layout route (`AppShell`) with nested child routes. A redirect from `/app` to `/app/dashboard` handles the old URL.
@@ -1236,7 +1229,11 @@ const TransactionList = lazy(() => import('./routes/TransactionList'));
 const TransactionForm = lazy(() => import('./routes/TransactionForm'));
 
 const RouteFallback = () => (
-  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center text-slate-500"
+  >
     Loading…
   </div>
 );
@@ -1310,6 +1307,7 @@ export default function App() {
 - [ ] **Step 2: Create stub route files so TypeScript doesn't error**
 
 Create `src/routes/Dashboard.tsx`:
+
 ```tsx
 export default function Dashboard() {
   return <div>Dashboard — coming soon</div>;
@@ -1317,6 +1315,7 @@ export default function Dashboard() {
 ```
 
 Create `src/routes/TransactionList.tsx`:
+
 ```tsx
 export default function TransactionList() {
   return <div>Transactions — coming soon</div>;
@@ -1324,6 +1323,7 @@ export default function TransactionList() {
 ```
 
 Create `src/routes/TransactionForm.tsx`:
+
 ```tsx
 export default function TransactionForm({ mode }: { mode: 'add' | 'edit' }) {
   return <div>Form ({mode}) — coming soon</div>;
@@ -1358,6 +1358,7 @@ git commit -m "feat(stage3): restructure /app as nested layout route with child 
 ## Task 9: Sidebar component
 
 **Files:**
+
 - Create: `src/components/layout/Sidebar.tsx`
 - Create: `src/components/layout/Sidebar.test.tsx`
 
@@ -1462,7 +1463,9 @@ export default function Sidebar() {
       {/* Wordmark */}
       <div className="mb-8 px-5">
         <span className="text-xl font-bold tracking-tight text-white">
-          <span aria-hidden="true" style={{ color: '#96bf0d' }}>●</span>{' '}
+          <span aria-hidden="true" style={{ color: '#96bf0d' }}>
+            ●
+          </span>{' '}
           GlintBudget
         </span>
       </div>
@@ -1482,7 +1485,9 @@ export default function Sidebar() {
               ].join(' ')
             }
           >
-            <span aria-hidden="true" className="text-base">{icon}</span>
+            <span aria-hidden="true" className="text-base">
+              {icon}
+            </span>
             {label}
           </NavLink>
         ))}
@@ -1495,7 +1500,9 @@ export default function Sidebar() {
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/30 cursor-not-allowed select-none"
             title="Coming soon"
           >
-            <span aria-hidden="true" className="text-base">{icon}</span>
+            <span aria-hidden="true" className="text-base">
+              {icon}
+            </span>
             {label}
           </div>
         ))}
@@ -1523,6 +1530,7 @@ git commit -m "feat(stage3): add Sidebar with dark green glassmorphism design"
 ## Task 10: TopBar component
 
 **Files:**
+
 - Create: `src/components/layout/TopBar.tsx`
 - Create: `src/components/layout/TopBar.test.tsx`
 
@@ -1619,9 +1627,7 @@ export default function TopBar({ title, period, onPeriodChange }: TopBarProps) {
             onClick={() => onPeriodChange(value)}
             className={[
               'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
-              period === value
-                ? 'text-white shadow-sm'
-                : 'text-text-muted hover:text-text',
+              period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
             ].join(' ')}
             style={
               period === value
@@ -1666,6 +1672,7 @@ git commit -m "feat(stage3): add TopBar with period tabs and Add Transaction lin
 ## Task 11: AppShell restructure — layout with Outlet
 
 **Files:**
+
 - Modify: `src/routes/AppShell.tsx`
 - Modify: `src/routes/AppShell.test.tsx`
 
@@ -1762,11 +1769,7 @@ export default function AppShell() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopBar
-          title={getTitle(location.pathname)}
-          period={period}
-          onPeriodChange={setPeriod}
-        />
+        <TopBar title={getTitle(location.pathname)} period={period} onPeriodChange={setPeriod} />
         <main className="flex-1 overflow-y-auto bg-surface-alt">
           <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
         </main>
@@ -1804,6 +1807,7 @@ git commit -m "feat(stage3): restructure AppShell as layout route with Sidebar, 
 ## Task 12: HeroStatsRow + Dashboard skeleton
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 - Create: `src/routes/Dashboard.test.tsx`
 - Create: `src/components/dashboard/HeroStatsRow.tsx`
@@ -1876,9 +1880,7 @@ interface StatCardProps {
 function StatCard({ label, value, accent, highlight }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
-        {label}
-      </span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">{label}</span>
       <span
         className={[
           'text-3xl font-bold leading-none',
@@ -1899,10 +1901,7 @@ export default function HeroStatsRow({
   currencySymbol,
 }: HeroStatsRowProps) {
   return (
-    <div
-      className="hero-gradient w-full px-8 py-8"
-      style={{ borderRadius: '0 0 24px 24px' }}
-    >
+    <div className="hero-gradient w-full px-8 py-8" style={{ borderRadius: '0 0 24px 24px' }}>
       <div className="flex items-center gap-12 flex-wrap">
         <StatCard
           label="Net Balance"
@@ -1910,16 +1909,9 @@ export default function HeroStatsRow({
           highlight
         />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
-          label="Income"
-          value={formatCurrency(totalIncome, currencySymbol)}
-          accent
-        />
+        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} accent />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
-          label="Total Spent"
-          value={formatCurrency(totalSpent, currencySymbol)}
-        />
+        <StatCard label="Total Spent" value={formatCurrency(totalSpent, currencySymbol)} />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
         <StatCard label="Transactions" value={txCount} />
       </div>
@@ -2012,10 +2004,13 @@ describe('Dashboard', () => {
 - [ ] **Step 6: Export PreferenceContext from context file**
 
 In `src/context/PreferenceContext.tsx`, change:
+
 ```ts
 const PreferenceContext = createContext<PreferenceContextValue | null>(null);
 ```
+
 to:
+
 ```ts
 export const PreferenceContext = createContext<PreferenceContextValue | null>(null);
 ```
@@ -2033,6 +2028,7 @@ git commit -m "feat(stage3): add HeroStatsRow, export PreferenceContext"
 ## Task 13: SpendingChart widget
 
 **Files:**
+
 - Create: `src/components/dashboard/SpendingChart.tsx`
 - Create: `src/components/dashboard/SpendingChart.test.tsx`
 
@@ -2084,9 +2080,7 @@ describe('SpendingChart', () => {
   });
 
   it('renders the Spending section heading', () => {
-    render(
-      <SpendingChart transactions={[]} period="week" currencySymbol="₹" />,
-    );
+    render(<SpendingChart transactions={[]} period="week" currencySymbol="₹" />);
     expect(screen.getByText(/spending/i)).toBeInTheDocument();
   });
 });
@@ -2101,15 +2095,7 @@ npm run test -- --reporter=verbose src/components/dashboard/SpendingChart.test.t
 - [ ] **Step 3: Create src/components/dashboard/SpendingChart.tsx**
 
 ```tsx
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useMemo } from 'react';
 import type { Transaction } from '../../firestore/types';
 import type { Period } from '../../lib/dateUtils';
@@ -2121,10 +2107,7 @@ interface SpendingChartProps {
   currencySymbol: string;
 }
 
-function buildChartData(
-  txns: Transaction[],
-  period: Period,
-): { label: string; amount: number }[] {
+function buildChartData(txns: Transaction[], period: Period): { label: string; amount: number }[] {
   const expenses = txns.filter((t) => t.amount > 0);
 
   if (period === 'day') {
@@ -2178,7 +2161,11 @@ const CustomTooltip = ({
   );
 };
 
-export default function SpendingChart({ transactions, period, currencySymbol }: SpendingChartProps) {
+export default function SpendingChart({
+  transactions,
+  period,
+  currencySymbol,
+}: SpendingChartProps) {
   const data = useMemo(() => buildChartData(transactions, period), [transactions, period]);
 
   return (
@@ -2196,11 +2183,7 @@ export default function SpendingChart({ transactions, period, currencySymbol }: 
             />
             <YAxis tick={{ fontSize: 10, fill: '#475569' }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip symbol={currencySymbol} />} />
-            <Bar
-              dataKey="amount"
-              radius={[4, 4, 0, 0]}
-              fill="#007836"
-            />
+            <Bar dataKey="amount" radius={[4, 4, 0, 0]} fill="#007836" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -2227,6 +2210,7 @@ git commit -m "feat(stage3): add SpendingChart widget using Recharts BarChart"
 ## Task 14: CategoryBreakdown + IncomeExpenseDonut
 
 **Files:**
+
 - Create: `src/components/dashboard/CategoryBreakdown.tsx`
 - Create: `src/components/dashboard/CategoryBreakdown.test.tsx`
 - Create: `src/components/dashboard/IncomeExpenseDonut.tsx`
@@ -2264,8 +2248,12 @@ describe('CategoryBreakdown', () => {
 
   it('shows top 5 categories by spend', () => {
     const txns = [
-      ...Array(3).fill(null).map(() => makeTx('Food', 500)),
-      ...Array(2).fill(null).map(() => makeTx('Transport', 200)),
+      ...Array(3)
+        .fill(null)
+        .map(() => makeTx('Food', 500)),
+      ...Array(2)
+        .fill(null)
+        .map(() => makeTx('Transport', 200)),
       makeTx('Health', 100),
     ];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
@@ -2292,11 +2280,12 @@ interface CategoryBreakdownProps {
   currencySymbol: string;
 }
 
-const CATEGORY_COLORS = [
-  '#007836', '#1fa32e', '#96bf0d', '#059669', '#0d9488',
-];
+const CATEGORY_COLORS = ['#007836', '#1fa32e', '#96bf0d', '#059669', '#0d9488'];
 
-export default function CategoryBreakdown({ transactions, currencySymbol }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({
+  transactions,
+  currencySymbol,
+}: CategoryBreakdownProps) {
   const categories = useMemo(() => {
     const totals = transactions.reduce<Record<string, { total: number; icon: string }>>(
       (acc, t) => {
@@ -2320,7 +2309,9 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+        By Category
+      </h2>
       {categories.length === 0 ? (
         <p className="text-sm text-text-muted py-4 text-center">No data for this period</p>
       ) : (
@@ -2336,7 +2327,10 @@ export default function CategoryBreakdown({ transactions, currencySymbol }: Cate
                 <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }}
+                    style={{
+                      width: `${pct}%`,
+                      background: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+                    }}
                   />
                 </div>
               </div>
@@ -2436,9 +2430,7 @@ export default function IncomeExpenseDonut({
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip
-              formatter={(v: number) => formatCurrency(v, currencySymbol)}
-            />
+            <Tooltip formatter={(v: number) => formatCurrency(v, currencySymbol)} />
           </PieChart>
         </ResponsiveContainer>
         {/* Center label */}
@@ -2484,6 +2476,7 @@ git commit -m "feat(stage3): add CategoryBreakdown and IncomeExpenseDonut widget
 ## Task 15: TodayTransactions + QuickStats + Dashboard composition
 
 **Files:**
+
 - Create: `src/components/dashboard/TodayTransactions.tsx`
 - Create: `src/components/dashboard/TodayTransactions.test.tsx`
 - Create: `src/components/dashboard/QuickStats.tsx`
@@ -2512,9 +2505,7 @@ export default function TodayTransactions({
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-          Today
-        </h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">Today</h2>
         <Link to="/app/transactions" className="text-xs text-brand hover:underline font-medium">
           See all →
         </Link>
@@ -2529,7 +2520,9 @@ export default function TodayTransactions({
               <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text truncate">{tx.vendor}</p>
-                <p className="text-xs text-text-muted">{tx.category} · {formatTime(tx.date)}</p>
+                <p className="text-xs text-text-muted">
+                  {tx.category} · {formatTime(tx.date)}
+                </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-sm font-mono font-semibold text-red-600">
@@ -2572,22 +2565,35 @@ import TodayTransactions from './TodayTransactions';
 import type { Transaction } from '../../firestore/types';
 
 const tx: Transaction = {
-  id: 'tx1', user_id: 'u1', category: 'Food', subCategory: '',
-  date: new Date(), account: 'HDFC', vendor: 'Zepto',
-  payment: 'UPI', currency: 'INR', notes: '', amount: 500, icon: '🛒',
+  id: 'tx1',
+  user_id: 'u1',
+  category: 'Food',
+  subCategory: '',
+  date: new Date(),
+  account: 'HDFC',
+  vendor: 'Zepto',
+  payment: 'UPI',
+  currency: 'INR',
+  notes: '',
+  amount: 500,
+  icon: '🛒',
 };
 
 describe('TodayTransactions', () => {
   it('renders empty state when no transactions', () => {
     render(
-      <MemoryRouter><TodayTransactions transactions={[]} currencySymbol="₹" onDelete={vi.fn()} /></MemoryRouter>,
+      <MemoryRouter>
+        <TodayTransactions transactions={[]} currencySymbol="₹" onDelete={vi.fn()} />
+      </MemoryRouter>,
     );
     expect(screen.getByText(/no transactions today/i)).toBeInTheDocument();
   });
 
   it('renders vendor name and amount', () => {
     render(
-      <MemoryRouter><TodayTransactions transactions={[tx]} currencySymbol="₹" onDelete={vi.fn()} /></MemoryRouter>,
+      <MemoryRouter>
+        <TodayTransactions transactions={[tx]} currencySymbol="₹" onDelete={vi.fn()} />
+      </MemoryRouter>,
     );
     expect(screen.getByText('Zepto')).toBeInTheDocument();
     expect(screen.getByText(/₹500/)).toBeInTheDocument();
@@ -2596,7 +2602,9 @@ describe('TodayTransactions', () => {
   it('calls onDelete when delete button is clicked', async () => {
     const onDelete = vi.fn();
     render(
-      <MemoryRouter><TodayTransactions transactions={[tx]} currencySymbol="₹" onDelete={onDelete} /></MemoryRouter>,
+      <MemoryRouter>
+        <TodayTransactions transactions={[tx]} currencySymbol="₹" onDelete={onDelete} />
+      </MemoryRouter>,
     );
     await userEvent.click(screen.getByRole('button', { name: /delete zepto/i }));
     expect(onDelete).toHaveBeenCalledWith('tx1');
@@ -2629,9 +2637,8 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
     null,
   );
 
-  const avg = expenses.length > 0
-    ? expenses.reduce((s, t) => s + t.amount, 0) / expenses.length
-    : 0;
+  const avg =
+    expenses.length > 0 ? expenses.reduce((s, t) => s + t.amount, 0) / expenses.length : 0;
 
   const topPayment = expenses.reduce<Record<string, number>>((acc, t) => {
     acc[t.payment] = (acc[t.payment] ?? 0) + 1;
@@ -2646,7 +2653,10 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
   const topCategory = Object.entries(topCatMap).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '—';
 
   const items = [
-    { label: 'Highest spend', value: highest ? formatCurrency(highest.amount, currencySymbol) : '—' },
+    {
+      label: 'Highest spend',
+      value: highest ? formatCurrency(highest.amount, currencySymbol) : '—',
+    },
     { label: 'Avg per transaction', value: formatCurrency(avg, currencySymbol) },
     { label: 'Top payment', value: mostUsedPayment },
     { label: 'Top category', value: topCategory },
@@ -2659,7 +2669,10 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
       </h2>
       <div className="flex flex-col gap-2">
         {items.map(({ label, value }) => (
-          <div key={label} className="flex justify-between items-center py-1 border-b border-border last:border-0">
+          <div
+            key={label}
+            className="flex justify-between items-center py-1 border-b border-border last:border-0"
+          >
             <span className="text-xs text-text-muted">{label}</span>
             <span className="text-sm font-semibold font-mono text-text">{value}</span>
           </div>
@@ -2679,9 +2692,24 @@ import { describe, expect, it } from 'vitest';
 import QuickStats from './QuickStats';
 import type { Transaction } from '../../firestore/types';
 
-const makeTx = (vendor: string, amount: number, payment: string, category: string): Transaction => ({
-  id: vendor, user_id: 'u1', category, subCategory: '', date: new Date(),
-  account: 'HDFC', vendor, payment, currency: 'INR', notes: '', amount, icon: '',
+const makeTx = (
+  vendor: string,
+  amount: number,
+  payment: string,
+  category: string,
+): Transaction => ({
+  id: vendor,
+  user_id: 'u1',
+  category,
+  subCategory: '',
+  date: new Date(),
+  account: 'HDFC',
+  vendor,
+  payment,
+  currency: 'INR',
+  notes: '',
+  amount,
+  icon: '',
 });
 
 describe('QuickStats', () => {
@@ -2740,10 +2768,7 @@ export default function Dashboard() {
   const periodTxns = useMemo(() => filterByPeriod(allTxns, period), [allTxns, period]);
   const todayTxns = useMemo(() => filterToday(allTxns), [allTxns]);
 
-  const totalSpent = useMemo(
-    () => periodTxns.reduce((s, t) => s + t.amount, 0),
-    [periodTxns],
-  );
+  const totalSpent = useMemo(() => periodTxns.reduce((s, t) => s + t.amount, 0), [periodTxns]);
   const totalIncome = 0; // income transactions not modelled in Stage 3
 
   async function handleDelete(id: string) {
@@ -2762,8 +2787,14 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
-        Couldn't load transactions. <button className="underline ml-1" onClick={refetch}>Retry</button>
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
+        Couldn't load transactions.{' '}
+        <button className="underline ml-1" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -2781,7 +2812,11 @@ export default function Dashboard() {
       <div className="p-6 grid grid-cols-3 gap-4">
         {/* Row 1: Spending chart (2 cols) + Category breakdown */}
         <div className="col-span-2">
-          <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
+          <SpendingChart
+            transactions={periodTxns}
+            period={period}
+            currencySymbol={currencySymbol}
+          />
         </div>
         <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
 
@@ -2794,7 +2829,11 @@ export default function Dashboard() {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <IncomeExpenseDonut income={totalIncome} expenses={totalSpent} currencySymbol={currencySymbol} />
+          <IncomeExpenseDonut
+            income={totalIncome}
+            expenses={totalSpent}
+            currencySymbol={currencySymbol}
+          />
           <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
         </div>
       </div>
@@ -2830,6 +2869,7 @@ git commit -m "feat(stage3): assemble Dashboard with all 6 widgets"
 ## Task 16: TransactionTable + TransactionRow
 
 **Files:**
+
 - Create: `src/components/transactions/TransactionRow.tsx`
 - Create: `src/components/transactions/TransactionTable.tsx`
 - Create: `src/components/transactions/TransactionTable.test.tsx`
@@ -2845,9 +2885,18 @@ import TransactionTable from './TransactionTable';
 import type { Transaction } from '../../firestore/types';
 
 const tx: Transaction = {
-  id: 'tx1', user_id: 'u1', category: 'Food', subCategory: 'Groceries',
-  date: new Date('2026-05-17'), account: 'HDFC', vendor: 'Zepto',
-  payment: 'UPI', currency: 'INR', notes: '', amount: 500, icon: '🛒',
+  id: 'tx1',
+  user_id: 'u1',
+  category: 'Food',
+  subCategory: 'Groceries',
+  date: new Date('2026-05-17'),
+  account: 'HDFC',
+  vendor: 'Zepto',
+  payment: 'UPI',
+  currency: 'INR',
+  notes: '',
+  amount: 500,
+  icon: '🛒',
 };
 
 describe('TransactionTable', () => {
@@ -2892,7 +2941,11 @@ interface TransactionRowProps {
   onDelete: (id: string) => void;
 }
 
-export default function TransactionRow({ transaction: tx, currencySymbol, onDelete }: TransactionRowProps) {
+export default function TransactionRow({
+  transaction: tx,
+  currencySymbol,
+  onDelete,
+}: TransactionRowProps) {
   return (
     <tr className="border-b border-border hover:bg-surface-alt transition-colors">
       <td className="py-3 px-4">
@@ -2956,7 +3009,11 @@ interface TransactionTableProps {
 
 const HEADERS = ['Transaction', 'Category', 'Date & Time', 'Payment', 'Amount', ''];
 
-export default function TransactionTable({ transactions, currencySymbol, onDelete }: TransactionTableProps) {
+export default function TransactionTable({
+  transactions,
+  currencySymbol,
+  onDelete,
+}: TransactionTableProps) {
   if (transactions.length === 0) {
     return (
       <div className="text-center py-16 text-text-muted">
@@ -3015,6 +3072,7 @@ git commit -m "feat(stage3): add TransactionTable and TransactionRow components"
 ## Task 17: DeleteConfirmDialog
 
 **Files:**
+
 - Create: `src/components/transactions/DeleteConfirmDialog.tsx`
 - Create: `src/components/transactions/DeleteConfirmDialog.test.tsx`
 
@@ -3080,12 +3138,8 @@ export default function DeleteConfirmDialog({ onConfirm, onCancel }: DeleteConfi
       {/* Dialog */}
       <div className="relative card-surface rounded-2xl p-6 shadow-xl max-w-sm w-full z-10">
         <p className="text-4xl text-center mb-4">🗑️</p>
-        <h2 className="text-lg font-bold text-text text-center mb-2">
-          Delete this transaction?
-        </h2>
-        <p className="text-sm text-text-muted text-center mb-6">
-          This action cannot be undone.
-        </p>
+        <h2 className="text-lg font-bold text-text text-center mb-2">Delete this transaction?</h2>
+        <p className="text-sm text-text-muted text-center mb-6">This action cannot be undone.</p>
         <div className="flex gap-3">
           <button
             type="button"
@@ -3126,6 +3180,7 @@ git commit -m "feat(stage3): add DeleteConfirmDialog modal"
 ## Task 18: DateRangeFilter + TransactionList route
 
 **Files:**
+
 - Create: `src/components/transactions/DateRangeFilter.tsx`
 - Create: `src/components/transactions/DateRangeFilter.test.tsx`
 - Modify: `src/routes/TransactionList.tsx`
@@ -3190,9 +3245,7 @@ export default function DateRangeFilter({ period, onPeriodChange }: DateRangeFil
           onClick={() => onPeriodChange(value)}
           className={[
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
-            period === value
-              ? 'text-white shadow-sm'
-              : 'text-text-muted hover:text-text',
+            period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
           ].join(' ')}
           style={
             period === value
@@ -3300,8 +3353,14 @@ export default function TransactionList() {
 
   if (error) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
-        Couldn't load transactions. <button className="underline ml-1" onClick={refetch}>Retry</button>
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
+        Couldn't load transactions.{' '}
+        <button className="underline ml-1" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -3309,7 +3368,11 @@ export default function TransactionList() {
   return (
     <div className="p-6 flex flex-col gap-5">
       <DateRangeFilter period={period} onPeriodChange={setPeriod} />
-      <TransactionTable transactions={filtered} currencySymbol={currencySymbol} onDelete={setDeletingId} />
+      <TransactionTable
+        transactions={filtered}
+        currencySymbol={currencySymbol}
+        onDelete={setDeletingId}
+      />
       {deletingId && (
         <DeleteConfirmDialog
           onConfirm={() => handleDelete(deletingId)}
@@ -3340,6 +3403,7 @@ git commit -m "feat(stage3): add TransactionList route with DateRangeFilter"
 ## Task 19: Form components + TransactionForm route
 
 **Files:**
+
 - Create: `src/components/form/TypeToggle.tsx`
 - Create: `src/components/form/TypeToggle.test.tsx`
 - Create: `src/components/form/AmountInput.tsx`
@@ -3470,7 +3534,9 @@ describe('AmountInput', () => {
   });
 
   it('shows error message when provided', () => {
-    render(<AmountInput value="" onChange={vi.fn()} currencySymbol="₹" error="Amount is required" />);
+    render(
+      <AmountInput value="" onChange={vi.fn()} currencySymbol="₹" error="Amount is required" />,
+    );
     expect(screen.getByText('Amount is required')).toBeInTheDocument();
   });
 
@@ -3534,14 +3600,17 @@ export default function FieldPicker({
           <option value="">Select {label.toLowerCase()}…</option>
           {options.map((o) => (
             <option key={o.name} value={o.name}>
-              {o.emoji ? `${o.emoji} ` : ''}{o.name}
+              {o.emoji ? `${o.emoji} ` : ''}
+              {o.name}
             </option>
           ))}
         </select>
       )}
       {allowFreeText && (
         <datalist id={`${id}-list`}>
-          {options.map((o) => <option key={o.name} value={o.name} />)}
+          {options.map((o) => (
+            <option key={o.name} value={o.name} />
+          ))}
         </datalist>
       )}
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -3602,10 +3671,17 @@ vi.mock('firebase/firestore', () => ({
       exists: () => true,
       id: 'tx1',
       data: () => ({
-        user_id: 'u1', category: 'Food', sub_category: 'Groceries',
+        user_id: 'u1',
+        category: 'Food',
+        sub_category: 'Groceries',
         date: { toDate: () => new Date('2026-05-17') },
-        account: 'HDFC', vendor: 'Zepto', payment: 'UPI',
-        currency: 'INR', notes: '', amount: 500, icon: '🛒',
+        account: 'HDFC',
+        vendor: 'Zepto',
+        payment: 'UPI',
+        currency: 'INR',
+        notes: '',
+        amount: 500,
+        icon: '🛒',
       }),
     }),
   ),
@@ -3659,7 +3735,9 @@ describe('TransactionForm (add mode)', () => {
   });
 
   it('shows validation error when amount is empty on submit', async () => {
-    const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as any });
+    const { getByRole, findByText } = render(<TransactionForm mode="add" />, {
+      wrapper: Wrapper as any,
+    });
     getByRole('button', { name: /save/i }).click();
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
   });
@@ -3707,7 +3785,8 @@ interface FormErrors {
 
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.amount || parseFloat(form.amount) <= 0) errors.amount = 'Amount is required and must be positive';
+  if (!form.amount || parseFloat(form.amount) <= 0)
+    errors.amount = 'Amount is required and must be positive';
   if (!form.category) errors.category = 'Category is required';
   if (!form.vendor) errors.vendor = 'Vendor is required';
   if (!form.account) errors.account = 'Account is required';
@@ -3770,7 +3849,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
           vendor: d['vendor'] as string,
           account: d['account'] as string,
           payment: d['payment'] as string,
-          date: ((d['date'] as Timestamp).toDate()).toISOString().slice(0, 10),
+          date: (d['date'] as Timestamp).toDate().toISOString().slice(0, 10),
           notes: (d['notes'] as string) ?? '',
         });
       })
@@ -3918,7 +3997,9 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="notes-input" className="text-sm font-semibold text-text">Notes</label>
+          <label htmlFor="notes-input" className="text-sm font-semibold text-text">
+            Notes
+          </label>
           <textarea
             id="notes-input"
             value={form.notes}
@@ -3976,6 +4057,7 @@ git commit -m "feat(stage3): add TransactionForm route and form components"
 ## Task 20: Wire up PreferenceProvider + update main.tsx + CLAUDE.md + final verification
 
 **Files:**
+
 - Modify: `src/App.tsx`
 - Modify: `src/main.tsx` (no change needed — PreferenceProvider goes in App.tsx since AuthProvider is there)
 - Modify: `CLAUDE.md`
@@ -3999,7 +4081,11 @@ const TransactionList = lazy(() => import('./routes/TransactionList'));
 const TransactionForm = lazy(() => import('./routes/TransactionForm'));
 
 const RouteFallback = () => (
-  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center text-slate-500"
+  >
     Loading…
   </div>
 );
@@ -4113,12 +4199,14 @@ Also update the project structure section to include the new `src/` directories:
 `src/firestore/`, `src/hooks/`, `src/context/`, `src/lib/`, `src/components/layout/`, `src/components/dashboard/`, `src/components/transactions/`, `src/components/form/`, `src/routes/Dashboard.tsx`, `src/routes/TransactionList.tsx`, `src/routes/TransactionForm.tsx`.
 
 Also update the spec/plan references:
+
 ```markdown
 - **Stage 3 design spec:** `docs/superpowers/specs/2026-05-17-glintbudget-web-stage3-design.md`
 - **Stage 3 implementation plan:** `docs/superpowers/plans/2026-05-17-glintbudget-web-stage3-plan.md`
 ```
 
 Also update "What this repo does NOT do (yet)":
+
 ```markdown
 ## What this repo does NOT do (yet)
 
@@ -4138,21 +4226,21 @@ git commit -m "feat(stage3): wire PreferenceProvider, update CLAUDE.md for Stage
 
 ## Spec Coverage Self-Review
 
-| Spec section | Covered by task(s) |
-|---|---|
-| §2 Routes `/app/dashboard`, `/app/transactions`, `/app/transactions/new`, `/:id/edit` | Tasks 8, 18, 19 |
+| Spec section                                                                              | Covered by task(s)     |
+| ----------------------------------------------------------------------------------------- | ---------------------- |
+| §2 Routes `/app/dashboard`, `/app/transactions`, `/app/transactions/new`, `/:id/edit`     | Tasks 8, 18, 19        |
 | §3 Visual design — glassmorphism sidebar, hero gradient, Figtree font, card-surface class | Tasks 1, 9, 10, 11, 12 |
-| §4 AppShell nested routing + redirect | Task 8, 11 |
-| §5 db.ts, types, snake_case decode, hooks | Tasks 2–7 |
-| §6 recharts dependency + lazy chunk | Task 1 |
-| §8 All 6 dashboard widgets | Tasks 12–15 |
-| §9 Transaction form: all fields, validation, add/edit/delete flows | Tasks 17, 19 |
-| §10 AppShell layout with Outlet | Task 11 |
-| §11 Error handling: retry banners, empty states, fallback dropdowns | Tasks 15, 18, 19 |
-| §12 Co-located tests for all hooks and components | Every task |
-| §13 recharts lazy-loaded (Dashboard is lazy route), useMemo for chart data | Tasks 1, 8, 15 |
-| §14 Modified files: App.tsx, AppShell.tsx, main.tsx, CLAUDE.md | Tasks 8, 11, 20 |
-| §16 Done criteria: typecheck + lint + test + build exits 0 | Task 20 |
+| §4 AppShell nested routing + redirect                                                     | Task 8, 11             |
+| §5 db.ts, types, snake_case decode, hooks                                                 | Tasks 2–7              |
+| §6 recharts dependency + lazy chunk                                                       | Task 1                 |
+| §8 All 6 dashboard widgets                                                                | Tasks 12–15            |
+| §9 Transaction form: all fields, validation, add/edit/delete flows                        | Tasks 17, 19           |
+| §10 AppShell layout with Outlet                                                           | Task 11                |
+| §11 Error handling: retry banners, empty states, fallback dropdowns                       | Tasks 15, 18, 19       |
+| §12 Co-located tests for all hooks and components                                         | Every task             |
+| §13 recharts lazy-loaded (Dashboard is lazy route), useMemo for chart data                | Tasks 1, 8, 15         |
+| §14 Modified files: App.tsx, AppShell.tsx, main.tsx, CLAUDE.md                            | Tasks 8, 11, 20        |
+| §16 Done criteria: typecheck + lint + test + build exits 0                                | Task 20                |
 
 All spec requirements covered. No placeholders.
 

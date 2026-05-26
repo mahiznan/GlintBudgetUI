@@ -12,22 +12,23 @@
 
 ## File Map
 
-| File | Action | What changes |
-|---|---|---|
-| `src/lib/dateUtils.ts` | Modify | Add `getChartDateRange(period, now?)` |
-| `src/lib/dateUtils.test.ts` | Modify | Add `getChartDateRange` unit tests |
-| `src/firestore/types.ts` | Modify | Add `spendingChartType?: 'bar' \| 'line'` to `Preference` |
-| `src/hooks/usePreferences.ts` | Modify | Read `raw['spendingChartType']` in `docToPreference` |
-| `src/hooks/useUpdatePreference.ts` | Modify | Add `spendingChartType` to `FirestorePreferencePartial` |
-| `src/components/dashboard/SpendingChart.tsx` | Rewrite | New props, toggle UI, gradient bars, line (area) chart, zero-fill bucketing |
-| `src/components/dashboard/SpendingChart.test.tsx` | Modify | Update mock, add toggle + line chart tests |
-| `src/routes/Dashboard.tsx` | Modify | Add `chartTxns` memo, `chartType` state, `useUpdatePreference` wiring |
+| File                                              | Action  | What changes                                                                |
+| ------------------------------------------------- | ------- | --------------------------------------------------------------------------- |
+| `src/lib/dateUtils.ts`                            | Modify  | Add `getChartDateRange(period, now?)`                                       |
+| `src/lib/dateUtils.test.ts`                       | Modify  | Add `getChartDateRange` unit tests                                          |
+| `src/firestore/types.ts`                          | Modify  | Add `spendingChartType?: 'bar' \| 'line'` to `Preference`                   |
+| `src/hooks/usePreferences.ts`                     | Modify  | Read `raw['spendingChartType']` in `docToPreference`                        |
+| `src/hooks/useUpdatePreference.ts`                | Modify  | Add `spendingChartType` to `FirestorePreferencePartial`                     |
+| `src/components/dashboard/SpendingChart.tsx`      | Rewrite | New props, toggle UI, gradient bars, line (area) chart, zero-fill bucketing |
+| `src/components/dashboard/SpendingChart.test.tsx` | Modify  | Update mock, add toggle + line chart tests                                  |
+| `src/routes/Dashboard.tsx`                        | Modify  | Add `chartTxns` memo, `chartType` state, `useUpdatePreference` wiring       |
 
 ---
 
 ### Task 1: Add `getChartDateRange` to `dateUtils.ts`
 
 **Files:**
+
 - Modify: `src/lib/dateUtils.ts`
 - Modify: `src/lib/dateUtils.test.ts`
 
@@ -64,9 +65,9 @@ describe('getChartDateRange', () => {
     // 2026-05-19 is Tuesday → Monday = May 18
     const { start, end } = getChartDateRange('week', base);
     expect(start.getDate()).toBe(18); // Monday May 18
-    expect(start.getDay()).toBe(1);   // 1 = Monday
-    expect(end.getDate()).toBe(24);   // Sunday May 24
-    expect(end.getDay()).toBe(0);     // 0 = Sunday
+    expect(start.getDay()).toBe(1); // 1 = Monday
+    expect(end.getDate()).toBe(24); // Sunday May 24
+    expect(end.getDay()).toBe(0); // 0 = Sunday
     expect(end.getHours()).toBe(23);
   });
 
@@ -74,7 +75,7 @@ describe('getChartDateRange', () => {
     const sunday = new Date('2026-05-17T12:00:00'); // Sunday
     const { start, end } = getChartDateRange('week', sunday);
     expect(start.getDate()).toBe(11); // Monday May 11
-    expect(end.getDate()).toBe(17);   // Sunday May 17
+    expect(end.getDate()).toBe(17); // Sunday May 17
   });
 
   it('month: start = 1st of current month, end = today', () => {
@@ -105,10 +106,11 @@ describe('getChartDateRange', () => {
 ```
 
 Also add `getChartDateRange` to the import at the top of the test file:
+
 ```ts
 import {
   getPeriodRange,
-  getChartDateRange,   // ← add this
+  getChartDateRange, // ← add this
   formatCurrency,
   // ...rest unchanged
 } from './dateUtils';
@@ -127,10 +129,7 @@ Expected: `getChartDateRange` tests fail with "getChartDateRange is not a functi
 Add this function to `src/lib/dateUtils.ts` after the existing `getPeriodRange` function:
 
 ```ts
-export function getChartDateRange(
-  period: Period,
-  now = new Date(),
-): { start: Date; end: Date } {
+export function getChartDateRange(period: Period, now = new Date()): { start: Date; end: Date } {
   const start = new Date(now);
   const end = new Date(now);
   end.setHours(23, 59, 59, 999);
@@ -196,6 +195,7 @@ git commit -m "feat: add getChartDateRange for period-aware chart windowing"
 ### Task 2: Add `spendingChartType` to Preference types and hooks
 
 **Files:**
+
 - Modify: `src/firestore/types.ts`
 - Modify: `src/hooks/usePreferences.ts`
 - Modify: `src/hooks/useUpdatePreference.ts`
@@ -216,7 +216,7 @@ export interface Preference {
   bookmarkedCurrencies: string[];
   defaultEntries: Record<string, string> | null;
   theme?: string;
-  spendingChartType?: 'bar' | 'line';  // ← add this
+  spendingChartType?: 'bar' | 'line'; // ← add this
 }
 ```
 
@@ -238,11 +238,12 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     payments: mergeWithDefaults(DEFAULT_PAYMENTS, (raw['payments'] as BudgetData[]) ?? []),
     defaultCurrency: (raw['default_currency'] as Preference['defaultCurrency']) ?? DEFAULT_CURRENCY,
     bookmarkedCurrencies: (raw['frequent_currencies'] as string[]) ?? [],
-    defaultEntries: raw['default_entries'] !== undefined
-      ? decodeDefaultEntries(raw['default_entries'])
-      : DEFAULT_ENTRIES,
+    defaultEntries:
+      raw['default_entries'] !== undefined
+        ? decodeDefaultEntries(raw['default_entries'])
+        : DEFAULT_ENTRIES,
     theme: raw['theme'] as string | undefined,
-    spendingChartType: raw['spendingChartType'] as 'bar' | 'line' | undefined,  // ← add
+    spendingChartType: raw['spendingChartType'] as 'bar' | 'line' | undefined, // ← add
   };
 }
 ```
@@ -262,7 +263,7 @@ export interface FirestorePreferencePartial {
   frequent_currencies?: string[];
   default_entries?: Record<string, string>;
   theme?: string;
-  spendingChartType?: 'bar' | 'line';  // ← add this
+  spendingChartType?: 'bar' | 'line'; // ← add this
 }
 ```
 
@@ -286,6 +287,7 @@ git commit -m "feat: add spendingChartType to Preference type and hooks"
 ### Task 3: Rewrite `SpendingChart.tsx` + update tests
 
 **Files:**
+
 - Rewrite: `src/components/dashboard/SpendingChart.tsx`
 - Modify: `src/components/dashboard/SpendingChart.test.tsx`
 
@@ -425,12 +427,7 @@ import {
 import { useMemo } from 'react';
 import type { Transaction } from '../../firestore/types';
 import type { Period } from '../../lib/dateUtils';
-import {
-  getChartDateRange,
-  groupByDay,
-  groupByMonth,
-  formatCurrency,
-} from '../../lib/dateUtils';
+import { getChartDateRange, groupByDay, groupByMonth, formatCurrency } from '../../lib/dateUtils';
 import { useTheme } from '../../context/ThemeContext';
 import { getTheme } from '../../lib/themes';
 
@@ -674,14 +671,16 @@ git commit -m "feat: rewrite SpendingChart with period windowing, gradient bars,
 ### Task 4: Wire up Dashboard.tsx
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 - [ ] **Step 1: Add imports**
 
 In `src/routes/Dashboard.tsx`, find the existing import block and add:
+
 ```ts
-import { useState, useMemo, useEffect, useRef } from 'react';  // add useRef
-import { useUpdatePreference } from '../hooks/useUpdatePreference';  // add this line
+import { useState, useMemo, useEffect, useRef } from 'react'; // add useRef
+import { useUpdatePreference } from '../hooks/useUpdatePreference'; // add this line
 ```
 
 Also add `getChartDateRange` is NOT needed here — Dashboard delegates windowing to SpendingChart. No dateUtils change needed for Dashboard.

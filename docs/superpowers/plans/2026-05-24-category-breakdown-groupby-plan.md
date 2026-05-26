@@ -12,17 +12,18 @@
 
 ## File Map
 
-| File | Change |
-|---|---|
-| `src/components/dashboard/CategoryBreakdown.tsx` | Export `GroupBy` type; add `groupBy` + `onGroupByChange` props; new header rendering; toggle + dropdown hidden at level > 0; fix transactions gate |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Add `groupBy`/`onGroupByChange` to all renders; replace "By Category heading" test; add tests for dropdown and drill-hides-controls |
-| `src/routes/Dashboard.tsx` | New `DrillState` shape; `GroupBy` import; rewrite `categoryItems` + `drillTransactions` memos; update all handlers/effects; wire new props |
+| File                                                  | Change                                                                                                                                             |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Export `GroupBy` type; add `groupBy` + `onGroupByChange` props; new header rendering; toggle + dropdown hidden at level > 0; fix transactions gate |
+| `src/components/dashboard/CategoryBreakdown.test.tsx` | Add `groupBy`/`onGroupByChange` to all renders; replace "By Category heading" test; add tests for dropdown and drill-hides-controls                |
+| `src/routes/Dashboard.tsx`                            | New `DrillState` shape; `GroupBy` import; rewrite `categoryItems` + `drillTransactions` memos; update all handlers/effects; wire new props         |
 
 ---
 
 ## Task 1: Update CategoryBreakdown tests for new required props
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx`
 
 These tests will fail after the component changes in Task 2. Write the correct tests first so the component can be implemented against them.
@@ -38,6 +39,7 @@ Expected: all tests PASS.
 - [ ] **Step 2: Replace CategoryBreakdown.test.tsx with the updated version**
 
 The changes are:
+
 1. Add `groupBy="category"` and `onGroupByChange={vi.fn()}` to every render that lacks them.
 2. Remove the "renders By Category heading" test (the static title is gone).
 3. Update "renders Expense and Income toggle buttons" to note they appear at level 0.
@@ -173,13 +175,7 @@ describe('CategoryBreakdown — drill-down', () => {
     const user = userEvent.setup();
     const onItemClick = vi.fn();
     const cats = [makeCategory('Food', 1500, 60)];
-    render(
-      <CategoryBreakdown
-        {...baseProps}
-        categories={cats}
-        onItemClick={onItemClick}
-      />,
-    );
+    render(<CategoryBreakdown {...baseProps} categories={cats} onItemClick={onItemClick} />);
     await user.click(screen.getByText('Food'));
     expect(onItemClick).toHaveBeenCalledWith('Food');
   });
@@ -266,6 +262,7 @@ npm test -- --reporter=verbose 2>&1 | tail -30
 ```
 
 Expected failures:
+
 - "renders groupBy dropdown at level 0" — FAIL (`groupBy` prop not on component yet)
 - "calls onGroupByChange…" — FAIL
 - "hides toggle and dropdown at drillLevel 1" — FAIL (toggle still shows at level 1)
@@ -278,6 +275,7 @@ The other tests may PASS or error depending on how the component handles unknown
 ## Task 2: Implement CategoryBreakdown changes
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 
 - [ ] **Step 1: Replace CategoryBreakdown.tsx with the updated implementation**
@@ -379,7 +377,10 @@ export default function CategoryBreakdown({
                 ].join(' ')}
                 style={
                   mode === m
-                    ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
+                    ? {
+                        background:
+                          m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)',
+                      }
                     : undefined
                 }
               >
@@ -508,6 +509,7 @@ EOF
 ## Task 3: Refactor Dashboard — DrillState, memos, and prop wiring
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 This task replaces the discriminated-union `DrillState` with `{ groupBy: GroupBy; path: string[] }`, rewrites both the `categoryItems` and `drillTransactions` memos, and wires all new props to `CategoryBreakdown`.
@@ -515,18 +517,26 @@ This task replaces the discriminated-union `DrillState` with `{ groupBy: GroupBy
 - [ ] **Step 1: Update the import line for CategoryBreakdown to include GroupBy**
 
 Find:
+
 ```typescript
-import CategoryBreakdown, { type Mode as CategoryMode } from '../components/dashboard/CategoryBreakdown';
+import CategoryBreakdown, {
+  type Mode as CategoryMode,
+} from '../components/dashboard/CategoryBreakdown';
 ```
 
 Replace with:
+
 ```typescript
-import CategoryBreakdown, { type Mode as CategoryMode, type GroupBy } from '../components/dashboard/CategoryBreakdown';
+import CategoryBreakdown, {
+  type Mode as CategoryMode,
+  type GroupBy,
+} from '../components/dashboard/CategoryBreakdown';
 ```
 
 - [ ] **Step 2: Replace the DrillState type**
 
 Find:
+
 ```typescript
 type DrillState =
   | { level: 0 }
@@ -535,6 +545,7 @@ type DrillState =
 ```
 
 Replace with:
+
 ```typescript
 interface DrillState {
   groupBy: GroupBy;
@@ -545,55 +556,61 @@ interface DrillState {
 - [ ] **Step 3: Update the drillState useState initialisation**
 
 Find:
+
 ```typescript
-  const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
+const [drillState, setDrillState] = useState<DrillState>({ level: 0 });
 ```
 
 Replace with:
+
 ```typescript
-  const [drillState, setDrillState] = useState<DrillState>({ groupBy: 'category', path: [] });
+const [drillState, setDrillState] = useState<DrillState>({ groupBy: 'category', path: [] });
 ```
 
 - [ ] **Step 4: Update handleModeChange to preserve groupBy**
 
 Find:
+
 ```typescript
-  function handleModeChange(mode: CategoryMode) {
-    setCategoryMode(mode);
-    setDrillState({ level: 0 });
-  }
+function handleModeChange(mode: CategoryMode) {
+  setCategoryMode(mode);
+  setDrillState({ level: 0 });
+}
 ```
 
 Replace with:
-```typescript
-  function handleGroupByChange(g: GroupBy) {
-    setDrillState({ groupBy: g, path: [] });
-  }
 
-  function handleModeChange(mode: CategoryMode) {
-    setCategoryMode(mode);
-    setDrillState((prev) => ({ ...prev, path: [] }));
-  }
+```typescript
+function handleGroupByChange(g: GroupBy) {
+  setDrillState({ groupBy: g, path: [] });
+}
+
+function handleModeChange(mode: CategoryMode) {
+  setCategoryMode(mode);
+  setDrillState((prev) => ({ ...prev, path: [] }));
+}
 ```
 
 - [ ] **Step 5: Update the period-change effect to preserve groupBy**
 
 Find:
+
 ```typescript
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDrillState({ level: 0 });
-    setPeriodOffset(0);
-  }, [period]);
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setDrillState({ level: 0 });
+  setPeriodOffset(0);
+}, [period]);
 ```
 
 Replace with:
+
 ```typescript
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDrillState((prev) => ({ ...prev, path: [] }));
-    setPeriodOffset(0);
-  }, [period]);
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setDrillState((prev) => ({ ...prev, path: [] }));
+  setPeriodOffset(0);
+}, [period]);
 ```
 
 - [ ] **Step 6: Rewrite the categoryItems memo**
@@ -601,77 +618,69 @@ Replace with:
 Find the entire `const categoryItems = useMemo(() => {` block (lines 109–163 in the original file) and replace it with:
 
 ```typescript
-  const categoryItems = useMemo(() => {
-    const { groupBy, path } = drillState;
-    const filtered =
-      categoryMode === 'expense'
-        ? heroTxns.filter((t) => t.amount < 0)
-        : heroTxns.filter((t) => t.amount > 0);
+const categoryItems = useMemo(() => {
+  const { groupBy, path } = drillState;
+  const filtered =
+    categoryMode === 'expense'
+      ? heroTxns.filter((t) => t.amount < 0)
+      : heroTxns.filter((t) => t.amount > 0);
 
-    const getGroupField = (t: (typeof filtered)[number]): string => {
-      if (groupBy === 'account') return t.account;
-      if (groupBy === 'currency') return t.currency;
-      if (groupBy === 'vendor') return t.vendor;
-      if (groupBy === 'payment') return t.payment;
-      return t.category;
-    };
+  const getGroupField = (t: (typeof filtered)[number]): string => {
+    if (groupBy === 'account') return t.account;
+    if (groupBy === 'currency') return t.currency;
+    if (groupBy === 'vendor') return t.vendor;
+    if (groupBy === 'payment') return t.payment;
+    return t.category;
+  };
 
-    const toItems = (
-      txns: typeof filtered,
-      keyFn: (t: (typeof filtered)[number]) => string,
-    ) => {
-      const totals = txns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
-        const k = keyFn(t);
-        if (!acc[k]) acc[k] = { total: 0, icon: t.icon };
-        acc[k]!.total += Math.abs(t.amount);
-        return acc;
-      }, {});
-      const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
-      return Object.entries(totals)
-        .sort(([, a], [, b]) => b.total - a.total)
-        .map(([name, { total, icon }]) => ({
-          name,
-          icon,
-          total,
-          pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-        }));
-    };
+  const toItems = (txns: typeof filtered, keyFn: (t: (typeof filtered)[number]) => string) => {
+    const totals = txns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+      const k = keyFn(t);
+      if (!acc[k]) acc[k] = { total: 0, icon: t.icon };
+      acc[k]!.total += Math.abs(t.amount);
+      return acc;
+    }, {});
+    const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
+    return Object.entries(totals)
+      .sort(([, a], [, b]) => b.total - a.total)
+      .map(([name, { total, icon }]) => ({
+        name,
+        icon,
+        total,
+        pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+      }));
+  };
 
-    if (groupBy === 'category') {
-      if (path.length === 0) return toItems(filtered, (t) => t.category);
-      if (path.length === 1)
-        return toItems(
-          filtered.filter((t) => t.category === path[0]),
-          (t) => t.subCategory,
-        );
-      const subcatTxns = filtered.filter(
-        (t) => t.category === path[0] && t.subCategory === path[1],
-      );
-      const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
-      return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
-    }
-
-    // non-category groupings (account | currency | vendor | payment)
-    if (path.length === 0) return toItems(filtered, getGroupField);
+  if (groupBy === 'category') {
+    if (path.length === 0) return toItems(filtered, (t) => t.category);
     if (path.length === 1)
       return toItems(
-        filtered.filter((t) => getGroupField(t) === path[0]),
-        (t) => t.category,
-      );
-    if (path.length === 2)
-      return toItems(
-        filtered.filter((t) => getGroupField(t) === path[0] && t.category === path[1]),
+        filtered.filter((t) => t.category === path[0]),
         (t) => t.subCategory,
       );
-    const subcatTxns = filtered.filter(
-      (t) =>
-        getGroupField(t) === path[0] &&
-        t.category === path[1] &&
-        t.subCategory === path[2],
-    );
+    const subcatTxns = filtered.filter((t) => t.category === path[0] && t.subCategory === path[1]);
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
-    return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
-  }, [heroTxns, categoryMode, drillState]);
+    return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
+  }
+
+  // non-category groupings (account | currency | vendor | payment)
+  if (path.length === 0) return toItems(filtered, getGroupField);
+  if (path.length === 1)
+    return toItems(
+      filtered.filter((t) => getGroupField(t) === path[0]),
+      (t) => t.category,
+    );
+  if (path.length === 2)
+    return toItems(
+      filtered.filter((t) => getGroupField(t) === path[0] && t.category === path[1]),
+      (t) => t.subCategory,
+    );
+  const subcatTxns = filtered.filter(
+    (t) => getGroupField(t) === path[0] && t.category === path[1] && t.subCategory === path[2],
+  );
+  const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
+  return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
+}, [heroTxns, categoryMode, drillState]);
 ```
 
 - [ ] **Step 7: Rewrite the drillTransactions memo**
@@ -679,39 +688,36 @@ Find the entire `const categoryItems = useMemo(() => {` block (lines 109–163 i
 Find the entire `const drillTransactions = useMemo(() => {` block (lines 165–176 in original) and replace it with:
 
 ```typescript
-  const drillTransactions = useMemo((): typeof heroTxns | undefined => {
-    const { groupBy, path } = drillState;
-    const maxDepth = groupBy === 'category' ? 2 : 3;
-    if (path.length !== maxDepth) return undefined;
+const drillTransactions = useMemo((): typeof heroTxns | undefined => {
+  const { groupBy, path } = drillState;
+  const maxDepth = groupBy === 'category' ? 2 : 3;
+  if (path.length !== maxDepth) return undefined;
 
-    const filtered =
-      categoryMode === 'expense'
-        ? heroTxns.filter((t) => t.amount < 0)
-        : heroTxns.filter((t) => t.amount > 0);
+  const filtered =
+    categoryMode === 'expense'
+      ? heroTxns.filter((t) => t.amount < 0)
+      : heroTxns.filter((t) => t.amount > 0);
 
-    const getGroupField = (t: (typeof filtered)[number]): string => {
-      if (groupBy === 'account') return t.account;
-      if (groupBy === 'currency') return t.currency;
-      if (groupBy === 'vendor') return t.vendor;
-      if (groupBy === 'payment') return t.payment;
-      return t.category;
-    };
+  const getGroupField = (t: (typeof filtered)[number]): string => {
+    if (groupBy === 'account') return t.account;
+    if (groupBy === 'currency') return t.currency;
+    if (groupBy === 'vendor') return t.vendor;
+    if (groupBy === 'payment') return t.payment;
+    return t.category;
+  };
 
-    if (groupBy === 'category') {
-      return filtered
-        .filter((t) => t.category === path[0] && t.subCategory === path[1])
-        .sort((a, b) => b.date.getTime() - a.date.getTime());
-    }
-
+  if (groupBy === 'category') {
     return filtered
-      .filter(
-        (t) =>
-          getGroupField(t) === path[0] &&
-          t.category === path[1] &&
-          t.subCategory === path[2],
-      )
+      .filter((t) => t.category === path[0] && t.subCategory === path[1])
       .sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [heroTxns, categoryMode, drillState]);
+  }
+
+  return filtered
+    .filter(
+      (t) => getGroupField(t) === path[0] && t.category === path[1] && t.subCategory === path[2],
+    )
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+}, [heroTxns, categoryMode, drillState]);
 ```
 
 - [ ] **Step 8: Replace the CategoryBreakdown JSX block**
@@ -719,35 +725,34 @@ Find the entire `const drillTransactions = useMemo(() => {` block (lines 165–1
 Find the entire `<CategoryBreakdown` JSX block in the return statement (from `<CategoryBreakdown` to the closing `/>`) and replace it with:
 
 ```tsx
-          <CategoryBreakdown
-            categories={categoryItems}
-            mode={categoryMode}
-            onModeChange={handleModeChange}
-            currencySymbol={currencySymbol}
-            groupBy={drillState.groupBy}
-            onGroupByChange={handleGroupByChange}
-            drillLevel={drillState.path.length}
-            drillLabel={drillState.path.at(-1)}
-            backLabel={
-              drillState.path.length === 1
-                ? '← Back'
-                : drillState.path.length > 1
-                  ? `← ${drillState.path.at(-2)}`
-                  : undefined
-            }
-            onBack={
-              drillState.path.length > 0
-                ? () => setDrillState((prev) => ({ ...prev, path: prev.path.slice(0, -1) }))
-                : undefined
-            }
-            onItemClick={
-              drillTransactions === undefined
-                ? (name) =>
-                    setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
-                : undefined
-            }
-            transactions={drillTransactions}
-          />
+<CategoryBreakdown
+  categories={categoryItems}
+  mode={categoryMode}
+  onModeChange={handleModeChange}
+  currencySymbol={currencySymbol}
+  groupBy={drillState.groupBy}
+  onGroupByChange={handleGroupByChange}
+  drillLevel={drillState.path.length}
+  drillLabel={drillState.path.at(-1)}
+  backLabel={
+    drillState.path.length === 1
+      ? '← Back'
+      : drillState.path.length > 1
+        ? `← ${drillState.path.at(-2)}`
+        : undefined
+  }
+  onBack={
+    drillState.path.length > 0
+      ? () => setDrillState((prev) => ({ ...prev, path: prev.path.slice(0, -1) }))
+      : undefined
+  }
+  onItemClick={
+    drillTransactions === undefined
+      ? (name) => setDrillState((prev) => ({ ...prev, path: [...prev.path, name] }))
+      : undefined
+  }
+  transactions={drillTransactions}
+/>
 ```
 
 - [ ] **Step 9: Run typecheck**

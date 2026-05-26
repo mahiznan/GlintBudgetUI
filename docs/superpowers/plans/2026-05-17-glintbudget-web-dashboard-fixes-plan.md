@@ -12,35 +12,36 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/routes/TransactionForm.tsx` | Apply sign on save; infer type from sign on load |
-| `src/routes/TransactionForm.test.tsx` | Add sign-convention tests |
-| `src/components/dashboard/HeroStatsRow.tsx` | Rename prop `totalSpent` → `totalExpenses` |
-| `src/components/dashboard/HeroStatsRow.test.tsx` | Update to `totalExpenses` |
-| `src/components/layout/TopBar.tsx` | Add optional `showPeriodSwitch` prop |
-| `src/components/layout/TopBar.test.tsx` | Add visibility tests; update existing tests |
-| `src/routes/AppShell.tsx` | Pass `showPeriodSwitch` based on pathname |
-| `src/routes/AppShell.test.tsx` | Add period switch visibility integration test |
-| `src/components/dashboard/CategoryBreakdown.tsx` | Filter to `amount < 0` only |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Use negative amounts; add income-exclusion test |
-| `src/components/dashboard/SpendingChart.tsx` | Fix `> 0` → `< 0`; use `Math.abs` |
-| `src/components/dashboard/SpendingChart.test.tsx` | Use negative amounts |
-| `src/components/dashboard/QuickStats.tsx` | Fix `> 0` → `< 0`; use `Math.abs` |
-| `src/components/dashboard/QuickStats.test.tsx` | Use negative amounts |
-| `src/components/dashboard/PeriodTransactions.tsx` | NEW — replaces TodayTransactions; period-aware + pagination |
-| `src/components/dashboard/PeriodTransactions.test.tsx` | NEW — full test suite |
-| `src/components/dashboard/TodayTransactions.tsx` | DELETE |
-| `src/components/dashboard/TodayTransactions.test.tsx` | DELETE |
-| `src/components/transactions/TransactionRow.tsx` | Fix amount display for sign convention |
-| `src/components/transactions/TransactionRow.test.tsx` | Update to negative expense amount |
-| `src/routes/Dashboard.tsx` | Wire totalIncome/totalExpenses; use PeriodTransactions |
+| File                                                   | Change                                                      |
+| ------------------------------------------------------ | ----------------------------------------------------------- |
+| `src/routes/TransactionForm.tsx`                       | Apply sign on save; infer type from sign on load            |
+| `src/routes/TransactionForm.test.tsx`                  | Add sign-convention tests                                   |
+| `src/components/dashboard/HeroStatsRow.tsx`            | Rename prop `totalSpent` → `totalExpenses`                  |
+| `src/components/dashboard/HeroStatsRow.test.tsx`       | Update to `totalExpenses`                                   |
+| `src/components/layout/TopBar.tsx`                     | Add optional `showPeriodSwitch` prop                        |
+| `src/components/layout/TopBar.test.tsx`                | Add visibility tests; update existing tests                 |
+| `src/routes/AppShell.tsx`                              | Pass `showPeriodSwitch` based on pathname                   |
+| `src/routes/AppShell.test.tsx`                         | Add period switch visibility integration test               |
+| `src/components/dashboard/CategoryBreakdown.tsx`       | Filter to `amount < 0` only                                 |
+| `src/components/dashboard/CategoryBreakdown.test.tsx`  | Use negative amounts; add income-exclusion test             |
+| `src/components/dashboard/SpendingChart.tsx`           | Fix `> 0` → `< 0`; use `Math.abs`                           |
+| `src/components/dashboard/SpendingChart.test.tsx`      | Use negative amounts                                        |
+| `src/components/dashboard/QuickStats.tsx`              | Fix `> 0` → `< 0`; use `Math.abs`                           |
+| `src/components/dashboard/QuickStats.test.tsx`         | Use negative amounts                                        |
+| `src/components/dashboard/PeriodTransactions.tsx`      | NEW — replaces TodayTransactions; period-aware + pagination |
+| `src/components/dashboard/PeriodTransactions.test.tsx` | NEW — full test suite                                       |
+| `src/components/dashboard/TodayTransactions.tsx`       | DELETE                                                      |
+| `src/components/dashboard/TodayTransactions.test.tsx`  | DELETE                                                      |
+| `src/components/transactions/TransactionRow.tsx`       | Fix amount display for sign convention                      |
+| `src/components/transactions/TransactionRow.test.tsx`  | Update to negative expense amount                           |
+| `src/routes/Dashboard.tsx`                             | Wire totalIncome/totalExpenses; use PeriodTransactions      |
 
 ---
 
 ## Task 1: TransactionForm — amount sign convention
 
 **Files:**
+
 - Modify: `src/routes/TransactionForm.tsx`
 - Modify: `src/routes/TransactionForm.test.tsx`
 
@@ -66,10 +67,17 @@ vi.mock('firebase/firestore', () => ({
       exists: () => true,
       id: 'tx1',
       data: () => ({
-        user_id: 'u1', category: 'Food', sub_category: 'Groceries',
+        user_id: 'u1',
+        category: 'Food',
+        sub_category: 'Groceries',
         date: { toDate: () => new Date('2026-05-17') },
-        account: 'HDFC', vendor: 'Zepto', payment: 'UPI',
-        currency: 'INR', notes: '', amount: -500, icon: '🛒',  // ← negative expense
+        account: 'HDFC',
+        vendor: 'Zepto',
+        payment: 'UPI',
+        currency: 'INR',
+        notes: '',
+        amount: -500,
+        icon: '🛒', // ← negative expense
       }),
     }),
   ),
@@ -138,7 +146,9 @@ describe('TransactionForm (add mode)', () => {
   });
 
   it('shows validation error when amount is empty on submit', async () => {
-    const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
+    const { getByRole, findByText } = render(<TransactionForm mode="add" />, {
+      wrapper: Wrapper as React.ComponentType,
+    });
     getByRole('button', { name: /save/i }).click();
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
   });
@@ -189,6 +199,7 @@ Expected: the two new tests fail — `saves expense as a negative amount` fails 
 In `src/routes/TransactionForm.tsx`, make two changes:
 
 **Change A — `handleSubmit`: apply sign based on type**
+
 ```tsx
 // Replace:
 amount: parseFloat(form.amount),
@@ -200,6 +211,7 @@ amount: form.type === 'expense'
 ```
 
 **Change B — edit mode `useEffect`: infer type from sign, display absolute value**
+
 ```tsx
 // Replace:
 type: (d['type'] as 'expense' | 'income') ?? 'expense',
@@ -230,6 +242,7 @@ git commit -m "feat: apply amount sign convention in TransactionForm (expense=ne
 ## Task 2: HeroStatsRow — rename `totalSpent` → `totalExpenses`
 
 **Files:**
+
 - Modify: `src/components/dashboard/HeroStatsRow.tsx`
 - Modify: `src/components/dashboard/HeroStatsRow.test.tsx`
 
@@ -305,9 +318,7 @@ interface StatCardProps {
 function StatCard({ label, value, accent, highlight }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
-        {label}
-      </span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">{label}</span>
       <span
         className={[
           'text-3xl font-bold leading-none',
@@ -328,10 +339,7 @@ export default function HeroStatsRow({
   currencySymbol,
 }: HeroStatsRowProps) {
   return (
-    <div
-      className="hero-gradient w-full px-8 py-8"
-      style={{ borderRadius: '0 0 24px 24px' }}
-    >
+    <div className="hero-gradient w-full px-8 py-8" style={{ borderRadius: '0 0 24px 24px' }}>
       <div className="flex items-center gap-12 flex-wrap">
         <StatCard
           label="Net Balance"
@@ -339,16 +347,9 @@ export default function HeroStatsRow({
           highlight
         />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
-          label="Income"
-          value={formatCurrency(totalIncome, currencySymbol)}
-          accent
-        />
+        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} accent />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
-          label="Expenses"
-          value={formatCurrency(totalExpenses, currencySymbol)}
-        />
+        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
         <StatCard label="Transactions" value={txCount} />
       </div>
@@ -377,6 +378,7 @@ git commit -m "feat: rename HeroStatsRow totalSpent→totalExpenses, update labe
 ## Task 3: TopBar — `showPeriodSwitch` prop
 
 **Files:**
+
 - Modify: `src/components/layout/TopBar.tsx`
 - Modify: `src/components/layout/TopBar.test.tsx`
 
@@ -474,7 +476,12 @@ interface TopBarProps {
   showPeriodSwitch?: boolean;
 }
 
-export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch = false }: TopBarProps) {
+export default function TopBar({
+  title,
+  period,
+  onPeriodChange,
+  showPeriodSwitch = false,
+}: TopBarProps) {
   return (
     <header className="flex items-center justify-between gap-4 border-b border-border bg-surface px-6 py-3">
       <h1 className="text-lg font-semibold text-text">{title}</h1>
@@ -488,9 +495,7 @@ export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch
               onClick={() => onPeriodChange(value)}
               className={[
                 'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
-                period === value
-                  ? 'text-white shadow-sm'
-                  : 'text-text-muted hover:text-text',
+                period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
               ].join(' ')}
               style={
                 period === value
@@ -537,6 +542,7 @@ git commit -m "feat: hide period switch on non-dashboard routes via showPeriodSw
 ## Task 4: AppShell — pass `showPeriodSwitch` from pathname
 
 **Files:**
+
 - Modify: `src/routes/AppShell.tsx`
 - Modify: `src/routes/AppShell.test.tsx`
 
@@ -611,6 +617,7 @@ git commit -m "feat: show period switch only on /app/dashboard"
 ## Task 5: CategoryBreakdown — expense-only filter
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx`
 
@@ -647,8 +654,12 @@ describe('CategoryBreakdown', () => {
 
   it('shows top categories by expense spend (negative amounts)', () => {
     const txns = [
-      ...Array(3).fill(null).map(() => makeTx('Food', -500)),
-      ...Array(2).fill(null).map(() => makeTx('Transport', -200)),
+      ...Array(3)
+        .fill(null)
+        .map(() => makeTx('Food', -500)),
+      ...Array(2)
+        .fill(null)
+        .map(() => makeTx('Transport', -200)),
       makeTx('Health', -100),
     ];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
@@ -658,8 +669,8 @@ describe('CategoryBreakdown', () => {
 
   it('excludes income transactions (positive amounts) from breakdown', () => {
     const txns = [
-      makeTx('Salary', 50000),    // income — should NOT appear
-      makeTx('Food', -500),       // expense — should appear
+      makeTx('Salary', 50000), // income — should NOT appear
+      makeTx('Food', -500), // expense — should appear
     ];
     render(<CategoryBreakdown transactions={txns} currencySymbol="₹" />);
     expect(screen.queryByText('Salary')).not.toBeInTheDocument();
@@ -688,14 +699,11 @@ Replace the `useMemo` block in `src/components/dashboard/CategoryBreakdown.tsx`:
 ```tsx
 const categories = useMemo(() => {
   const expenseTxns = transactions.filter((t) => t.amount < 0);
-  const totals = expenseTxns.reduce<Record<string, { total: number; icon: string }>>(
-    (acc, t) => {
-      if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-      acc[t.category]!.total += Math.abs(t.amount);
-      return acc;
-    },
-    {},
-  );
+  const totals = expenseTxns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+    if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+    acc[t.category]!.total += Math.abs(t.amount);
+    return acc;
+  }, {});
   const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
   return Object.entries(totals)
     .sort(([, a], [, b]) => b.total - a.total)
@@ -729,6 +737,7 @@ git commit -m "feat: CategoryBreakdown filters expense-only (amount < 0)"
 ## Task 6: SpendingChart — fix expense filter direction
 
 **Files:**
+
 - Modify: `src/components/dashboard/SpendingChart.tsx`
 - Modify: `src/components/dashboard/SpendingChart.test.tsx`
 
@@ -743,7 +752,9 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
   Bar: () => null,
   XAxis: () => null,
   YAxis: () => null,
@@ -782,9 +793,7 @@ describe('SpendingChart', () => {
   });
 
   it('renders the Spending section heading', () => {
-    render(
-      <SpendingChart transactions={[]} period="week" currencySymbol="₹" />,
-    );
+    render(<SpendingChart transactions={[]} period="week" currencySymbol="₹" />);
     expect(screen.getByText(/spending/i)).toBeInTheDocument();
   });
 
@@ -816,10 +825,7 @@ Expected: All 3 pass. (The fix is needed for correctness but doesn't break the c
 In `src/components/dashboard/SpendingChart.tsx`, update the `buildChartData` function:
 
 ```tsx
-function buildChartData(
-  txns: Transaction[],
-  period: Period,
-): { label: string; amount: number }[] {
+function buildChartData(txns: Transaction[], period: Period): { label: string; amount: number }[] {
   const expenses = txns
     .filter((t) => t.amount < 0)
     .map((t) => ({ ...t, amount: Math.abs(t.amount) }));
@@ -875,6 +881,7 @@ git commit -m "feat: SpendingChart filters amount < 0 expenses only"
 ## Task 7: QuickStats — fix expense filter direction
 
 **Files:**
+
 - Modify: `src/components/dashboard/QuickStats.tsx`
 - Modify: `src/components/dashboard/QuickStats.test.tsx`
 
@@ -888,9 +895,24 @@ import { describe, expect, it } from 'vitest';
 import QuickStats from './QuickStats';
 import type { Transaction } from '../../firestore/types';
 
-const makeTx = (vendor: string, amount: number, payment: string, category: string): Transaction => ({
-  id: vendor, user_id: 'u1', category, subCategory: '', date: new Date(),
-  account: 'HDFC', vendor, payment, currency: 'INR', notes: '', amount, icon: '',
+const makeTx = (
+  vendor: string,
+  amount: number,
+  payment: string,
+  category: string,
+): Transaction => ({
+  id: vendor,
+  user_id: 'u1',
+  category,
+  subCategory: '',
+  date: new Date(),
+  account: 'HDFC',
+  vendor,
+  payment,
+  currency: 'INR',
+  notes: '',
+  amount,
+  icon: '',
 });
 
 describe('QuickStats', () => {
@@ -907,8 +929,8 @@ describe('QuickStats', () => {
 
   it('excludes income (positive amounts) from quick stats', () => {
     const txns = [
-      makeTx('Salary', 50000, 'Bank Transfer', 'Income'),  // income
-      makeTx('Zepto', -300, 'UPI', 'Food'),                // expense
+      makeTx('Salary', 50000, 'Bank Transfer', 'Income'), // income
+      makeTx('Zepto', -300, 'UPI', 'Food'), // expense
     ];
     render(<QuickStats transactions={txns} currencySymbol="₹" />);
     // highest spend should be 300, not 50000
@@ -949,9 +971,8 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
     null,
   );
 
-  const avg = expenses.length > 0
-    ? expenses.reduce((s, t) => s + t.amount, 0) / expenses.length
-    : 0;
+  const avg =
+    expenses.length > 0 ? expenses.reduce((s, t) => s + t.amount, 0) / expenses.length : 0;
 
   const topPayment = expenses.reduce<Record<string, number>>((acc, t) => {
     acc[t.payment] = (acc[t.payment] ?? 0) + 1;
@@ -966,7 +987,10 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
   const topCategory = Object.entries(topCatMap).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '—';
 
   const items = [
-    { label: 'Highest spend', value: highest ? formatCurrency(highest.amount, currencySymbol) : '—' },
+    {
+      label: 'Highest spend',
+      value: highest ? formatCurrency(highest.amount, currencySymbol) : '—',
+    },
     { label: 'Avg per transaction', value: formatCurrency(avg, currencySymbol) },
     { label: 'Top payment', value: mostUsedPayment },
     { label: 'Top category', value: topCategory },
@@ -979,7 +1003,10 @@ export default function QuickStats({ transactions, currencySymbol }: QuickStatsP
       </h2>
       <div className="flex flex-col gap-2">
         {items.map(({ label, value }) => (
-          <div key={label} className="flex justify-between items-center py-1 border-b border-border last:border-0">
+          <div
+            key={label}
+            className="flex justify-between items-center py-1 border-b border-border last:border-0"
+          >
             <span className="text-xs text-text-muted">{label}</span>
             <span className="text-sm font-semibold font-mono text-text">{value}</span>
           </div>
@@ -1010,6 +1037,7 @@ git commit -m "feat: QuickStats filters amount < 0 expenses only"
 ## Task 8: PeriodTransactions — new component (replaces TodayTransactions)
 
 **Files:**
+
 - Create: `src/components/dashboard/PeriodTransactions.tsx`
 - Create: `src/components/dashboard/PeriodTransactions.test.tsx`
 - Delete: `src/components/dashboard/TodayTransactions.tsx`
@@ -1031,19 +1059,29 @@ function makeTx(id: string, vendor: string, amount: number, daysAgo = 0): Transa
   const date = new Date();
   date.setDate(date.getDate() - daysAgo);
   return {
-    id, user_id: 'u1', category: 'Food', subCategory: '',
-    date, account: 'HDFC', vendor, payment: 'UPI',
-    currency: 'INR', notes: '', amount, icon: '🛒',
+    id,
+    user_id: 'u1',
+    category: 'Food',
+    subCategory: '',
+    date,
+    account: 'HDFC',
+    vendor,
+    payment: 'UPI',
+    currency: 'INR',
+    notes: '',
+    amount,
+    icon: '🛒',
   };
 }
 
 function makeTxList(count: number, amountPerTx = -500): Transaction[] {
-  return Array.from({ length: count }, (_, i) =>
-    makeTx(`tx${i}`, `Vendor${i}`, amountPerTx, i),
-  );
+  return Array.from({ length: count }, (_, i) => makeTx(`tx${i}`, `Vendor${i}`, amountPerTx, i));
 }
 
-function renderPT(transactions: Transaction[], period: 'day' | 'week' | 'month' | 'quarter' | 'year' = 'day') {
+function renderPT(
+  transactions: Transaction[],
+  period: 'day' | 'week' | 'month' | 'quarter' | 'year' = 'day',
+) {
   return render(
     <MemoryRouter>
       <PeriodTransactions
@@ -1327,6 +1365,7 @@ git commit -m "feat: add PeriodTransactions with dynamic heading and page-based 
 ## Task 9: TransactionRow — fix amount display for sign convention
 
 **Files:**
+
 - Modify: `src/components/transactions/TransactionRow.tsx`
 - Modify: `src/components/transactions/TransactionRow.test.tsx`
 
@@ -1343,22 +1382,36 @@ import TransactionRow from './TransactionRow';
 import type { Transaction } from '../../firestore/types';
 
 const expenseTx: Transaction = {
-  id: 'tx1', user_id: 'u1', category: 'Food', subCategory: 'Groceries',
-  date: new Date('2026-05-17T09:30:00'), account: 'HDFC', vendor: 'Zepto',
-  payment: 'UPI', currency: 'INR', notes: '', amount: -500, icon: '🛒',
+  id: 'tx1',
+  user_id: 'u1',
+  category: 'Food',
+  subCategory: 'Groceries',
+  date: new Date('2026-05-17T09:30:00'),
+  account: 'HDFC',
+  vendor: 'Zepto',
+  payment: 'UPI',
+  currency: 'INR',
+  notes: '',
+  amount: -500,
+  icon: '🛒',
 };
 
 const incomeTx: Transaction = {
-  ...expenseTx, id: 'tx2', vendor: 'Employer', category: 'Salary',
+  ...expenseTx,
+  id: 'tx2',
+  vendor: 'Employer',
+  category: 'Salary',
   amount: 50000,
 };
 
 function renderRow(tx = expenseTx, onDelete = vi.fn()) {
   return render(
     <MemoryRouter>
-      <table><tbody>
-        <TransactionRow transaction={tx} currencySymbol="₹" onDelete={onDelete} />
-      </tbody></table>
+      <table>
+        <tbody>
+          <TransactionRow transaction={tx} currencySymbol="₹" onDelete={onDelete} />
+        </tbody>
+      </table>
     </MemoryRouter>,
   );
 }
@@ -1391,8 +1444,10 @@ describe('TransactionRow', () => {
 
   it('edit link routes to /app/transactions/tx1/edit', () => {
     renderRow();
-    expect(screen.getByRole('link', { name: /edit zepto/i }))
-      .toHaveAttribute('href', '/app/transactions/tx1/edit');
+    expect(screen.getByRole('link', { name: /edit zepto/i })).toHaveAttribute(
+      'href',
+      '/app/transactions/tx1/edit',
+    );
   });
 
   it('calls onDelete with the transaction id', async () => {
@@ -1419,9 +1474,7 @@ In `src/components/transactions/TransactionRow.tsx`, replace the amount `<td>`:
 ```tsx
 <td className="py-3 px-4 text-right">
   <span
-    className={`text-sm font-mono font-semibold ${
-      tx.amount < 0 ? 'text-red-600' : 'text-brand'
-    }`}
+    className={`text-sm font-mono font-semibold ${tx.amount < 0 ? 'text-red-600' : 'text-brand'}`}
   >
     {tx.amount < 0 ? '−' : '+'}
     {formatCurrency(Math.abs(tx.amount), currencySymbol)}
@@ -1449,6 +1502,7 @@ git commit -m "feat: TransactionRow shows expense in red and income in green per
 ## Task 10: Dashboard — wire totalIncome/totalExpenses, use PeriodTransactions
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 - [ ] **Step 1: Update Dashboard.tsx**
@@ -1511,9 +1565,14 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
         Couldn't load transactions.{' '}
-        <button className="underline ml-1" onClick={refetch}>Retry</button>
+        <button className="underline ml-1" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -1530,7 +1589,11 @@ export default function Dashboard() {
 
       <div className="p-6 grid grid-cols-3 gap-4">
         <div className="col-span-2">
-          <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
+          <SpendingChart
+            transactions={periodTxns}
+            period={period}
+            currencySymbol={currencySymbol}
+          />
         </div>
         <CategoryBreakdown transactions={periodTxns} currencySymbol={currencySymbol} />
 
@@ -1543,7 +1606,11 @@ export default function Dashboard() {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
+          <IncomeExpenseDonut
+            income={totalIncome}
+            expenses={totalExpenses}
+            currencySymbol={currencySymbol}
+          />
           <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
         </div>
       </div>

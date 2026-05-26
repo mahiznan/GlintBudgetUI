@@ -32,18 +32,15 @@ const [periodOffset, setPeriodOffset] = useState<number>(0);
 ### Derived reference date
 
 ```ts
-const referenceDate = useMemo(
-  () => shiftPeriodDate(period, periodOffset),
-  [period, periodOffset],
-);
+const referenceDate = useMemo(() => shiftPeriodDate(period, periodOffset), [period, periodOffset]);
 ```
 
 ### Consumers updated to use `referenceDate`
 
-| Computation | Before | After |
-|---|---|---|
-| `periodTxns` | `filterByPeriod(allTxns, period)` | `filterByPeriod(allTxns, period, referenceDate)` |
-| `periodDays` | `getPeriodRange(period)` | `getPeriodRange(period, referenceDate)` |
+| Computation        | Before                                        | After                                                   |
+| ------------------ | --------------------------------------------- | ------------------------------------------------------- |
+| `periodTxns`       | `filterByPeriod(allTxns, period)`             | `filterByPeriod(allTxns, period, referenceDate)`        |
+| `periodDays`       | `getPeriodRange(period)`                      | `getPeriodRange(period, referenceDate)`                 |
 | SpendingChart data | `getChartDateRange(period, now)` inside chart | `getChartDateRange(period, referenceDate)` inside chart |
 
 `heroTxns`, `categoryItems`, `totalIncome`, `totalExpenses` all derive from `periodTxns` — they update automatically.
@@ -57,41 +54,51 @@ const referenceDate = useMemo(
 Returns a `Date` shifted from `now` by `offset` period-units. Used to derive the reference date.
 
 ```ts
-export function shiftPeriodDate(period: Period, offset: number, now = new Date()): Date
+export function shiftPeriodDate(period: Period, offset: number, now = new Date()): Date;
 ```
 
-| Period | Shift logic |
-|---|---|
-| `day` | `d.setDate(d.getDate() + offset)` |
-| `week` | `d.setDate(d.getDate() + offset * 7)` |
-| `month` | `d.setMonth(d.getMonth() + offset)` |
-| `quarter` | `d.setMonth(d.getMonth() + offset * 3)` |
-| `year` | `d.setFullYear(d.getFullYear() + offset)` |
+| Period    | Shift logic                               |
+| --------- | ----------------------------------------- |
+| `day`     | `d.setDate(d.getDate() + offset)`         |
+| `week`    | `d.setDate(d.getDate() + offset * 7)`     |
+| `month`   | `d.setMonth(d.getMonth() + offset)`       |
+| `quarter` | `d.setMonth(d.getMonth() + offset * 3)`   |
+| `year`    | `d.setFullYear(d.getFullYear() + offset)` |
 
 ### `getPeriodLabel(period, referenceDate)`
 
 Returns a human-readable label for the navigator.
 
 ```ts
-export function getPeriodLabel(period: Period, referenceDate: Date): string
+export function getPeriodLabel(period: Period, referenceDate: Date): string;
 ```
 
-| Period | Example output |
-|---|---|
-| `day` | `"May 24, 2026"` |
-| `week` | `"Apr 28 – May 4"` (ISO Mon–Sun of that week) |
-| `month` | `"May 2026"` |
-| `quarter` | `"Q2 2026"` |
-| `year` | `"2026"` |
+| Period    | Example output                                |
+| --------- | --------------------------------------------- |
+| `day`     | `"May 24, 2026"`                              |
+| `week`    | `"Apr 28 – May 4"` (ISO Mon–Sun of that week) |
+| `month`   | `"May 2026"`                                  |
+| `quarter` | `"Q2 2026"`                                   |
+| `year`    | `"2026"`                                      |
 
 ### Existing functions updated
 
 `getPeriodRange`, `getChartDateRange`, and `filterByPeriod` each gain an optional `referenceDate` parameter (defaults to `new Date()`). All existing callers are unaffected.
 
 ```ts
-export function getPeriodRange(period: Period, referenceDate = new Date()): { start: Date; end: Date }
-export function getChartDateRange(period: Period, referenceDate = new Date()): { start: Date; end: Date }
-export function filterByPeriod(txns: Transaction[], period: Period, referenceDate = new Date()): Transaction[]
+export function getPeriodRange(
+  period: Period,
+  referenceDate = new Date(),
+): { start: Date; end: Date };
+export function getChartDateRange(
+  period: Period,
+  referenceDate = new Date(),
+): { start: Date; end: Date };
+export function filterByPeriod(
+  txns: Transaction[],
+  period: Period,
+  referenceDate = new Date(),
+): Transaction[];
 ```
 
 ## Section 3 — SpendingChart UI Changes
@@ -119,14 +126,24 @@ const atCurrent = offset === 0;
 The header right side becomes:
 
 ```tsx
-{/* Period navigator */}
+{
+  /* Period navigator */
+}
 <div className="flex items-center gap-1">
-  <button onClick={() => onOffsetChange(-1)} aria-label="Previous period">‹</button>
-  <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold">{periodLabel}</span>
-  <button onClick={() => onOffsetChange(1)} disabled={atCurrent} aria-label="Next period">›</button>
-</div>
+  <button onClick={() => onOffsetChange(-1)} aria-label="Previous period">
+    ‹
+  </button>
+  <span className="min-w-[72px] text-center text-[11px] font-mono font-semibold">
+    {periodLabel}
+  </span>
+  <button onClick={() => onOffsetChange(1)} disabled={atCurrent} aria-label="Next period">
+    ›
+  </button>
+</div>;
 
-{/* Chart type toggle — unchanged */}
+{
+  /* Chart type toggle — unchanged */
+}
 ```
 
 - `›` gets `opacity-30 cursor-not-allowed` when disabled

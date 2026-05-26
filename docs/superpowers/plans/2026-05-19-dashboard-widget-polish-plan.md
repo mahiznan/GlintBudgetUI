@@ -13,6 +13,7 @@
 ### Task 1: Add `--expense-gradient` CSS variable
 
 **Files:**
+
 - Modify: `src/styles/index.css`
 
 - [ ] **Step 1: Add the gradient variable to `:root`**
@@ -21,13 +22,24 @@ In `src/styles/index.css`, find the `:root` block and add `--expense-gradient` a
 
 ```css
 :root {
-  --sidebar-gradient:    linear-gradient(180deg, rgb(80,120,0) 0%, rgb(150,191,13) 60%, #22c55e 100%);
-  --hero-gradient:       linear-gradient(120deg, rgb(80,120,0) 0%, rgb(150,191,13) 40%, #22c55e 70%, #ecfccb 100%);
-  --hero-text-gradient:  linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150,191,13) 100%);
-  --brand-gradient:      linear-gradient(135deg, rgb(150,191,13), #22c55e);
-  --expense-gradient:    linear-gradient(135deg, #f87171, #dc2626);
-  --brand-glow:          rgba(150,191,13,0.45);
-  --brand-gradient-text: linear-gradient(135deg, rgb(150,191,13), #22c55e);
+  --sidebar-gradient: linear-gradient(
+    180deg,
+    rgb(80, 120, 0) 0%,
+    rgb(150, 191, 13) 60%,
+    #22c55e 100%
+  );
+  --hero-gradient: linear-gradient(
+    120deg,
+    rgb(80, 120, 0) 0%,
+    rgb(150, 191, 13) 40%,
+    #22c55e 70%,
+    #ecfccb 100%
+  );
+  --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150, 191, 13) 100%);
+  --brand-gradient: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
+  --expense-gradient: linear-gradient(135deg, #f87171, #dc2626);
+  --brand-glow: rgba(150, 191, 13, 0.45);
+  --brand-gradient-text: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
 }
 ```
 
@@ -45,6 +57,7 @@ git commit -m "feat: add expense-gradient CSS variable"
 ### Task 2: Refactor CategoryBreakdown to accept props + lift state to Dashboard
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx`
 - Modify: `src/routes/Dashboard.tsx`
@@ -75,14 +88,24 @@ const makeCategory = (name: string, total: number, pct: number): CategoryItem =>
 describe('CategoryBreakdown', () => {
   it('renders By Category heading', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="expense" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={[]}
+        mode="expense"
+        onModeChange={vi.fn()}
+        currencySymbol="₹"
+      />,
     );
     expect(screen.getByText(/by category/i)).toBeInTheDocument();
   });
 
   it('renders Expense and Income toggle buttons', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="expense" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={[]}
+        mode="expense"
+        onModeChange={vi.fn()}
+        currencySymbol="₹"
+      />,
     );
     expect(screen.getByRole('button', { name: /expense/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /income/i })).toBeInTheDocument();
@@ -90,7 +113,12 @@ describe('CategoryBreakdown', () => {
 
   it('active expense button uses expense gradient, not bg-red-600', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="expense" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={[]}
+        mode="expense"
+        onModeChange={vi.fn()}
+        currencySymbol="₹"
+      />,
     );
     const btn = screen.getByRole('button', { name: /expense/i });
     expect(btn).not.toHaveClass('bg-red-600');
@@ -99,7 +127,7 @@ describe('CategoryBreakdown', () => {
 
   it('active income button uses brand gradient', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="income" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown categories={[]} mode="income" onModeChange={vi.fn()} currencySymbol="₹" />,
     );
     const btn = screen.getByRole('button', { name: /income/i });
     expect(btn.style.background).toBe('var(--brand-gradient)');
@@ -108,7 +136,12 @@ describe('CategoryBreakdown', () => {
   it('renders provided categories', () => {
     const cats = [makeCategory('Food', 1500, 60), makeCategory('Transport', 600, 24)];
     render(
-      <CategoryBreakdown categories={cats} mode="expense" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={cats}
+        mode="expense"
+        onModeChange={vi.fn()}
+        currencySymbol="₹"
+      />,
     );
     expect(screen.getByText('Food')).toBeInTheDocument();
     expect(screen.getByText('Transport')).toBeInTheDocument();
@@ -118,7 +151,12 @@ describe('CategoryBreakdown', () => {
     const user = userEvent.setup();
     const onModeChange = vi.fn();
     render(
-      <CategoryBreakdown categories={[]} mode="expense" onModeChange={onModeChange} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={[]}
+        mode="expense"
+        onModeChange={onModeChange}
+        currencySymbol="₹"
+      />,
     );
     await user.click(screen.getByRole('button', { name: /income/i }));
     expect(onModeChange).toHaveBeenCalledWith('income');
@@ -126,14 +164,19 @@ describe('CategoryBreakdown', () => {
 
   it('shows expense empty state when mode is expense and categories is empty', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="expense" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown
+        categories={[]}
+        mode="expense"
+        onModeChange={vi.fn()}
+        currencySymbol="₹"
+      />,
     );
     expect(screen.getByText(/no expenses for this period/i)).toBeInTheDocument();
   });
 
   it('shows income empty state when mode is income and categories is empty', () => {
     render(
-      <CategoryBreakdown categories={[]} mode="income" onModeChange={vi.fn()} currencySymbol="₹" />
+      <CategoryBreakdown categories={[]} mode="income" onModeChange={vi.fn()} currencySymbol="₹" />,
     );
     expect(screen.getByText(/no income for this period/i)).toBeInTheDocument();
   });
@@ -173,14 +216,21 @@ interface CategoryBreakdownProps {
   currencySymbol: string;
 }
 
-export default function CategoryBreakdown({ categories, mode, onModeChange, currencySymbol }: CategoryBreakdownProps) {
+export default function CategoryBreakdown({
+  categories,
+  mode,
+  onModeChange,
+  currencySymbol,
+}: CategoryBreakdownProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">By Category</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+          By Category
+        </h2>
         <div className="inline-flex rounded-lg border border-border bg-surface-alt p-0.5 gap-0.5">
           {(['expense', 'income'] as Mode[]).map((m) => (
             <button
@@ -193,7 +243,10 @@ export default function CategoryBreakdown({ categories, mode, onModeChange, curr
               ].join(' ')}
               style={
                 mode === m
-                  ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
+                  ? {
+                      background:
+                        m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)',
+                    }
                   : undefined
               }
             >
@@ -219,7 +272,10 @@ export default function CategoryBreakdown({ categories, mode, onModeChange, curr
                 <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, background: theme.categoryColors[i % theme.categoryColors.length]! }}
+                    style={{
+                      width: `${pct}%`,
+                      background: theme.categoryColors[i % theme.categoryColors.length]!,
+                    }}
                   />
                 </div>
               </div>
@@ -296,14 +352,11 @@ export default function Dashboard() {
       categoryMode === 'expense'
         ? heroTxns.filter((t) => t.amount < 0)
         : heroTxns.filter((t) => t.amount > 0);
-    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>(
-      (acc, t) => {
-        if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
-        acc[t.category]!.total += Math.abs(t.amount);
-        return acc;
-      },
-      {},
-    );
+    const totals = filtered.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
+      if (!acc[t.category]) acc[t.category] = { total: 0, icon: t.icon };
+      acc[t.category]!.total += Math.abs(t.amount);
+      return acc;
+    }, {});
     const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
     return Object.entries(totals)
       .sort(([, a], [, b]) => b.total - a.total)
@@ -332,9 +385,14 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700" role="alert">
+      <div
+        className="m-6 rounded-xl bg-red-50 border border-red-200 px-6 py-4 text-red-700"
+        role="alert"
+      >
         Couldn't load transactions.{' '}
-        <button className="underline ml-1" onClick={refetch}>Retry</button>
+        <button className="underline ml-1" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -349,7 +407,11 @@ export default function Dashboard() {
 
       <div className="p-6 grid grid-cols-3 gap-4">
         <div className="col-span-2">
-          <SpendingChart transactions={periodTxns} period={period} currencySymbol={currencySymbol} />
+          <SpendingChart
+            transactions={periodTxns}
+            period={period}
+            currencySymbol={currencySymbol}
+          />
         </div>
         <CategoryBreakdown
           categories={categoryItems}
@@ -366,7 +428,11 @@ export default function Dashboard() {
           />
         </div>
         <div className="flex flex-col gap-4">
-          <IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
+          <IncomeExpenseDonut
+            income={totalIncome}
+            expenses={totalExpenses}
+            currencySymbol={currencySymbol}
+          />
           <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
         </div>
       </div>
@@ -420,6 +486,7 @@ git commit -m "feat: refactor CategoryBreakdown to accept categories as props wi
 ### Task 3: IncomeExpenseDonut category slices
 
 **Files:**
+
 - Modify: `src/components/dashboard/IncomeExpenseDonut.tsx`
 - Modify: `src/components/dashboard/IncomeExpenseDonut.test.tsx`
 - Modify: `src/routes/Dashboard.tsx`
@@ -438,7 +505,9 @@ vi.mock('../../context/ThemeContext', () => ({
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  PieChart: ({ children }: { children: React.ReactNode }) => <div data-testid="pie-chart">{children}</div>,
+  PieChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="pie-chart">{children}</div>
+  ),
   Pie: () => null,
   Cell: () => null,
   Tooltip: () => null,
@@ -457,45 +526,39 @@ const makeCategory = (name: string, total: number, pct: number): CategoryItem =>
 describe('IncomeExpenseDonut', () => {
   it('renders the pie chart', () => {
     render(
-      <IncomeExpenseDonut categories={[makeCategory('Food', 1500, 100)]} mode="expense" currencySymbol="₹" />
+      <IncomeExpenseDonut
+        categories={[makeCategory('Food', 1500, 100)]}
+        mode="expense"
+        currencySymbol="₹"
+      />,
     );
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
   });
 
   it('shows "Expense by Category" title in expense mode', () => {
-    render(
-      <IncomeExpenseDonut categories={[]} mode="expense" currencySymbol="₹" />
-    );
+    render(<IncomeExpenseDonut categories={[]} mode="expense" currencySymbol="₹" />);
     expect(screen.getByText(/expense by category/i)).toBeInTheDocument();
   });
 
   it('shows "Income by Category" title in income mode', () => {
-    render(
-      <IncomeExpenseDonut categories={[]} mode="income" currencySymbol="₹" />
-    );
+    render(<IncomeExpenseDonut categories={[]} mode="income" currencySymbol="₹" />);
     expect(screen.getByText(/income by category/i)).toBeInTheDocument();
   });
 
   it('renders a legend entry for each category', () => {
     const cats = [makeCategory('Food', 1500, 60), makeCategory('Transport', 600, 24)];
-    render(
-      <IncomeExpenseDonut categories={cats} mode="expense" currencySymbol="₹" />
-    );
+    render(<IncomeExpenseDonut categories={cats} mode="expense" currencySymbol="₹" />);
     expect(screen.getByText('Food')).toBeInTheDocument();
     expect(screen.getByText('Transport')).toBeInTheDocument();
   });
 
   it('shows expense empty state when no categories and mode is expense', () => {
-    render(
-      <IncomeExpenseDonut categories={[]} mode="expense" currencySymbol="₹" />
-    );
+    render(<IncomeExpenseDonut categories={[]} mode="expense" currencySymbol="₹" />);
     expect(screen.getByText(/no expenses for this period/i)).toBeInTheDocument();
   });
 
   it('shows income empty state when no categories and mode is income', () => {
-    render(
-      <IncomeExpenseDonut categories={[]} mode="income" currencySymbol="₹" />
-    );
+    render(<IncomeExpenseDonut categories={[]} mode="income" currencySymbol="₹" />);
     expect(screen.getByText(/no income for this period/i)).toBeInTheDocument();
   });
 });
@@ -526,7 +589,11 @@ interface IncomeExpenseDonutProps {
   currencySymbol: string;
 }
 
-export default function IncomeExpenseDonut({ categories, mode, currencySymbol }: IncomeExpenseDonutProps) {
+export default function IncomeExpenseDonut({
+  categories,
+  mode,
+  currencySymbol,
+}: IncomeExpenseDonutProps) {
   const { themeId } = useTheme();
   const theme = getTheme(themeId);
   const total = categories.reduce((s, c) => s + c.total, 0);
@@ -534,9 +601,7 @@ export default function IncomeExpenseDonut({ categories, mode, currencySymbol }:
 
   return (
     <div className="card-surface rounded-2xl p-5 flex flex-col gap-3">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-        {title}
-      </h2>
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">{title}</h2>
       {categories.length === 0 ? (
         <p className="text-sm text-text-muted py-4 text-center">
           No {mode === 'expense' ? 'expenses' : 'income'} for this period
@@ -560,15 +625,17 @@ export default function IncomeExpenseDonut({ categories, mode, currencySymbol }:
                     <Cell key={i} fill={theme.categoryColors[i % theme.categoryColors.length]!} />
                   ))}
                 </Pie>
-                <Tooltip
-                  formatter={(v: unknown) => formatCurrency(v as number, currencySymbol)}
-                />
+                <Tooltip formatter={(v: unknown) => formatCurrency(v as number, currencySymbol)} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <p className="text-xl font-bold text-text">{formatCurrency(total, currencySymbol)}</p>
-                <p className="text-xs text-text-muted">{mode === 'expense' ? 'expenses' : 'income'}</p>
+                <p className="text-xl font-bold text-text">
+                  {formatCurrency(total, currencySymbol)}
+                </p>
+                <p className="text-xs text-text-muted">
+                  {mode === 'expense' ? 'expenses' : 'income'}
+                </p>
               </div>
             </div>
           </div>
@@ -595,13 +662,17 @@ export default function IncomeExpenseDonut({ categories, mode, currencySymbol }:
 In `src/routes/Dashboard.tsx`, find this line:
 
 ```tsx
-          <IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
+<IncomeExpenseDonut income={totalIncome} expenses={totalExpenses} currencySymbol={currencySymbol} />
 ```
 
 Replace it with:
 
 ```tsx
-          <IncomeExpenseDonut categories={categoryItems} mode={categoryMode} currencySymbol={currencySymbol} />
+<IncomeExpenseDonut
+  categories={categoryItems}
+  mode={categoryMode}
+  currencySymbol={currencySymbol}
+/>
 ```
 
 No other changes to Dashboard.tsx.
@@ -634,6 +705,7 @@ git commit -m "feat: IncomeExpenseDonut now shows category breakdown synced with
 ### Task 4: QuickStats currency and account filter
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx` (one line)
 
 - [ ] **Step 1: Update the QuickStats prop in Dashboard.tsx**
@@ -641,13 +713,13 @@ git commit -m "feat: IncomeExpenseDonut now shows category breakdown synced with
 In `src/routes/Dashboard.tsx`, find:
 
 ```tsx
-          <QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
+<QuickStats transactions={periodTxns} currencySymbol={currencySymbol} />
 ```
 
 Change it to:
 
 ```tsx
-          <QuickStats transactions={heroTxns} currencySymbol={currencySymbol} />
+<QuickStats transactions={heroTxns} currencySymbol={currencySymbol} />
 ```
 
 No other changes. `heroTxns` is already computed earlier in the file.

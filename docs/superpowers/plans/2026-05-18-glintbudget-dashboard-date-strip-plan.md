@@ -12,21 +12,22 @@
 
 ## File Map
 
-| Action | Path |
-|---|---|
+| Action | Path                                                                                                        |
+| ------ | ----------------------------------------------------------------------------------------------------------- |
 | Modify | `src/lib/dateUtils.ts` — add `getMondayOf`, `getWeekDays`, `isSameDay`, `isCurrentWeek`, `formatDayHeading` |
-| Create | `src/lib/dateUtils.test.ts` — unit tests for the five new helpers |
-| Create | `src/components/dashboard/DailyTransactions.tsx` — new widget component |
-| Create | `src/components/dashboard/DailyTransactions.test.tsx` — component tests |
-| Modify | `src/routes/Dashboard.tsx` — swap import + JSX, pass `allTxns` instead of `periodTxns` |
-| Delete | `src/components/dashboard/PeriodTransactions.tsx` |
-| Delete | `src/components/dashboard/PeriodTransactions.test.tsx` |
+| Create | `src/lib/dateUtils.test.ts` — unit tests for the five new helpers                                           |
+| Create | `src/components/dashboard/DailyTransactions.tsx` — new widget component                                     |
+| Create | `src/components/dashboard/DailyTransactions.test.tsx` — component tests                                     |
+| Modify | `src/routes/Dashboard.tsx` — swap import + JSX, pass `allTxns` instead of `periodTxns`                      |
+| Delete | `src/components/dashboard/PeriodTransactions.tsx`                                                           |
+| Delete | `src/components/dashboard/PeriodTransactions.test.tsx`                                                      |
 
 ---
 
 ## Task 1: Add date-utility helpers
 
 **Files:**
+
 - Modify: `src/lib/dateUtils.ts`
 - Create: `src/lib/dateUtils.test.ts`
 
@@ -36,13 +37,7 @@ Create `src/lib/dateUtils.test.ts` with this content:
 
 ```ts
 import { describe, it, expect } from 'vitest';
-import {
-  getMondayOf,
-  getWeekDays,
-  isSameDay,
-  isCurrentWeek,
-  formatDayHeading,
-} from './dateUtils';
+import { getMondayOf, getWeekDays, isSameDay, isCurrentWeek, formatDayHeading } from './dateUtils';
 
 describe('getMondayOf', () => {
   it('returns Monday when given a Wednesday', () => {
@@ -200,6 +195,7 @@ git commit -m "feat: add getMondayOf, getWeekDays, isSameDay, isCurrentWeek, for
 ## Task 2: Create DailyTransactions component (TDD)
 
 **Files:**
+
 - Create: `src/components/dashboard/DailyTransactions.tsx`
 - Create: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -217,9 +213,18 @@ import type { Transaction } from '../../firestore/types';
 
 function makeTx(id: string, vendor: string, amount: number, date: Date): Transaction {
   return {
-    id, user_id: 'u1', category: 'Food', subCategory: '',
-    date, account: 'HDFC', vendor, payment: 'UPI',
-    currency: 'INR', notes: '', amount, icon: '🛒',
+    id,
+    user_id: 'u1',
+    category: 'Food',
+    subCategory: '',
+    date,
+    account: 'HDFC',
+    vendor,
+    payment: 'UPI',
+    currency: 'INR',
+    notes: '',
+    amount,
+    icon: '🛒',
   };
 }
 
@@ -239,11 +244,7 @@ function daysAgo(n: number, hours = 12): Date {
 function renderDT(transactions: Transaction[]) {
   return render(
     <MemoryRouter>
-      <DailyTransactions
-        transactions={transactions}
-        currencySymbol="₹"
-        onDelete={vi.fn()}
-      />
+      <DailyTransactions transactions={transactions} currencySymbol="₹" onDelete={vi.fn()} />
     </MemoryRouter>,
   );
 }
@@ -332,7 +333,9 @@ describe('DailyTransactions — week navigation', () => {
     // If yesterday is in the current week, click its tile directly
     const yesterdayNum = yesterday.getDate().toString();
     const tiles = screen.getAllByRole('button', { pressed: /true|false/ });
-    const target = tiles.find((b) => b.textContent?.includes(yesterdayNum) && b.getAttribute('aria-pressed') === 'false');
+    const target = tiles.find(
+      (b) => b.textContent?.includes(yesterdayNum) && b.getAttribute('aria-pressed') === 'false',
+    );
     if (target) {
       await userEvent.click(target);
       expect(screen.getByText('YesterdayVendor')).toBeInTheDocument();
@@ -597,6 +600,7 @@ git commit -m "feat: add DailyTransactions widget with weekly date-strip and gre
 ## Task 3: Wire into Dashboard and remove old component
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 - Delete: `src/components/dashboard/PeriodTransactions.tsx`
 - Delete: `src/components/dashboard/PeriodTransactions.test.tsx`

@@ -13,6 +13,7 @@
 ### Task 1: Add failing tests for the theme switcher
 
 **Files:**
+
 - Modify: `src/components/layout/Sidebar.test.tsx`
 
 - [ ] **Step 1: Add ThemeContext mock and new test cases**
@@ -87,6 +88,7 @@ Expected: 3 new tests **FAIL** (theme group not found, `useTheme` not called yet
 ### Task 2: Implement the theme switcher in Sidebar.tsx
 
 **Files:**
+
 - Modify: `src/components/layout/Sidebar.tsx`
 
 - [ ] **Step 3: Add imports**
@@ -111,41 +113,43 @@ const { themeId, setTheme } = useTheme();
 Replace the `{/* Sign out */}` section with:
 
 ```tsx
-      {/* Theme switcher */}
-      <div
-        role="group"
-        aria-label="Theme"
-        className="px-3 pb-3 flex gap-2 justify-center"
-      >
-        {THEMES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            aria-label={t.name}
-            aria-pressed={themeId === t.id}
-            onClick={() => void setTheme(t.id)}
-            className={[
-              'w-5 h-5 rounded-full transition-all',
-              themeId === t.id
-                ? 'ring-2 ring-white ring-offset-1 ring-offset-transparent scale-110'
-                : 'opacity-60 hover:opacity-100',
-            ].join(' ')}
-            style={{ background: t.swatchGradient }}
-          />
-        ))}
-      </div>
+{
+  /* Theme switcher */
+}
+<div role="group" aria-label="Theme" className="px-3 pb-3 flex gap-2 justify-center">
+  {THEMES.map((t) => (
+    <button
+      key={t.id}
+      type="button"
+      aria-label={t.name}
+      aria-pressed={themeId === t.id}
+      onClick={() => void setTheme(t.id)}
+      className={[
+        'w-5 h-5 rounded-full transition-all',
+        themeId === t.id
+          ? 'ring-2 ring-white ring-offset-1 ring-offset-transparent scale-110'
+          : 'opacity-60 hover:opacity-100',
+      ].join(' ')}
+      style={{ background: t.swatchGradient }}
+    />
+  ))}
+</div>;
 
-      {/* Sign out */}
-      <div className="px-3 pt-2">
-        <button
-          type="button"
-          onClick={() => void handleSignOut()}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white border border-white/20"
-        >
-          <span aria-hidden="true" className="text-base">⎋</span>
-          Sign out
-        </button>
-      </div>
+{
+  /* Sign out */
+}
+<div className="px-3 pt-2">
+  <button
+    type="button"
+    onClick={() => void handleSignOut()}
+    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white border border-white/20"
+  >
+    <span aria-hidden="true" className="text-base">
+      ⎋
+    </span>
+    Sign out
+  </button>
+</div>;
 ```
 
 - [ ] **Step 6: Run the tests to confirm they all pass**

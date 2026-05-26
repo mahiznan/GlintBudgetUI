@@ -3,9 +3,24 @@ import { describe, expect, it } from 'vitest';
 import QuickStats from './QuickStats';
 import type { Transaction } from '../../firestore/types';
 
-const makeTx = (vendor: string, amount: number, payment: string, category: string): Transaction => ({
-  id: vendor, user_id: 'u1', category, subCategory: '', date: new Date(),
-  account: 'HDFC', vendor, payment, currency: 'INR', notes: '', amount, icon: '',
+const makeTx = (
+  vendor: string,
+  amount: number,
+  payment: string,
+  category: string,
+): Transaction => ({
+  id: vendor,
+  user_id: 'u1',
+  category,
+  subCategory: '',
+  date: new Date(),
+  account: 'HDFC',
+  vendor,
+  payment,
+  currency: 'INR',
+  notes: '',
+  amount,
+  icon: '',
 });
 
 describe('QuickStats', () => {
@@ -32,10 +47,7 @@ describe('QuickStats', () => {
 
   it('avg/day = total expenses ÷ periodDays (not ÷ tx count)', () => {
     // 2 transactions totalling ₹600 over 30 days → avg/day = ₹20, not ₹300
-    const txns = [
-      makeTx('A', -400, 'UPI', 'Food'),
-      makeTx('B', -200, 'UPI', 'Food'),
-    ];
+    const txns = [makeTx('A', -400, 'UPI', 'Food'), makeTx('B', -200, 'UPI', 'Food')];
     render(<QuickStats transactions={txns} currencySymbol="₹" periodDays={30} />);
     expect(screen.getByText('₹20.00')).toBeInTheDocument();
   });

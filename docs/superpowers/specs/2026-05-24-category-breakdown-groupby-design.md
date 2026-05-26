@@ -9,13 +9,13 @@ Extend the Category Breakdown dashboard widget to support five grouping dimensio
 
 ## Grouping Dimensions
 
-| Value | Field on `Transaction` |
-|---|---|
-| `'category'` | `t.category` |
-| `'account'` | `t.account` |
-| `'currency'` | `t.currency` |
-| `'vendor'` | `t.vendor` |
-| `'payment'` | `t.payment` |
+| Value        | Field on `Transaction` |
+| ------------ | ---------------------- |
+| `'category'` | `t.category`           |
+| `'account'`  | `t.account`            |
+| `'currency'` | `t.currency`           |
+| `'vendor'`   | `t.vendor`             |
+| `'payment'`  | `t.payment`            |
 
 ## State Shape (`Dashboard.tsx`)
 
@@ -31,18 +31,19 @@ interface DrillState {
 Initial state: `{ groupBy: 'category', path: [] }`.
 
 Level is `path.length`. Maximum depth depends on groupBy:
+
 - `'category'`: max depth 2 → `[category, subCategory]` → transactions
 - all others: max depth 3 → `[groupItem, category, subCategory]` → transactions
 
 ### State Transitions
 
-| Action | New State |
-|---|---|
-| Click item | `{ groupBy, path: [...path, name] }` |
-| Back button | `{ groupBy, path: path.slice(0, -1) }` |
-| Switch expense/income | `{ groupBy, path: [] }` |
-| Change period | `{ groupBy, path: [] }` |
-| Change groupBy | `{ groupBy: newGroupBy, path: [] }` |
+| Action                | New State                              |
+| --------------------- | -------------------------------------- |
+| Click item            | `{ groupBy, path: [...path, name] }`   |
+| Back button           | `{ groupBy, path: path.slice(0, -1) }` |
+| Switch expense/income | `{ groupBy, path: [] }`                |
+| Change period         | `{ groupBy, path: [] }`                |
+| Change groupBy        | `{ groupBy: newGroupBy, path: [] }`    |
 
 The groupBy selection **persists** when switching expense/income and when navigating periods. It only resets when the user explicitly changes it via the dropdown.
 
@@ -70,10 +71,10 @@ Grouping always produces `CategoryItem[]` sorted descending by total, with `pct`
 ## Header Label Derivation (`Dashboard.tsx`)
 
 ```typescript
-drillLevel  = path.length
-drillLabel  = path.at(-1)                                    // current item
-backLabel   = path.length === 1 ? '← Back' : `← ${path.at(-2)}`
-onBack      = () => setDrillState({ groupBy, path: path.slice(0, -1) })
+drillLevel = path.length;
+drillLabel = path.at(-1); // current item
+backLabel = path.length === 1 ? '← Back' : `← ${path.at(-2)}`;
+onBack = () => setDrillState({ groupBy, path: path.slice(0, -1) });
 ```
 
 ## `CategoryBreakdown` Component Changes
@@ -90,9 +91,9 @@ interface CategoryBreakdownProps {
   mode: Mode;
   onModeChange: (mode: Mode) => void;
   currencySymbol: string;
-  groupBy: GroupBy;                        // NEW
-  onGroupByChange: (g: GroupBy) => void;   // NEW
-  drillLevel?: number;                     // was 0|1|2, now number
+  groupBy: GroupBy; // NEW
+  onGroupByChange: (g: GroupBy) => void; // NEW
+  drillLevel?: number; // was 0|1|2, now number
   drillLabel?: string;
   backLabel?: string;
   onItemClick?: (name: string) => void;
@@ -104,11 +105,13 @@ interface CategoryBreakdownProps {
 ### Header Rendering
 
 **`drillLevel === 0` (path.length = 0):**
+
 - Left: `<select>` GroupBy dropdown (Category / Account / Currency / Vendor / Payment)
 - Right: Expense / Income toggle
 - No title text
 
 **`drillLevel > 0` (drilling):**
+
 - Left: back button (`backLabel`) + current item label (`drillLabel`)
 - Right: nothing — both the dropdown and the expense/income toggle are hidden
 
@@ -119,11 +122,11 @@ Dashboard controls when to pass the `transactions` prop (at max drill depth for 
 
 ## Files Changed
 
-| File | Change |
-|---|---|
-| `src/components/dashboard/CategoryBreakdown.tsx` | Add GroupBy dropdown, update header logic, relax drillLevel type, fix transactions gate |
-| `src/routes/Dashboard.tsx` | Replace DrillState union with path-based state, extend categoryItems/drillTransactions memos, wire new props |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Update smoke test for new required props |
+| File                                                  | Change                                                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Add GroupBy dropdown, update header logic, relax drillLevel type, fix transactions gate                      |
+| `src/routes/Dashboard.tsx`                            | Replace DrillState union with path-based state, extend categoryItems/drillTransactions memos, wire new props |
+| `src/components/dashboard/CategoryBreakdown.test.tsx` | Update smoke test for new required props                                                                     |
 
 No changes to `firestore/types.ts`, hooks, or any other component.
 

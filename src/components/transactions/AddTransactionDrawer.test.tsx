@@ -7,7 +7,10 @@ vi.mock('../../firebase/client', () => ({ auth: {}, app: {} }));
 vi.mock('../../firebase/db', () => ({ db: {} }));
 vi.mock('../../auth/AuthContext', () => ({ useAuth: vi.fn() }));
 vi.mock('../../context/PreferenceContext', () => ({ usePreferenceContext: vi.fn() }));
-vi.mock('../../hooks/useMutateTransaction', () => ({ useAddTransaction: vi.fn(), useUpdateTransaction: vi.fn() }));
+vi.mock('../../hooks/useMutateTransaction', () => ({
+  useAddTransaction: vi.fn(),
+  useUpdateTransaction: vi.fn(),
+}));
 vi.mock('firebase/firestore', () => ({
   getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => undefined }),
   doc: vi.fn(),
@@ -71,7 +74,7 @@ describe('AddTransactionDrawer', () => {
         onClose={vi.fn()}
         onSaved={vi.fn()}
         selectedDate={new Date('2026-03-15T00:00:00')}
-      />
+      />,
     );
     // The date field row shows a formatted date for March 15, 2026
     expect(screen.getByText(/march 15, 2026/i)).toBeInTheDocument();

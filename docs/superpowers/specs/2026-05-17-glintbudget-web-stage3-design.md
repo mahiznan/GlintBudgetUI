@@ -15,6 +15,7 @@ Add a fully functional personal-finance dashboard and full transaction CRUD to t
 ## §2 Scope
 
 ### In scope
+
 - `/app/dashboard` — hero stats, spending chart, category breakdown, income/expense donut, today's transactions table, quick stats
 - `/app/transactions` — paginated, date-filtered transaction list
 - `/app/transactions/new` — add transaction form
@@ -24,6 +25,7 @@ Add a fully functional personal-finance dashboard and full transaction CRUD to t
 - Period navigation: Day · Week · Month · Quarter · Year (controls chart + stats)
 
 ### Out of scope (future stages)
+
 - Editing preference metadata (categories, accounts, etc.) — Stage 4
 - Reports & charts beyond the dashboard widgets — Stage 5
 - Currency conversion — Stage 5
@@ -39,6 +41,7 @@ Add a fully functional personal-finance dashboard and full transaction CRUD to t
 **Layout:** Desktop-first full-screen web app. Sidebar + top bar + scrollable bento content area.
 
 ### Layout structure
+
 ```
 ┌─────────────┬────────────────────────────────────────────┐
 │  Sidebar    │  Top Bar (title, search, date range, +Add) │
@@ -61,14 +64,16 @@ Add a fully functional personal-finance dashboard and full transaction CRUD to t
 ```
 
 ### Colour tokens (existing — do not change)
-| Token | Value | Usage |
-|---|---|---|
-| `--color-brand` | `#007836` | CTAs, active nav, chart fill, FAB |
-| `--color-brand-dark` | `#005c2a` | Sidebar gradient deep end, hover states |
-| `--color-accent` | `#1fa32e` | Income amounts, gradient mid-point |
-| `--color-highlight` | `#96bf0d` | Lime — current-bar highlight, gradient text end |
+
+| Token                | Value     | Usage                                           |
+| -------------------- | --------- | ----------------------------------------------- |
+| `--color-brand`      | `#007836` | CTAs, active nav, chart fill, FAB               |
+| `--color-brand-dark` | `#005c2a` | Sidebar gradient deep end, hover states         |
+| `--color-accent`     | `#1fa32e` | Income amounts, gradient mid-point              |
+| `--color-highlight`  | `#96bf0d` | Lime — current-bar highlight, gradient text end |
 
 ### Gradient rules
+
 - **Sidebar:** `linear-gradient(180deg, #003d1c, #005c2a, #007836)` with ambient radial blobs
 - **Hero stats row:** `linear-gradient(120deg, #003d1c → #007836 → #1fa32e → #e8f5e9)` fading to white
 - **Hero balance text:** gradient text (`#fff → #d1fae5 → #96bf0d`)
@@ -121,11 +126,11 @@ Mirror the iOS `Transaction` and `Preference` models exactly. Field names match 
 ```ts
 // Mirrors iOS Transaction.CodingKeys
 export interface Transaction {
-  id: string;           // UUID string
+  id: string; // UUID string
   user_id: string;
   category: string;
-  subCategory: string;  // Firestore key: sub_category — decode on read
-  date: Date;           // Firestore Timestamp → Date on read
+  subCategory: string; // Firestore key: sub_category — decode on read
+  date: Date; // Firestore Timestamp → Date on read
   account: string;
   vendor: string;
   payment: string;
@@ -152,13 +157,13 @@ export interface Currency {
 
 // Mirrors iOS Preference
 export interface Preference {
-  id: string;  // = user uid (document ID)
+  id: string; // = user uid (document ID)
   accounts: BudgetData[];
   categories: BudgetData[];
-  subCategories: BudgetData[];  // Firestore key: subCategories
+  subCategories: BudgetData[]; // Firestore key: subCategories
   vendors: BudgetData[];
   payments: BudgetData[];
-  defaultCurrency: Currency;    // Firestore key: default_currency
+  defaultCurrency: Currency; // Firestore key: default_currency
   bookmarkedCurrencies: string[]; // Firestore key: frequent_currencies
   // defaultEntries maps BudgetDataType string → default value name,
   // e.g. { "account": "HDFC Bank", "currency": "USD" }
@@ -168,6 +173,7 @@ export interface Preference {
 ```
 
 **Important:** Firestore document fields use snake_case for some fields (matching iOS CodingKeys). Decode carefully on read:
+
 - `sub_category` → `subCategory`
 - `default_currency` → `defaultCurrency`
 - `frequent_currencies` → `bookmarkedCurrencies`
@@ -176,26 +182,26 @@ export interface Preference {
 
 ### 5.3 Firestore queries
 
-| Operation | Collection | Query |
-|---|---|---|
-| Dashboard transactions | `transactions` | `where('user_id','==',uid)`, `orderBy('date','desc')`, `limit(200)` |
-| Transaction list | `transactions` | same + `where('date','>=',start)`, `where('date','<=',end)` |
-| Add transaction | `transactions` | `addDoc` |
-| Update transaction | `transactions/{id}` | `updateDoc` |
-| Delete transaction | `transactions/{id}` | `deleteDoc` |
-| Preferences | `preference/{uid}` | `getDoc` once on login |
+| Operation              | Collection          | Query                                                               |
+| ---------------------- | ------------------- | ------------------------------------------------------------------- |
+| Dashboard transactions | `transactions`      | `where('user_id','==',uid)`, `orderBy('date','desc')`, `limit(200)` |
+| Transaction list       | `transactions`      | same + `where('date','>=',start)`, `where('date','<=',end)`         |
+| Add transaction        | `transactions`      | `addDoc`                                                            |
+| Update transaction     | `transactions/{id}` | `updateDoc`                                                         |
+| Delete transaction     | `transactions/{id}` | `deleteDoc`                                                         |
+| Preferences            | `preference/{uid}`  | `getDoc` once on login                                              |
 
 **Dashboard strategy:** fetch up to 200 most recent transactions once. Filter client-side for today's widget and chart grouping. Avoids extra round-trips and keeps the dashboard fast. Revisit with real-time listeners in Stage 4 if needed.
 
 ### 5.4 Data hooks (`src/hooks/`)
 
-| Hook | Returns | Notes |
-|---|---|---|
+| Hook                      | Returns                             | Notes                                                                                                                     |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `useTransactions(filter)` | `{ data, loading, error, refetch }` | filter = `{ start?: Date, end?: Date, limit?: number }` — dashboard passes `{ limit: 200 }`, list passes `{ start, end }` |
-| `usePreferences()` | `{ data, loading, error }` | fetched once, cached in context |
-| `useAddTransaction()` | `{ mutate, loading, error }` | |
-| `useUpdateTransaction()` | `{ mutate, loading, error }` | |
-| `useDeleteTransaction()` | `{ mutate, loading, error }` | |
+| `usePreferences()`        | `{ data, loading, error }`          | fetched once, cached in context                                                                                           |
+| `useAddTransaction()`     | `{ mutate, loading, error }`        |                                                                                                                           |
+| `useUpdateTransaction()`  | `{ mutate, loading, error }`        |                                                                                                                           |
+| `useDeleteTransaction()`  | `{ mutate, loading, error }`        |                                                                                                                           |
 
 All hooks manage loading/error state internally. No external state library needed for Stage 3. Preferences are stored in a `PreferenceContext` so any component can read them without prop-drilling.
 
@@ -203,10 +209,10 @@ All hooks manage loading/error state internally. No external state library neede
 
 ## §6 New Dependencies
 
-| Package | Purpose |
-|---|---|
-| `recharts` | Spending bar chart + donut chart — React-native, composable, ~50 KB gz |
-| (firebase already installed) | `firebase/firestore` is part of the existing firebase package |
+| Package                      | Purpose                                                                |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| `recharts`                   | Spending bar chart + donut chart — React-native, composable, ~50 KB gz |
+| (firebase already installed) | `firebase/firestore` is part of the existing firebase package          |
 
 No additional state management library. React context + `useState`/`useEffect` is sufficient for Stage 3 data volume.
 
@@ -260,24 +266,31 @@ src/
 ## §8 Dashboard Widgets (detail)
 
 ### Period tab scope
+
 The Day/Week/Month/Quarter/Year tabs in TopBar control: HeroStatsRow, SpendingChart, CategoryBreakdown, IncomeExpenseDonut, and QuickStats. **TodayTransactions always shows today's transactions regardless of selected period** — it is a fixed "what happened today" widget, not period-aware.
 
 ### HeroStatsRow
+
 Full-width gradient banner. Shows: total spent (selected period), income (selected period), net balance, transaction count. Period controlled by TopBar tabs. Gradient text on balance amount.
 
 ### SpendingChart
+
 `recharts` `<BarChart>`. X-axis = days (Month view) or weeks/months depending on period. Y-axis = expense amount. Current day/period bar uses lime gradient + tooltip. Tab strip: Day · Week · Month · Quarter · Year.
 
 ### CategoryBreakdown
+
 Top 5 categories by spend. Each row: emoji icon + category name + % + amount + gradient progress bar. Link to full breakdown (Transaction list filtered by category — Stage 5).
 
 ### IncomeExpenseDonut
+
 `recharts` `<PieChart>` with inner ring showing savings rate %. Legend: income (green gradient text), expenses (red), net (plain). Same period as dashboard.
 
 ### TodayTransactions
+
 Table of today's transactions only. Columns: icon+name, category badge, time, account, payment, amount, edit/delete actions. "See all →" link goes to `/app/transactions`.
 
 ### QuickStats
+
 Simple card: highest spend, avg per transaction, most used payment, top category, savings rate. Derived from same period data.
 
 ---
@@ -285,38 +298,43 @@ Simple card: highest spend, avg per transaction, most used payment, top category
 ## §9 Transaction Form
 
 ### Fields (all required except notes)
-| Field | Input type | Source |
-|---|---|---|
-| Type | Toggle (Expense/Income) | hardcoded |
-| Amount | Number input | user |
-| Currency | Dropdown | `preference.bookmarkedCurrencies` + `preference.defaultCurrency` |
-| Category | Dropdown | `preference.categories` |
-| Sub-category | Dropdown (filtered by parent) | `preference.subCategories` |
-| Vendor | Dropdown + free text | `preference.vendors` |
-| Account | Dropdown | `preference.accounts` |
-| Payment | Dropdown | `preference.payments` |
-| Date | Date picker | default today |
-| Notes | Text area | optional |
-| Icon | Auto-set from category emoji | not user-editable in Stage 3 |
+
+| Field        | Input type                    | Source                                                           |
+| ------------ | ----------------------------- | ---------------------------------------------------------------- |
+| Type         | Toggle (Expense/Income)       | hardcoded                                                        |
+| Amount       | Number input                  | user                                                             |
+| Currency     | Dropdown                      | `preference.bookmarkedCurrencies` + `preference.defaultCurrency` |
+| Category     | Dropdown                      | `preference.categories`                                          |
+| Sub-category | Dropdown (filtered by parent) | `preference.subCategories`                                       |
+| Vendor       | Dropdown + free text          | `preference.vendors`                                             |
+| Account      | Dropdown                      | `preference.accounts`                                            |
+| Payment      | Dropdown                      | `preference.payments`                                            |
+| Date         | Date picker                   | default today                                                    |
+| Notes        | Text area                     | optional                                                         |
+| Icon         | Auto-set from category emoji  | not user-editable in Stage 3                                     |
 
 ### Add flow
+
 1. User clicks "+ Add Transaction" → navigate to `/app/transactions/new`
 2. Form pre-fills defaults from `preference.defaultEntries` and `preference.defaultCurrency`
 3. User fills fields → "Save" → `addDoc` → navigate to `/app/transactions`
 4. On error: inline error message below the form, stay on page
 
 ### Edit flow
+
 1. User clicks ✏️ on any transaction row → navigate to `/app/transactions/:id/edit`
 2. Load transaction by ID → pre-fill all fields
 3. User edits → "Save" → `updateDoc` → navigate back
 4. Cancel → navigate back without saving
 
 ### Delete flow
+
 1. User clicks 🗑 → `<DeleteConfirmDialog>` (modal) asking "Delete this transaction?"
 2. Confirm → `deleteDoc` → close modal → remove row from UI optimistically
 3. On error: restore row, show toast error
 
 ### Validation (client-side before submit)
+
 - Amount: required, must be a positive number
 - Category: required
 - Vendor: required
@@ -332,6 +350,7 @@ Simple card: highest spend, avg per transaction, most used payment, top category
 Current AppShell renders a single page. It becomes a **layout route** with `<Outlet>` for child routes.
 
 ### New AppShell structure
+
 ```tsx
 export default function AppShell() {
   return (
@@ -354,14 +373,14 @@ The existing "Welcome back" content moves into `Dashboard.tsx`.
 
 ## §11 Error Handling
 
-| Scenario | UI response |
-|---|---|
-| Firestore read fails (dashboard) | Red banner: "Couldn't load transactions. Retry." |
-| Firestore read fails (preferences) | Dropdowns show empty with free-text fallback |
-| Add/update fails | Inline error below form |
-| Delete fails | Toast error, row restored |
-| User has no transactions yet | Empty state illustration + "Add your first transaction" CTA |
-| Preference document missing | Dropdowns allow free-text entry; no crash |
+| Scenario                           | UI response                                                 |
+| ---------------------------------- | ----------------------------------------------------------- |
+| Firestore read fails (dashboard)   | Red banner: "Couldn't load transactions. Retry."            |
+| Firestore read fails (preferences) | Dropdowns show empty with free-text fallback                |
+| Add/update fails                   | Inline error below form                                     |
+| Delete fails                       | Toast error, row restored                                   |
+| User has no transactions yet       | Empty state illustration + "Add your first transaction" CTA |
+| Preference document missing        | Dropdowns allow free-text entry; no crash                   |
 
 ---
 
@@ -369,16 +388,16 @@ The existing "Welcome back" content moves into `Dashboard.tsx`.
 
 Each new component/hook ships with a co-located `*.test.tsx`. Firestore is mocked via `vi.mock('firebase/firestore')` — same pattern as the existing Firebase auth mocks.
 
-| Test target | What to test |
-|---|---|
-| `useTransactions` | loading state, data mapping, error state |
-| `usePreferences` | caches result, handles missing document |
-| `useMutateTransaction` | optimistic update, rollback on error |
-| `Dashboard` | renders all 6 widgets, shows loading skeleton |
-| `TransactionForm` | required field validation, pre-fills defaults, calls addDoc/updateDoc |
-| `DeleteConfirmDialog` | confirm calls deleteDoc, cancel does not |
-| `SpendingChart` | renders bars, period tab switches data |
-| `TransactionTable` | renders rows, edit/delete buttons present |
+| Test target            | What to test                                                          |
+| ---------------------- | --------------------------------------------------------------------- |
+| `useTransactions`      | loading state, data mapping, error state                              |
+| `usePreferences`       | caches result, handles missing document                               |
+| `useMutateTransaction` | optimistic update, rollback on error                                  |
+| `Dashboard`            | renders all 6 widgets, shows loading skeleton                         |
+| `TransactionForm`      | required field validation, pre-fills defaults, calls addDoc/updateDoc |
+| `DeleteConfirmDialog`  | confirm calls deleteDoc, cancel does not                              |
+| `SpendingChart`        | renders bars, period tab switches data                                |
+| `TransactionTable`     | renders rows, edit/delete buttons present                             |
 
 ---
 
@@ -394,15 +413,15 @@ Each new component/hook ships with a co-located `*.test.tsx`. Firestore is mocke
 
 ## §14 What Changes in Existing Files
 
-| File | Change |
-|---|---|
-| `src/App.tsx` | Add nested child routes under `/app` |
-| `src/routes/AppShell.tsx` | Becomes layout shell with `<Outlet>` |
-| `src/components/UserMenu.tsx` | No change |
-| `src/main.tsx` | Wrap with `<PreferenceProvider>` after `<AuthProvider>` |
-| `CLAUDE.md` | Update project structure + stage status |
-| `package.json` | Add `recharts` |
-| `.github/workflows/deploy.yml` | No change needed |
+| File                           | Change                                                  |
+| ------------------------------ | ------------------------------------------------------- |
+| `src/App.tsx`                  | Add nested child routes under `/app`                    |
+| `src/routes/AppShell.tsx`      | Becomes layout shell with `<Outlet>`                    |
+| `src/components/UserMenu.tsx`  | No change                                               |
+| `src/main.tsx`                 | Wrap with `<PreferenceProvider>` after `<AuthProvider>` |
+| `CLAUDE.md`                    | Update project structure + stage status                 |
+| `package.json`                 | Add `recharts`                                          |
+| `.github/workflows/deploy.yml` | No change needed                                        |
 
 ---
 

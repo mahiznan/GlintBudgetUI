@@ -12,17 +12,17 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Modify | `src/firestore/types.ts` |
-| Modify | `src/hooks/useUpdatePreference.ts` |
-| Create | `src/context/LayoutContext.tsx` |
-| Create | `src/context/LayoutProvider.tsx` |
-| Create | `src/context/LayoutProvider.test.tsx` |
-| Modify | `src/App.tsx` |
-| Modify | `src/routes/AppShell.tsx` |
-| Modify | `src/routes/AppShell.test.tsx` |
-| Modify | `src/components/settings/AppearanceTab.tsx` |
+| Action | File                                             |
+| ------ | ------------------------------------------------ |
+| Modify | `src/firestore/types.ts`                         |
+| Modify | `src/hooks/useUpdatePreference.ts`               |
+| Create | `src/context/LayoutContext.tsx`                  |
+| Create | `src/context/LayoutProvider.tsx`                 |
+| Create | `src/context/LayoutProvider.test.tsx`            |
+| Modify | `src/App.tsx`                                    |
+| Modify | `src/routes/AppShell.tsx`                        |
+| Modify | `src/routes/AppShell.test.tsx`                   |
+| Modify | `src/components/settings/AppearanceTab.tsx`      |
 | Modify | `src/components/settings/AppearanceTab.test.tsx` |
 
 ---
@@ -30,6 +30,7 @@
 ### Task 1: Extend Preference type and Firestore hook
 
 **Files:**
+
 - Modify: `src/firestore/types.ts`
 - Modify: `src/hooks/useUpdatePreference.ts`
 
@@ -95,6 +96,7 @@ git commit -m "feat: add layoutWidth field to Preference type and Firestore hook
 ### Task 2: Create LayoutContext
 
 **Files:**
+
 - Create: `src/context/LayoutContext.tsx`
 
 - [ ] **Step 1: Create the context file**
@@ -138,6 +140,7 @@ git commit -m "feat: add LayoutContext"
 ### Task 3: Create LayoutProvider with tests (TDD)
 
 **Files:**
+
 - Create: `src/context/LayoutProvider.test.tsx`
 - Create: `src/context/LayoutProvider.tsx`
 
@@ -169,7 +172,11 @@ function setupMocks(layoutWidth?: 'fixed' | 'full') {
     refetch: vi.fn(),
   });
   vi.mocked(useAuth).mockReturnValue({ status: 'authenticated', user: { uid: 'u1' } } as never);
-  vi.mocked(useUpdatePreference).mockReturnValue({ mutate: mockMutate, loading: false, error: null });
+  vi.mocked(useUpdatePreference).mockReturnValue({
+    mutate: mockMutate,
+    loading: false,
+    error: null,
+  });
 }
 
 function LayoutWidthDisplay() {
@@ -184,13 +191,21 @@ describe('LayoutProvider', () => {
 
   it('defaults to fixed when preference has no layoutWidth', () => {
     setupMocks(undefined);
-    const { getByTestId } = render(<LayoutProvider><LayoutWidthDisplay /></LayoutProvider>);
+    const { getByTestId } = render(
+      <LayoutProvider>
+        <LayoutWidthDisplay />
+      </LayoutProvider>,
+    );
     expect(getByTestId('width').textContent).toBe('fixed');
   });
 
   it('seeds layoutWidth from preference', () => {
     setupMocks('full');
-    const { getByTestId } = render(<LayoutProvider><LayoutWidthDisplay /></LayoutProvider>);
+    const { getByTestId } = render(
+      <LayoutProvider>
+        <LayoutWidthDisplay />
+      </LayoutProvider>,
+    );
     expect(getByTestId('width').textContent).toBe('full');
   });
 
@@ -294,6 +309,7 @@ git commit -m "feat: add LayoutProvider with tests"
 ### Task 4: Wire LayoutProvider into App.tsx
 
 **Files:**
+
 - Modify: `src/App.tsx`
 
 - [ ] **Step 1: Add LayoutProvider to the provider tree**
@@ -319,7 +335,11 @@ const TransactionForm = lazy(() => import('./routes/TransactionForm'));
 const Settings = lazy(() => import('./routes/Settings'));
 
 const RouteFallback = () => (
-  <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center text-slate-500">
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center text-slate-500"
+  >
     Loading…
   </div>
 );
@@ -426,6 +446,7 @@ git commit -m "feat: add LayoutProvider to app provider tree"
 ### Task 5: Apply layout width in AppShell (TDD)
 
 **Files:**
+
 - Modify: `src/routes/AppShell.test.tsx`
 - Modify: `src/routes/AppShell.tsx`
 
@@ -445,7 +466,11 @@ vi.mock('../context/TransactionContext', () => ({
 
 vi.mock('../components/transactions/AddTransactionDrawer', () => ({
   default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+    open ? (
+      <div role="dialog" aria-label="New Transaction">
+        drawer
+      </div>
+    ) : null,
 }));
 
 vi.mock('../context/ThemeContext', () => ({
@@ -650,11 +675,7 @@ export default function AppShell() {
       >
         +
       </button>
-      <AddTransactionDrawer
-        open={fabOpen}
-        onClose={() => setFabOpen(false)}
-        onSaved={refetch}
-      />
+      <AddTransactionDrawer open={fabOpen} onClose={() => setFabOpen(false)} onSaved={refetch} />
     </div>
   );
 }
@@ -680,6 +701,7 @@ git commit -m "feat: apply layout width preference in AppShell"
 ### Task 6: Add Layout Width section to AppearanceTab (TDD)
 
 **Files:**
+
 - Modify: `src/components/settings/AppearanceTab.test.tsx`
 - Modify: `src/components/settings/AppearanceTab.tsx`
 
@@ -930,18 +952,18 @@ git commit -m "feat: add layout width toggle to AppearanceTab"
 
 ### Spec coverage
 
-| Spec section | Covered by |
-|---|---|
-| `layoutWidth?: 'fixed' \| 'full'` on `Preference` | Task 1 |
-| `layoutWidth?` on `FirestorePreferencePartial` | Task 1 |
-| `LayoutContext` with `useLayout` hook | Task 2 |
-| `LayoutProvider` — default `'fixed'`, seeds from preference, optimistic update, Firestore write | Task 3 |
-| `LayoutProvider` inside `PreferenceProvider` and `AuthProvider` in `App.tsx` | Task 4 |
-| `AppShell` applies `max-w-5xl mx-auto w-full` in fixed mode, `w-full` in full mode | Task 5 |
-| `AppearanceTab` Layout Width section with two cards, checkmark, subtext | Task 6 |
-| `LayoutProvider.test.tsx` — default, seeding, optimistic state, mutate call | Task 3 |
-| `AppShell.test.tsx` — fixed/full class assertions | Task 5 |
-| `AppearanceTab.test.tsx` — both cards render, active card, click calls setLayoutWidth | Task 6 |
-| Firestore rules — no change needed | (confirmed — no task required) |
+| Spec section                                                                                    | Covered by                     |
+| ----------------------------------------------------------------------------------------------- | ------------------------------ |
+| `layoutWidth?: 'fixed' \| 'full'` on `Preference`                                               | Task 1                         |
+| `layoutWidth?` on `FirestorePreferencePartial`                                                  | Task 1                         |
+| `LayoutContext` with `useLayout` hook                                                           | Task 2                         |
+| `LayoutProvider` — default `'fixed'`, seeds from preference, optimistic update, Firestore write | Task 3                         |
+| `LayoutProvider` inside `PreferenceProvider` and `AuthProvider` in `App.tsx`                    | Task 4                         |
+| `AppShell` applies `max-w-5xl mx-auto w-full` in fixed mode, `w-full` in full mode              | Task 5                         |
+| `AppearanceTab` Layout Width section with two cards, checkmark, subtext                         | Task 6                         |
+| `LayoutProvider.test.tsx` — default, seeding, optimistic state, mutate call                     | Task 3                         |
+| `AppShell.test.tsx` — fixed/full class assertions                                               | Task 5                         |
+| `AppearanceTab.test.tsx` — both cards render, active card, click calls setLayoutWidth           | Task 6                         |
+| Firestore rules — no change needed                                                              | (confirmed — no task required) |
 
 All spec sections are covered. No gaps.

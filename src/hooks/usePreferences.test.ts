@@ -79,7 +79,7 @@ describe('usePreferences', () => {
       data: () => ({
         ...mockPreferenceData,
         payments: [
-          { name: 'Cash', emoji: '💵', type: 'payment', parent: null },   // already a default
+          { name: 'Cash', emoji: '💵', type: 'payment', parent: null }, // already a default
           { name: 'PayNow', emoji: '💸', type: 'payment', parent: null }, // custom addition
         ],
       }),
@@ -118,10 +118,10 @@ describe('usePreferences — refetch', () => {
 
     const callsBefore = vi.mocked(getDoc).mock.calls.length;
 
-    act(() => { result.current.refetch(); });
+    act(() => {
+      result.current.refetch();
+    });
 
-    await waitFor(() =>
-      expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore),
-    );
+    await waitFor(() => expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore));
   });
 });

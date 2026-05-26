@@ -14,12 +14,8 @@ interface StatCardProps {
 function StatCard({ label, value }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
-        {label}
-      </span>
-      <span className="text-3xl font-bold leading-none text-white">
-        {value}
-      </span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-white/60">{label}</span>
+      <span className="text-3xl font-bold leading-none text-white">{value}</span>
     </div>
   );
 }
@@ -32,15 +28,9 @@ export default function HeroStatsRow({
   return (
     <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
       <div className="flex items-center gap-12 flex-wrap">
-        <StatCard
-          label="Income"
-          value={formatCurrency(totalIncome, currencySymbol)}
-        />
+        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard
-          label="Expenses"
-          value={formatCurrency(totalExpenses, currencySymbol)}
-        />
+        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
       </div>
     </div>
   );

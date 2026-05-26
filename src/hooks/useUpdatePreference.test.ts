@@ -16,22 +16,25 @@ describe('useUpdatePreference', () => {
     await act(async () => {
       await result.current.mutate({ accounts: [] });
     });
-    expect(vi.mocked(setDoc)).toHaveBeenCalledWith(
-      'pref-ref',
-      { accounts: [] },
-      { merge: true },
-    );
+    expect(vi.mocked(setDoc)).toHaveBeenCalledWith('pref-ref', { accounts: [] }, { merge: true });
   });
 
   it('sets loading true during mutation and false after', async () => {
     let resolve!: () => void;
     vi.mocked(setDoc).mockImplementationOnce(
-      () => new Promise<void>((res) => { resolve = res; }),
+      () =>
+        new Promise<void>((res) => {
+          resolve = res;
+        }),
     );
     const { result } = renderHook(() => useUpdatePreference('u1'));
-    act(() => { void result.current.mutate({ vendors: [] }); });
+    act(() => {
+      void result.current.mutate({ vendors: [] });
+    });
     expect(result.current.loading).toBe(true);
-    await act(async () => { resolve(); });
+    await act(async () => {
+      resolve();
+    });
     expect(result.current.loading).toBe(false);
   });
 
@@ -47,11 +50,15 @@ describe('useUpdatePreference', () => {
   it('clears error on next successful mutate', async () => {
     vi.mocked(setDoc).mockRejectedValueOnce(new Error('fail'));
     const { result } = renderHook(() => useUpdatePreference('u1'));
-    await act(async () => { await result.current.mutate({}).catch(() => {}); });
+    await act(async () => {
+      await result.current.mutate({}).catch(() => {});
+    });
     expect(result.current.error).not.toBeNull();
 
     vi.mocked(setDoc).mockResolvedValueOnce(undefined as never);
-    await act(async () => { await result.current.mutate({}); });
+    await act(async () => {
+      await result.current.mutate({});
+    });
     expect(result.current.error).toBeNull();
   });
 });

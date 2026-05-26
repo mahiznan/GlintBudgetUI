@@ -19,7 +19,9 @@ describe('firebase/client', () => {
   it('initializes the app exactly once across multiple imports', async () => {
     const { initializeApp, getApps } = await import('firebase/app');
     // getApps returns [] first call, then [app] on subsequent calls
-    (getApps as ReturnType<typeof vi.fn>).mockReturnValueOnce([]).mockReturnValue([{ name: 'cached' }]);
+    (getApps as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce([])
+      .mockReturnValue([{ name: 'cached' }]);
 
     const mod1 = await import('./client');
     const mod2 = await import('./client');

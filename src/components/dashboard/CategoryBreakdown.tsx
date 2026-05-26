@@ -98,7 +98,10 @@ export default function CategoryBreakdown({
                 ].join(' ')}
                 style={
                   mode === m
-                    ? { background: m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)' }
+                    ? {
+                        background:
+                          m === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)',
+                      }
                     : undefined
                 }
               >

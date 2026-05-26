@@ -267,9 +267,9 @@ describe('getChartDateRange', () => {
     // 2026-05-19 is Tuesday → Monday = May 18
     const { start, end } = getChartDateRange('week', base);
     expect(start.getDate()).toBe(18); // Monday May 18
-    expect(start.getDay()).toBe(1);   // 1 = Monday
-    expect(end.getDate()).toBe(24);   // Sunday May 24
-    expect(end.getDay()).toBe(0);     // 0 = Sunday
+    expect(start.getDay()).toBe(1); // 1 = Monday
+    expect(end.getDate()).toBe(24); // Sunday May 24
+    expect(end.getDay()).toBe(0); // 0 = Sunday
     expect(end.getHours()).toBe(23);
   });
 
@@ -277,7 +277,7 @@ describe('getChartDateRange', () => {
     const sunday = new Date('2026-05-17T12:00:00'); // Sunday
     const { start, end } = getChartDateRange('week', sunday);
     expect(start.getDate()).toBe(11); // Monday May 11
-    expect(end.getDate()).toBe(17);   // Sunday May 17
+    expect(end.getDate()).toBe(17); // Sunday May 17
   });
 
   it('month: start = 1st, end = last day of month for a past month', () => {

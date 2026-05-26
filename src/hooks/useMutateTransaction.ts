@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  Timestamp,
-} from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import type { Transaction } from '../firestore/types';
 

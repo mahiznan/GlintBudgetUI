@@ -15,6 +15,7 @@
 ## File Map
 
 **Modify:**
+
 - `src/routes/AppShell.tsx` — extract firstName from auth.user.name; use it as title for /app/dashboard
 - `src/routes/AppShell.test.tsx` — update greeting assertion
 - `src/components/layout/TopBar.tsx` — remove Add Transaction link
@@ -29,6 +30,7 @@
 ## Task 1: AppShell — Personalised Greeting
 
 **Files:**
+
 - Modify: `src/routes/AppShell.tsx`
 - Modify: `src/routes/AppShell.test.tsx`
 
@@ -144,6 +146,7 @@ git commit -m "feat: personalised greeting in dashboard TopBar"
 ## Task 2: TopBar — Remove Add Transaction Button
 
 **Files:**
+
 - Modify: `src/components/layout/TopBar.tsx`
 - Modify: `src/components/layout/TopBar.test.tsx`
 
@@ -207,7 +210,12 @@ interface TopBarProps {
   showPeriodSwitch?: boolean;
 }
 
-export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch = false }: TopBarProps) {
+export default function TopBar({
+  title,
+  period,
+  onPeriodChange,
+  showPeriodSwitch = false,
+}: TopBarProps) {
   return (
     <header className="flex items-center justify-between gap-4 border-b border-white/50 bg-white/75 backdrop-blur-md px-6 py-3">
       <h1 className="text-lg font-semibold text-text">{title}</h1>
@@ -221,15 +229,9 @@ export default function TopBar({ title, period, onPeriodChange, showPeriodSwitch
               onClick={() => onPeriodChange(value)}
               className={[
                 'rounded-md px-3 py-1.5 text-xs font-semibold transition-all',
-                period === value
-                  ? 'text-white shadow-sm'
-                  : 'text-text-muted hover:text-text',
+                period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
               ].join(' ')}
-              style={
-                period === value
-                  ? { background: 'var(--brand-gradient)' }
-                  : undefined
-              }
+              style={period === value ? { background: 'var(--brand-gradient)' } : undefined}
             >
               {label}
             </button>
@@ -269,6 +271,7 @@ git commit -m "refactor: remove Add Transaction from TopBar"
 ## Task 3: Sidebar — Logout Button
 
 **Files:**
+
 - Modify: `src/components/layout/Sidebar.tsx`
 - Modify: `src/components/layout/Sidebar.test.tsx`
 
@@ -323,9 +326,9 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { signOutCurrentUser } from '../../firebase/auth';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',    icon: '◈', to: '/app/dashboard'    },
+  { label: 'Dashboard', icon: '◈', to: '/app/dashboard' },
   { label: 'Transactions', icon: '⇌', to: '/app/transactions' },
-  { label: 'Settings',     icon: '⚙', to: '/app/settings'     },
+  { label: 'Settings', icon: '⚙', to: '/app/settings' },
 ];
 
 export default function Sidebar() {
@@ -349,7 +352,11 @@ export default function Sidebar() {
       <div
         aria-hidden="true"
         style={{
-          position: 'absolute', top: -40, right: -40, width: 160, height: 160,
+          position: 'absolute',
+          top: -40,
+          right: -40,
+          width: 160,
+          height: 160,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(150,191,13,0.15) 0%, transparent 70%)',
           pointerEvents: 'none',
@@ -358,7 +365,11 @@ export default function Sidebar() {
       <div
         aria-hidden="true"
         style={{
-          position: 'absolute', bottom: 80, left: -30, width: 120, height: 120,
+          position: 'absolute',
+          bottom: 80,
+          left: -30,
+          width: 120,
+          height: 120,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(31,163,46,0.2) 0%, transparent 70%)',
           pointerEvents: 'none',
@@ -368,7 +379,9 @@ export default function Sidebar() {
       {/* Wordmark */}
       <div className="mb-8 px-5">
         <span className="text-xl font-bold tracking-tight text-white">
-          <span aria-hidden="true" style={{ color: '#96bf0d' }}>●</span>{' '}
+          <span aria-hidden="true" style={{ color: '#96bf0d' }}>
+            ●
+          </span>{' '}
           GlintBudget
         </span>
       </div>
@@ -388,7 +401,9 @@ export default function Sidebar() {
               ].join(' ')
             }
           >
-            <span aria-hidden="true" className="text-base">{icon}</span>
+            <span aria-hidden="true" className="text-base">
+              {icon}
+            </span>
             {label}
           </NavLink>
         ))}
@@ -401,7 +416,9 @@ export default function Sidebar() {
           onClick={() => void handleSignOut()}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white border border-white/20"
         >
-          <span aria-hidden="true" className="text-base">⎋</span>
+          <span aria-hidden="true" className="text-base">
+            ⎋
+          </span>
           Sign out
         </button>
       </div>
@@ -438,6 +455,7 @@ git commit -m "feat: add Sign out button to Sidebar, navigate to landing on logo
 ## Task 4: DailyTransactions — goToPrevWeek Selects Sunday
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -547,6 +565,7 @@ git commit -m "fix: goToPrevWeek defaults to Sunday of the target week"
 ## Task 5: DailyTransactions — Today Button
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -609,7 +628,10 @@ describe('DailyTransactions — Today button', () => {
     // Today's date tile should be selected
     const todayNum = new Date().getDate().toString();
     const pressed = screen.getAllByRole('button', { pressed: true });
-    const todayTile = pressed.find((b) => b.textContent?.includes(todayNum) && b !== screen.getByRole('button', { name: /^today$/i }));
+    const todayTile = pressed.find(
+      (b) =>
+        b.textContent?.includes(todayNum) && b !== screen.getByRole('button', { name: /^today$/i }),
+    );
     expect(todayTile).toBeTruthy();
   });
 });
@@ -641,63 +663,63 @@ function goToToday() {
 Then replace the widget header JSX. Find:
 
 ```tsx
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-          Transactions
-        </h2>
-        <Link
-          to="/app/transactions"
-          className="text-xs font-medium"
-          style={{
-            background: 'var(--brand-gradient-text)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          See all →
-        </Link>
-      </div>
+{
+  /* Header */
+}
+<div className="flex items-center justify-between">
+  <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">Transactions</h2>
+  <Link
+    to="/app/transactions"
+    className="text-xs font-medium"
+    style={{
+      background: 'var(--brand-gradient-text)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}
+  >
+    See all →
+  </Link>
+</div>;
 ```
 
 Replace with:
 
 ```tsx
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-            Transactions
-          </h2>
-          <button
-            type="button"
-            aria-pressed={isToday}
-            onClick={isToday ? undefined : goToToday}
-            className={[
-              'rounded-md px-2 py-0.5 text-xs font-semibold transition-all',
-              isToday
-                ? 'text-white'
-                : 'border border-border bg-surface text-text-muted hover:text-text',
-            ].join(' ')}
-            style={isToday ? { background: 'var(--brand-gradient)' } : undefined}
-          >
-            Today
-          </button>
-        </div>
-        <Link
-          to="/app/transactions"
-          className="text-xs font-medium"
-          style={{
-            background: 'var(--brand-gradient-text)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          See all →
-        </Link>
-      </div>
+{
+  /* Header */
+}
+<div className="flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
+      Transactions
+    </h2>
+    <button
+      type="button"
+      aria-pressed={isToday}
+      onClick={isToday ? undefined : goToToday}
+      className={[
+        'rounded-md px-2 py-0.5 text-xs font-semibold transition-all',
+        isToday ? 'text-white' : 'border border-border bg-surface text-text-muted hover:text-text',
+      ].join(' ')}
+      style={isToday ? { background: 'var(--brand-gradient)' } : undefined}
+    >
+      Today
+    </button>
+  </div>
+  <Link
+    to="/app/transactions"
+    className="text-xs font-medium"
+    style={{
+      background: 'var(--brand-gradient-text)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}
+  >
+    See all →
+  </Link>
+</div>;
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -720,6 +742,7 @@ git commit -m "feat: add Today button to DailyTransactions widget"
 ## Task 6: DailyTransactions — Add Transaction Link
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -753,45 +776,45 @@ Expected: FAIL — "Unable to find role 'link' with name /add/i"
 Find the right side of the header (currently just the "See all →" link) and replace it:
 
 ```tsx
-        <Link
-          to="/app/transactions"
-          className="text-xs font-medium"
-          style={{
-            background: 'var(--brand-gradient-text)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          See all →
-        </Link>
+<Link
+  to="/app/transactions"
+  className="text-xs font-medium"
+  style={{
+    background: 'var(--brand-gradient-text)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  }}
+>
+  See all →
+</Link>
 ```
 
 Replace with:
 
 ```tsx
-        <div className="flex items-center gap-2">
-          <Link
-            to="/app/transactions"
-            className="text-xs font-medium"
-            style={{
-              background: 'var(--brand-gradient-text)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            See all →
-          </Link>
-          <Link
-            to="/app/transactions/new"
-            className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ background: 'var(--brand-gradient)' }}
-            aria-label="Add transaction"
-          >
-            + Add
-          </Link>
-        </div>
+<div className="flex items-center gap-2">
+  <Link
+    to="/app/transactions"
+    className="text-xs font-medium"
+    style={{
+      background: 'var(--brand-gradient-text)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}
+  >
+    See all →
+  </Link>
+  <Link
+    to="/app/transactions/new"
+    className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+    style={{ background: 'var(--brand-gradient)' }}
+    aria-label="Add transaction"
+  >
+    + Add
+  </Link>
+</div>
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -814,6 +837,7 @@ git commit -m "feat: move Add Transaction button into DailyTransactions widget"
 ## Task 7: DailyTransactions — Expense Sum Row
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 
@@ -835,11 +859,8 @@ describe('DailyTransactions — expense sum', () => {
     expect(screen.getByText(/₹0\.00/)).toBeInTheDocument();
   });
 
-  it('shows correct expense sum for today\'s transactions', () => {
-    renderDT([
-      makeTx('t1', 'Swiggy', -450, todayAt(12)),
-      makeTx('t2', 'Ola', -280, todayAt(9)),
-    ]);
+  it("shows correct expense sum for today's transactions", () => {
+    renderDT([makeTx('t1', 'Swiggy', -450, todayAt(12)), makeTx('t2', 'Ola', -280, todayAt(9))]);
     // Sum: 450 + 280 = 730
     expect(screen.getByText(/₹730\.00/)).toBeInTheDocument();
   });
@@ -867,9 +888,7 @@ Expected: FAIL — "Unable to find text /today's expenses/i"
 In the component body, add the derived values after `dayTxns`:
 
 ```tsx
-const dayExpenses = dayTxns
-  .filter((t) => t.amount < 0)
-  .reduce((s, t) => s + Math.abs(t.amount), 0);
+const dayExpenses = dayTxns.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
 
 const expenseLabel = isToday
   ? "Today's expenses"
@@ -879,29 +898,35 @@ const expenseLabel = isToday
 Then add the expense sum row in the JSX, between the date strip `</div>` and the `{/* Selected date heading */}` comment. Find:
 
 ```tsx
-      {/* Selected date heading */}
-      <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
-        {formatDayHeading(selectedDate)}
-      </p>
+{
+  /* Selected date heading */
+}
+<p className="text-xs font-bold text-text-muted uppercase tracking-widest">
+  {formatDayHeading(selectedDate)}
+</p>;
 ```
 
 Insert the expense sum row just before it:
 
 ```tsx
-      {/* Expense sum */}
-      <div className="flex items-center justify-between border-b border-border pb-2 mb-1">
-        <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
-          {expenseLabel}
-        </span>
-        <span className="text-sm font-bold text-red-600">
-          −{formatCurrency(dayExpenses, currencySymbol)}
-        </span>
-      </div>
+{
+  /* Expense sum */
+}
+<div className="flex items-center justify-between border-b border-border pb-2 mb-1">
+  <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
+    {expenseLabel}
+  </span>
+  <span className="text-sm font-bold text-red-600">
+    −{formatCurrency(dayExpenses, currencySymbol)}
+  </span>
+</div>;
 
-      {/* Selected date heading */}
-      <p className="text-xs font-bold text-text-muted uppercase tracking-widest">
-        {formatDayHeading(selectedDate)}
-      </p>
+{
+  /* Selected date heading */
+}
+<p className="text-xs font-bold text-text-muted uppercase tracking-widest">
+  {formatDayHeading(selectedDate)}
+</p>;
 ```
 
 - [ ] **Step 4: Run test to verify it passes**

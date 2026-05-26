@@ -18,12 +18,8 @@ export default function DeleteConfirmDialog({ onConfirm, onCancel }: DeleteConfi
       />
       <div className="relative card-surface rounded-2xl p-6 shadow-xl max-w-sm w-full z-10">
         <p className="text-4xl text-center mb-4">🗑️</p>
-        <h2 className="text-lg font-bold text-text text-center mb-2">
-          Delete this transaction?
-        </h2>
-        <p className="text-sm text-text-muted text-center mb-6">
-          This action cannot be undone.
-        </p>
+        <h2 className="text-lg font-bold text-text text-center mb-2">Delete this transaction?</h2>
+        <p className="text-sm text-text-muted text-center mb-6">This action cannot be undone.</p>
         <div className="flex gap-3">
           <button
             type="button"

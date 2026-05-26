@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 interface MiniCalendarProps {
-  value: string;        // 'YYYY-MM-DD'
+  value: string; // 'YYYY-MM-DD'
   onChange: (v: string) => void;
   activeType?: 'expense' | 'income' | 'brand';
 }
@@ -28,7 +28,9 @@ function toDateStr(d: Date): string {
 
 export default function MiniCalendar({ value, onChange, activeType = 'brand' }: MiniCalendarProps) {
   const selected = value ? new Date(value + 'T00:00:00') : null;
-  const [viewDate, setViewDate] = useState<Date>(() => (selected ? new Date(selected) : new Date()));
+  const [viewDate, setViewDate] = useState<Date>(() =>
+    selected ? new Date(selected) : new Date(),
+  );
 
   useEffect(() => {
     if (!value) return;
@@ -55,7 +57,6 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
     );
   }
 
-
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const days = getCalendarDays(year, month);
@@ -70,8 +71,8 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
     activeType === 'expense'
       ? '0 2px 6px rgba(220,38,38,0.28)'
       : activeType === 'income'
-      ? '0 2px 6px rgba(34,197,94,0.28)'
-      : '0 2px 6px rgba(245,158,11,0.30)';
+        ? '0 2px 6px rgba(34,197,94,0.28)'
+        : '0 2px 6px rgba(245,158,11,0.30)';
 
   const disableFuture = activeType === 'brand';
 
@@ -81,10 +82,19 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
       tabIndex={0}
       autoFocus
       onKeyDown={(e) => {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); moveDate(-1); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); moveDate(1); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); moveDate(-7); }
-        else if (e.key === 'ArrowDown') { e.preventDefault(); moveDate(7); }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          moveDate(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          moveDate(1);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          moveDate(-7);
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          moveDate(7);
+        }
       }}
     >
       {/* Header */}
@@ -139,10 +149,15 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
                 isFuture
                   ? { color: '#cbd5e1', opacity: 0.4 }
                   : isSelected
-                  ? { background: selGradient, color: '#fff', fontWeight: 700, boxShadow: selShadow }
-                  : isToday
-                  ? { background: '#f1f5f9', fontWeight: 700, color: '#475569' }
-                  : { color: isCurrentMonth ? '#0f172a' : '#cbd5e1' }
+                    ? {
+                        background: selGradient,
+                        color: '#fff',
+                        fontWeight: 700,
+                        boxShadow: selShadow,
+                      }
+                    : isToday
+                      ? { background: '#f1f5f9', fontWeight: 700, color: '#475569' }
+                      : { color: isCurrentMonth ? '#0f172a' : '#cbd5e1' }
               }
             >
               {d.getDate()}

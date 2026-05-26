@@ -10,19 +10,20 @@ Replace the full-page navigation to `/app/transactions/new` with a right-side sl
 
 ### Files
 
-| File | Change |
-|------|--------|
-| `src/components/transactions/AddTransactionDrawer.tsx` | **New.** Drawer shell + slide animation + full add-mode form logic |
-| `src/components/transactions/AddTransactionDrawer.test.tsx` | **New.** Smoke tests for open/close/cancel/backdrop |
-| `src/components/dashboard/DailyTransactions.tsx` | Replace `<Link to="/app/transactions/new">` with `drawerOpen` state + `<AddTransactionDrawer>` |
-| `src/components/dashboard/DailyTransactions.test.tsx` | Update: click opens drawer, not navigates |
-| `src/routes/TransactionForm.tsx` | No change — edit mode continues using full-page route |
-| `src/routes/AppShell.tsx` | No change |
-| `src/App.tsx` | No change — `/app/transactions/new` route stays registered |
+| File                                                        | Change                                                                                         |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `src/components/transactions/AddTransactionDrawer.tsx`      | **New.** Drawer shell + slide animation + full add-mode form logic                             |
+| `src/components/transactions/AddTransactionDrawer.test.tsx` | **New.** Smoke tests for open/close/cancel/backdrop                                            |
+| `src/components/dashboard/DailyTransactions.tsx`            | Replace `<Link to="/app/transactions/new">` with `drawerOpen` state + `<AddTransactionDrawer>` |
+| `src/components/dashboard/DailyTransactions.test.tsx`       | Update: click opens drawer, not navigates                                                      |
+| `src/routes/TransactionForm.tsx`                            | No change — edit mode continues using full-page route                                          |
+| `src/routes/AppShell.tsx`                                   | No change                                                                                      |
+| `src/App.tsx`                                               | No change — `/app/transactions/new` route stays registered                                     |
 
 ### Component boundary
 
 `AddTransactionDrawer` is self-contained:
+
 - Owns form state (`FormState`), validation errors, and loading state
 - Calls `useAddTransaction` and `usePreferenceContext` internally
 - Seeds defaults from `preference` each time `open` transitions `false → true`
@@ -33,24 +34,28 @@ Replace the full-page navigation to `/app/transactions/new` with a right-side sl
 ## Animation & UX Behaviour
 
 ### Open sequence (triggered by "+" click)
+
 1. Portal mounts on `document.body`
 2. Backdrop: `opacity-0 → opacity-100` over 200 ms
 3. Panel: `translate-x-full → translate-x-0` over 300 ms ease-out
 4. Both transitions start simultaneously
 
 ### Close sequence (save, cancel, backdrop click, or Escape)
+
 1. Panel: `translate-x-0 → translate-x-full` over 250 ms ease-in
 2. Backdrop fades out in parallel
 3. After 250 ms `onClose()` fires — parent sets `drawerOpen = false`
 4. On save path: `onSaved()` fires before the animation starts, so the list refetches immediately while the drawer slides out
 
 ### Close triggers
+
 - Save button (after successful Firestore write)
 - Cancel button
 - Clicking the backdrop
 - Pressing Escape key
 
 ### Form reset
+
 Form state resets to `EMPTY` + preference defaults each time `open` transitions from `false → true` (via `useEffect` on the `open` prop).
 
 ## Visual Spec
@@ -66,6 +71,7 @@ Form state resets to `EMPTY` + preference defaults each time `open` transitions 
 ## Form Content
 
 Identical fields to the current add-mode `TransactionForm`:
+
 - TypeToggle (expense / income)
 - AmountInput
 - Currency FieldPicker
@@ -81,6 +87,7 @@ Identical fields to the current add-mode `TransactionForm`:
 ## Testing
 
 ### `AddTransactionDrawer.test.tsx`
+
 - Drawer is not in the DOM when `open={false}`
 - Drawer is in the DOM when `open={true}`
 - Clicking Cancel calls `onClose`
@@ -88,6 +95,7 @@ Identical fields to the current add-mode `TransactionForm`:
 - Pressing Escape calls `onClose`
 
 ### `DailyTransactions.test.tsx` (update existing)
+
 - Clicking "+" opens the drawer (drawer visible), does NOT navigate to `/app/transactions/new`
 
 ## Out of Scope

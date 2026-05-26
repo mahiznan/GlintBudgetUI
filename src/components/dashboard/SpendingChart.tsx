@@ -191,9 +191,7 @@ export default function SpendingChart({
                 onClick={() => onPeriodChange(value)}
                 className={[
                   'rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all',
-                  period === value
-                    ? 'text-white shadow-sm'
-                    : 'text-text-muted hover:text-text',
+                  period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
                 ].join(' ')}
                 style={period === value ? { background: 'var(--brand-gradient)' } : undefined}
               >

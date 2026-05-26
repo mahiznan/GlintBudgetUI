@@ -13,6 +13,7 @@
 ### Task 1: Write failing tests for AddTransactionDrawer
 
 **Files:**
+
 - Create: `src/components/transactions/AddTransactionDrawer.test.tsx`
 
 - [ ] **Step 1: Create the test file with mocks and smoke tests**
@@ -123,6 +124,7 @@ Expected: all 5 tests **FAIL** with "Cannot find module './AddTransactionDrawer'
 ### Task 2: Implement AddTransactionDrawer
 
 **Files:**
+
 - Create: `src/components/transactions/AddTransactionDrawer.tsx`
 
 - [ ] **Step 3: Create the component**
@@ -165,7 +167,8 @@ interface FormErrors {
 
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
-  if (!form.amount || parseFloat(form.amount) <= 0) errors.amount = 'Amount is required and must be positive';
+  if (!form.amount || parseFloat(form.amount) <= 0)
+    errors.amount = 'Amount is required and must be positive';
   if (!form.category) errors.category = 'Category is required';
   if (!form.vendor) errors.vendor = 'Vendor is required';
   if (!form.account) errors.account = 'Account is required';
@@ -194,7 +197,11 @@ interface AddTransactionDrawerProps {
   onSaved: () => void;
 }
 
-export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTransactionDrawerProps) {
+export default function AddTransactionDrawer({
+  open,
+  onClose,
+  onSaved,
+}: AddTransactionDrawerProps) {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
@@ -235,7 +242,7 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, onClose]);
 
   function startClose() {
@@ -255,7 +262,10 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
     const categoryObj = preference?.categories.find((c) => c.name === form.category);
     const txData: Omit<Transaction, 'id'> = {
@@ -268,9 +278,10 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
       payment: form.payment,
       currency: form.currency,
       notes: form.notes,
-      amount: form.type === 'expense'
-        ? -Math.abs(parseFloat(form.amount))
-        : Math.abs(parseFloat(form.amount)),
+      amount:
+        form.type === 'expense'
+          ? -Math.abs(parseFloat(form.amount))
+          : Math.abs(parseFloat(form.amount)),
       icon: categoryObj?.emoji ?? '',
     };
     try {
@@ -413,7 +424,9 @@ export default function AddTransactionDrawer({ open, onClose, onSaved }: AddTran
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="drawer-notes" className="text-sm font-semibold text-text">Notes</label>
+              <label htmlFor="drawer-notes" className="text-sm font-semibold text-text">
+                Notes
+              </label>
               <textarea
                 id="drawer-notes"
                 value={form.notes}
@@ -485,6 +498,7 @@ cd /Users/rajeshkumar/workspace/GlintBudgetUI && git add src/components/transact
 ### Task 3: Wire DailyTransactions to the drawer + update Dashboard
 
 **Files:**
+
 - Modify: `src/components/dashboard/DailyTransactions.tsx`
 - Modify: `src/components/dashboard/DailyTransactions.test.tsx`
 - Modify: `src/routes/Dashboard.tsx`
@@ -498,7 +512,11 @@ In `src/components/dashboard/DailyTransactions.test.tsx`:
 ```tsx
 vi.mock('../transactions/AddTransactionDrawer', () => ({
   default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="New Transaction">drawer</div> : null,
+    open ? (
+      <div role="dialog" aria-label="New Transaction">
+        drawer
+      </div>
+    ) : null,
 }));
 ```
 
@@ -570,25 +588,27 @@ const [drawerOpen, setDrawerOpen] = useState(false);
 5. Replace the `<Link to="/app/transactions/new" ...>` element (lines 111–118) with a button:
 
 ```tsx
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ background: 'var(--brand-gradient)' }}
-            aria-label="Add transaction"
-          >
-            + Add
-          </button>
+<button
+  type="button"
+  onClick={() => setDrawerOpen(true)}
+  className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+  style={{ background: 'var(--brand-gradient)' }}
+  aria-label="Add transaction"
+>
+  + Add
+</button>
 ```
 
 6. Add the drawer just before the closing `</div>` of the component's return (after the transaction list section):
 
 ```tsx
-      <AddTransactionDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onSaved={() => { onTransactionAdded?.(); }}
-      />
+<AddTransactionDrawer
+  open={drawerOpen}
+  onClose={() => setDrawerOpen(false)}
+  onSaved={() => {
+    onTransactionAdded?.();
+  }}
+/>
 ```
 
 - [ ] **Step 10: Update Dashboard.tsx to pass refetch as onTransactionAdded**
@@ -596,12 +616,12 @@ const [drawerOpen, setDrawerOpen] = useState(false);
 In `src/routes/Dashboard.tsx`, find the `<DailyTransactions` usage and add the new prop:
 
 ```tsx
-          <DailyTransactions
-            transactions={allTxns}
-            currencySymbol={currencySymbol}
-            onDelete={(id) => setDeletingId(id)}
-            onTransactionAdded={refetch}
-          />
+<DailyTransactions
+  transactions={allTxns}
+  currencySymbol={currencySymbol}
+  onDelete={(id) => setDeletingId(id)}
+  onTransactionAdded={refetch}
+/>
 ```
 
 - [ ] **Step 11: Run DailyTransactions tests to confirm they all pass**

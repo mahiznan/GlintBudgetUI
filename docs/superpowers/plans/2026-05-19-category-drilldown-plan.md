@@ -12,17 +12,18 @@
 
 ## File Map
 
-| File | Change |
-|------|--------|
-| `src/components/dashboard/CategoryBreakdown.tsx` | Add drill-level header, back button, transaction-row rendering mode |
-| `src/components/dashboard/CategoryBreakdown.test.tsx` | Add tests for onItemClick, back button, level-2 transactions |
-| `src/routes/Dashboard.tsx` | Add `DrillState`, rewrite `categoryItems` memo, add `drillTransactions` memo, pass new props |
+| File                                                  | Change                                                                                       |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `src/components/dashboard/CategoryBreakdown.tsx`      | Add drill-level header, back button, transaction-row rendering mode                          |
+| `src/components/dashboard/CategoryBreakdown.test.tsx` | Add tests for onItemClick, back button, level-2 transactions                                 |
+| `src/routes/Dashboard.tsx`                            | Add `DrillState`, rewrite `categoryItems` memo, add `drillTransactions` memo, pass new props |
 
 ---
 
 ## Task 1: Write failing tests for CategoryBreakdown drill-down
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.test.tsx`
 
 - [ ] **Step 1.1: Add drill-down tests to the existing test file**
@@ -189,6 +190,7 @@ Expected: The 6 new tests fail with errors like `TypeError: onItemClick is not a
 ## Task 2: Implement drill-down UI in CategoryBreakdown
 
 **Files:**
+
 - Modify: `src/components/dashboard/CategoryBreakdown.tsx`
 
 - [ ] **Step 2.1: Replace the full contents of CategoryBreakdown.tsx**
@@ -379,6 +381,7 @@ git commit -m "feat: add drill-down props and transaction-row mode to CategoryBr
 ## Task 3: Wire drill state and data computation in Dashboard
 
 **Files:**
+
 - Modify: `src/routes/Dashboard.tsx`
 
 - [ ] **Step 3.1: Replace the full contents of Dashboard.tsx**
@@ -653,6 +656,7 @@ Navigate to Dashboard. Confirm the "By Category" widget shows **all** expense ca
 - [ ] **Step 4.3: Verify level 1 — subcategory drill-down**
 
 Click any category row. Confirm:
+
 - Header now shows `← Back` button and the category name
 - Bar list switches to subcategories of that category
 - Donut updates to show subcategory slices
@@ -665,6 +669,7 @@ Click `← Back`. Confirm the widget returns to the full category list and donut
 - [ ] **Step 4.5: Verify level 2 — transaction list**
 
 From level 1, click a subcategory. Confirm:
+
 - Header shows `← Food` (parent category name) and the subcategory name
 - Body shows transaction rows (icon, vendor, date, amount)
 - Mode toggle is hidden

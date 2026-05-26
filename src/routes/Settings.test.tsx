@@ -28,9 +28,7 @@ vi.mock('../hooks/useUpdatePreference', () => ({
   useUpdatePreference: () => ({ mutate: vi.fn(), loading: false, error: null }),
 }));
 vi.mock('../components/settings/BudgetDataTab', () => ({
-  default: ({ itemType }: { itemType: string }) => (
-    <div data-testid={`budget-tab-${itemType}`} />
-  ),
+  default: ({ itemType }: { itemType: string }) => <div data-testid={`budget-tab-${itemType}`} />,
 }));
 vi.mock('../components/settings/SubcategoriesTab', () => ({
   default: () => <div data-testid="subcategories-tab" />,
@@ -58,9 +56,15 @@ function renderSettings(tab = '') {
 describe('Settings — tab bar', () => {
   it('renders all 7 tab buttons', () => {
     renderSettings();
-    ['Accounts', 'Categories', 'Subcategories', 'Vendors', 'Payments', 'Currency', 'Defaults'].forEach(
-      (label) => expect(screen.getByRole('button', { name: label })).toBeInTheDocument(),
-    );
+    [
+      'Accounts',
+      'Categories',
+      'Subcategories',
+      'Vendors',
+      'Payments',
+      'Currency',
+      'Defaults',
+    ].forEach((label) => expect(screen.getByRole('button', { name: label })).toBeInTheDocument());
   });
 
   it('defaults to Accounts tab when no query param', () => {
@@ -109,7 +113,10 @@ describe('Settings — loading state', () => {
   it('shows loading spinner when preference is loading', async () => {
     const { usePreferenceContext } = await import('../context/PreferenceContext');
     vi.mocked(usePreferenceContext).mockReturnValueOnce({
-      preference: null, loading: true, error: null, refetch: vi.fn(),
+      preference: null,
+      loading: true,
+      error: null,
+      refetch: vi.fn(),
     });
     renderSettings();
     expect(screen.getByRole('status')).toBeInTheDocument();

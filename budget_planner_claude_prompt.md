@@ -26,16 +26,19 @@ Build this as a production-grade feature with clean architecture, scalable backe
 Users can create any number of budget planners.
 
 Each planner defines:
+
 - a time range
 - filters
 - planned budget amount per category
 
 The system then compares:
+
 - planned budget
-vs
+  vs
 - actual expenses
 
 and visually shows:
+
 - spent amount
 - remaining amount
 - overspending
@@ -48,27 +51,34 @@ and visually shows:
 Each planner must support:
 
 ## Basic Details
+
 - planner name
 - description (optional)
 - active/inactive
 - archive status
 
 ## Time Range
+
 Support:
+
 - weekly
 - monthly
 - yearly
 - custom date range
 
 ## Recurring Option
+
 While creating planner ask:
+
 - “Is this repeatable?”
 
 If repeatable:
+
 - planner continues automatically for future periods and past periods
 - Should have a navigation to previous periods
 
 If not repeatable:
+
 - once the date range is completed, it should disappear from active dashboard widgets
 - archived planners should still be accessible from planner history/archive section
 
@@ -77,6 +87,7 @@ If not repeatable:
 # Planner Filters
 
 Each planner can optionally filter transactions by:
+
 - currency
 - account
 - vendor
@@ -84,9 +95,11 @@ Each planner can optionally filter transactions by:
 - category
 
 Default behavior:
+
 - if no filters selected → include all
 
 Example:
+
 - one planner may track only SGD credit-card expenses
 - another may track only cash expenses
 - another may track only specific vendors/accounts
@@ -108,11 +121,13 @@ Only transactions matching the planner currency should be included.
 Budget planning is required only at CATEGORY level.
 
 Example:
+
 - Food → 1000
 - Transport → 300
 - Shopping → 500
 
 However:
+
 - clicking a category must open sub-category breakdown
 - sub-category breakdown is read-only analytics
 - no separate budget configuration needed for subcategories
@@ -124,6 +139,7 @@ However:
 Add a new dashboard widget section.
 
 ## Widget Behavior
+
 - horizontal swipeable carousel/cards
 - responsive for desktop + mobile
 - touch swipe support on mobile
@@ -139,6 +155,7 @@ Users can create unlimited planners from preferences/settings.
 Each planner widget should show:
 
 ## Summary
+
 - planner name
 - date range
 - total planned
@@ -147,17 +164,21 @@ Each planner widget should show:
 - status indicator
 
 ## Category Visualization
+
 For every configured category:
+
 - planned amount
 - spent amount
 - remaining amount
 
 Show visual chart with color progression:
+
 - green → safe
 - orange → nearing limit
 - red → exceeded
 
 Possible chart options:
+
 - stacked progress bars
 - radial progress
 - donut charts
@@ -170,15 +191,18 @@ Choose the best UX.
 # Overspending / Status Rules
 
 If spending exceeds planned:
+
 - visually highlight as exceeded
 - remaining becomes negative
 - show negative amount clearly
 
 Examples:
+
 - 👍 +250 remaining
 - 👎 -120 exceeded
 
 For completed historical planners:
+
 - show success/failure indicators
 - positive remaining → success with positive styling/emojis
 - exceeded → negative styling/emojis
@@ -188,6 +212,7 @@ For completed historical planners:
 # Unplanned Expenses
 
 If expenses exist in categories NOT configured in planner:
+
 - automatically display them
 - planned amount = 0
 - actual amount = spent amount
@@ -202,12 +227,14 @@ Only show such categories if actual expenses exist.
 # Drill-down Behavior
 
 Clicking a category should open:
+
 - sub-category breakdown
 - list of matching transactions
 - totals per sub-category
 - percentage contribution
 
 Potential UI:
+
 - modal
 - drawer
 - expandable section
@@ -219,9 +246,11 @@ Choose best UX.
 # Active vs Archived
 
 Dashboard should display:
+
 - only currently active planners
 
 Archived/completed planners should be accessible from:
+
 - planner history page
 - archive section
 
@@ -235,6 +264,7 @@ No push notifications.
 No email notifications.
 
 Examples:
+
 - nearing limit
 - exceeded budget
 - unplanned expense detected
@@ -244,6 +274,7 @@ Examples:
 # Backend Requirements
 
 Design:
+
 - DB schema changes
 - entities/models
 - indexes
@@ -254,12 +285,14 @@ Design:
 - scalable reporting queries
 
 Need:
+
 - proper REST or GraphQL APIs
 - DTOs
 - validation
 - pagination where needed
 
 Include:
+
 - sample API contracts
 - request/response examples
 
@@ -268,6 +301,7 @@ Include:
 # Frontend Requirements
 
 Need:
+
 - responsive modern UI
 - reusable planner card component
 - reusable chart components
@@ -278,6 +312,7 @@ Need:
 - animations/transitions for carousel
 
 Should work well on:
+
 - desktop
 - tablet
 - mobile
@@ -287,11 +322,13 @@ Should work well on:
 # Performance Requirements
 
 Optimize for:
+
 - large transaction history
 - many planners
 - dashboard rendering performance
 
 Need:
+
 - caching strategy
 - lazy loading
 - aggregation optimization
@@ -338,6 +375,7 @@ Please provide:
 # Deliverables Expected
 
 Generate:
+
 - complete technical design
 - backend design
 - frontend architecture

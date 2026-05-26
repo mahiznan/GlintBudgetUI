@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 import BudgetDataTab from './BudgetDataTab';
 import type { BudgetData } from '../../firestore/types';
 
-const defaultItem: BudgetData = { name: 'Monthly Budget', emoji: '💼', type: 'account', parent: null };
-const userItemA: BudgetData  = { name: 'HDFC',           emoji: '🏦', type: 'account', parent: null };
-const userItemB: BudgetData  = { name: 'ICICI',          emoji: '🏦', type: 'account', parent: null };
+const defaultItem: BudgetData = {
+  name: 'Monthly Budget',
+  emoji: '💼',
+  type: 'account',
+  parent: null,
+};
+const userItemA: BudgetData = { name: 'HDFC', emoji: '🏦', type: 'account', parent: null };
+const userItemB: BudgetData = { name: 'ICICI', emoji: '🏦', type: 'account', parent: null };
 
 function renderTab(overrides: Partial<Parameters<typeof BudgetDataTab>[0]> = {}) {
   return render(
@@ -100,9 +105,7 @@ describe('BudgetDataTab — My Items (edit)', () => {
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'HDFC Savings');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    expect(onSave).toHaveBeenCalledWith([
-      expect.objectContaining({ name: 'HDFC Savings' }),
-    ]);
+    expect(onSave).toHaveBeenCalledWith([expect.objectContaining({ name: 'HDFC Savings' })]);
   });
 
   it('rejects edit when new name is a duplicate', async () => {

@@ -21,7 +21,11 @@ function setupMocks(theme?: string) {
     refetch: vi.fn(),
   });
   vi.mocked(useAuth).mockReturnValue({ status: 'authenticated', user: { uid: 'u1' } } as never);
-  vi.mocked(useUpdatePreference).mockReturnValue({ mutate: mockMutate, loading: false, error: null });
+  vi.mocked(useUpdatePreference).mockReturnValue({
+    mutate: mockMutate,
+    loading: false,
+    error: null,
+  });
 }
 
 function ThemeIdDisplay() {
@@ -37,19 +41,31 @@ describe('ThemeProvider', () => {
 
   it('defaults to lime when preference has no theme', () => {
     setupMocks(undefined);
-    render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(document.documentElement.dataset.theme).toBe('lime');
   });
 
   it('applies theme from preference', () => {
     setupMocks('ocean');
-    render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(document.documentElement.dataset.theme).toBe('ocean');
   });
 
   it('exposes themeId via useTheme', () => {
     setupMocks('forest');
-    const { getByTestId } = render(<ThemeProvider><ThemeIdDisplay /></ThemeProvider>);
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <ThemeIdDisplay />
+      </ThemeProvider>,
+    );
     expect(getByTestId('id').textContent).toBe('forest');
   });
 
@@ -64,7 +80,11 @@ describe('ThemeProvider', () => {
       return null;
     }
 
-    render(<ThemeProvider><Capture /></ThemeProvider>);
+    render(
+      <ThemeProvider>
+        <Capture />
+      </ThemeProvider>,
+    );
 
     await act(async () => {
       await capturedSetTheme('amber');

@@ -221,7 +221,10 @@ export default function AddTransactionDrawer({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
     const categoryObj = preference?.categories.find((c) => c.name === form.category);
     const txData: Omit<Transaction, 'id'> = {
@@ -278,9 +281,7 @@ export default function AddTransactionDrawer({
   const saveGradient =
     form.type === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)';
   const saveShadow =
-    form.type === 'expense'
-      ? '0 4px 14px rgba(220,38,38,0.30)'
-      : '0 4px 14px rgba(34,197,94,0.30)';
+    form.type === 'expense' ? '0 4px 14px rgba(220,38,38,0.30)' : '0 4px 14px rgba(34,197,94,0.30)';
 
   if (!open) return null;
 
@@ -310,7 +311,9 @@ export default function AddTransactionDrawer({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4 flex-shrink-0">
-          <h2 className="text-base font-semibold text-text">{editId ? 'Edit Transaction' : 'New Transaction'}</h2>
+          <h2 className="text-base font-semibold text-text">
+            {editId ? 'Edit Transaction' : 'New Transaction'}
+          </h2>
           <button
             type="button"
             onClick={startClose}
@@ -341,19 +344,23 @@ export default function AddTransactionDrawer({
             label="Currency"
             value={form.currency}
             options={currencyOptions}
-            onSelect={(v) => { set('currency')(v); setActiveField('vendor'); }}
+            onSelect={(v) => {
+              set('currency')(v);
+              setActiveField('vendor');
+            }}
             onClose={() => setActiveField(null)}
           />
         )}
 
-        {errors.currency && (
-          <p className="text-xs text-red-600 px-[18px]">{errors.currency}</p>
-        )}
+        {errors.currency && <p className="text-xs text-red-600 px-[18px]">{errors.currency}</p>}
 
         {/* Scrollable field list */}
         <div className="flex-1 overflow-y-auto">
-          <form id="add-tx-form" onSubmit={handleSubmit} className="flex flex-col px-[18px] py-[8px]">
-
+          <form
+            id="add-tx-form"
+            onSubmit={handleSubmit}
+            className="flex flex-col px-[18px] py-[8px]"
+          >
             {/* Vendor */}
             <FieldPicker
               label="Vendor"
@@ -426,7 +433,10 @@ export default function AddTransactionDrawer({
             {activeField === 'date' && (
               <MiniCalendar
                 value={form.date}
-                onChange={(v) => { set('date')(v); setActiveField('account'); }}
+                onChange={(v) => {
+                  set('date')(v);
+                  setActiveField('account');
+                }}
                 activeType={form.type}
               />
             )}
@@ -438,12 +448,17 @@ export default function AddTransactionDrawer({
               onClick={() => open_(activeField === 'account' ? null : 'account')}
               className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff7ed] flex items-center justify-center text-[16px] flex-shrink-0">🏦</div>
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff7ed] flex items-center justify-center text-[16px] flex-shrink-0">
+                🏦
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
                   Account <span className="text-red-500">*</span>
                 </div>
-                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}>
+                <div
+                  className="text-[16px] font-medium mt-[1px] truncate"
+                  style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}
+                >
                   {form.account || 'Select…'}
                 </div>
               </div>
@@ -454,7 +469,10 @@ export default function AddTransactionDrawer({
                 label="Account"
                 value={form.account}
                 options={preference?.accounts ?? []}
-                onSelect={(v) => { set('account')(v); setActiveField('payment'); }}
+                onSelect={(v) => {
+                  set('account')(v);
+                  setActiveField('payment');
+                }}
                 onClose={() => setActiveField(null)}
               />
             )}
@@ -466,12 +484,17 @@ export default function AddTransactionDrawer({
               onClick={() => open_(activeField === 'payment' ? null : 'payment')}
               className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff1f2] flex items-center justify-center text-[16px] flex-shrink-0">💳</div>
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff1f2] flex items-center justify-center text-[16px] flex-shrink-0">
+                💳
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
                   Payment <span className="text-red-500">*</span>
                 </div>
-                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}>
+                <div
+                  className="text-[16px] font-medium mt-[1px] truncate"
+                  style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}
+                >
                   {form.payment || 'Select…'}
                 </div>
               </div>
@@ -482,7 +505,10 @@ export default function AddTransactionDrawer({
                 label="Payment"
                 value={form.payment}
                 options={preference?.payments ?? []}
-                onSelect={(v) => { set('payment')(v); setActiveField('notes'); }}
+                onSelect={(v) => {
+                  set('payment')(v);
+                  setActiveField('notes');
+                }}
                 onClose={() => setActiveField(null)}
               />
             )}
@@ -494,10 +520,17 @@ export default function AddTransactionDrawer({
               onClick={() => open_(activeField === 'notes' ? null : 'notes')}
               className="w-full flex items-center gap-[10px] py-[14px] text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#f8fafc] flex items-center justify-center text-[16px] flex-shrink-0">📝</div>
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#f8fafc] flex items-center justify-center text-[16px] flex-shrink-0">
+                📝
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">Notes</div>
-                <div className="text-[16px] font-medium mt-[1px] truncate" style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}>
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-[0.07em]">
+                  Notes
+                </div>
+                <div
+                  className="text-[16px] font-medium mt-[1px] truncate"
+                  style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}
+                >
                   {form.notes || 'Optional notes…'}
                 </div>
               </div>

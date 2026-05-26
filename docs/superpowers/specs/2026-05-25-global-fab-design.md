@@ -42,10 +42,12 @@ Move the Add button to a global floating action button (FAB) fixed to the bottom
 ### Tests
 
 **`src/components/dashboard/DailyTransactions.test.tsx`**
+
 - Remove or update any test that asserts the "+ Add" button is present or clicks it
 - Add a test verifying the "+ Add" button is no longer rendered
 
 **`src/routes/AppShell.test.tsx`**
+
 - Add a smoke test: FAB button renders with `aria-label="Add transaction"`
 
 ## What does NOT change

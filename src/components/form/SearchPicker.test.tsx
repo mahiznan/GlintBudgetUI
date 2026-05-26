@@ -13,14 +13,26 @@ const OPTIONS: BudgetData[] = [
 describe('SearchPicker', () => {
   it('renders the search input with placeholder derived from label', () => {
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+      />,
     );
     expect(screen.getByPlaceholderText(/search vendor/i)).toBeInTheDocument();
   });
 
   it('shows all options when query is empty', () => {
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+      />,
     );
     expect(screen.getByText('Swiggy')).toBeInTheDocument();
     expect(screen.getByText('Amazon')).toBeInTheDocument();
@@ -29,7 +41,13 @@ describe('SearchPicker', () => {
   it('filters options as the user types (case-insensitive)', async () => {
     const user = userEvent.setup();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+      />,
     );
     await user.type(screen.getByPlaceholderText(/search vendor/i), 'swi');
     expect(screen.getByRole('button', { name: /swiggy/i })).toBeInTheDocument();
@@ -42,7 +60,13 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={onSelect}
+        onClose={vi.fn()}
+      />,
     );
     await user.click(screen.getByText('Amazon'));
     expect(onSelect).toHaveBeenCalledWith('Amazon');
@@ -50,7 +74,13 @@ describe('SearchPicker', () => {
 
   it('shows a checkmark next to the currently selected option', () => {
     render(
-      <SearchPicker label="Vendor" value="Swiggy" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value="Swiggy"
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+      />,
     );
     // The checkmark is rendered as '✓' next to the selected item
     const swiggyButton = screen.getByRole('button', { name: /swiggy/i });
@@ -60,7 +90,14 @@ describe('SearchPicker', () => {
   it('shows "Add …" option when allowFreeText is true and no match found', async () => {
     const user = userEvent.setup();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} allowFreeText />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+        allowFreeText
+      />,
     );
     await user.type(screen.getByPlaceholderText(/search vendor/i), 'New Cafe');
     expect(screen.getByRole('button', { name: /add.*new cafe/i })).toBeInTheDocument();
@@ -70,7 +107,14 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} allowFreeText />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={onSelect}
+        onClose={vi.fn()}
+        allowFreeText
+      />,
     );
     await user.type(screen.getByPlaceholderText(/search vendor/i), 'New Cafe');
     await user.click(screen.getByRole('button', { name: /add.*new cafe/i }));
@@ -81,7 +125,13 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={onSelect}
+        onClose={vi.fn()}
+      />,
     );
     // First item is highlighted by default; press Enter
     await user.click(screen.getByPlaceholderText(/search vendor/i));
@@ -93,7 +143,13 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={onClose} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={vi.fn()}
+        onClose={onClose}
+      />,
     );
     await user.click(screen.getByPlaceholderText(/search vendor/i));
     await user.keyboard('{Escape}');
@@ -104,7 +160,13 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={onSelect}
+        onClose={vi.fn()}
+      />,
     );
     await user.click(screen.getByPlaceholderText(/search vendor/i));
     await user.keyboard('{ArrowDown}');
@@ -117,7 +179,13 @@ describe('SearchPicker', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={onSelect} onClose={vi.fn()} />
+      <SearchPicker
+        label="Vendor"
+        value=""
+        options={OPTIONS}
+        onSelect={onSelect}
+        onClose={vi.fn()}
+      />,
     );
     await user.click(screen.getByPlaceholderText(/search vendor/i));
     // Arrow up from 0 should clamp at 0, not go negative

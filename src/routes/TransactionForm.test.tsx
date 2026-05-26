@@ -15,10 +15,17 @@ vi.mock('firebase/firestore', () => ({
       exists: () => true,
       id: 'tx1',
       data: () => ({
-        user_id: 'u1', category: 'Food', sub_category: 'Groceries',
+        user_id: 'u1',
+        category: 'Food',
+        sub_category: 'Groceries',
         date: { toDate: () => new Date('2026-05-17') },
-        account: 'HDFC', vendor: 'Zepto', payment: 'UPI',
-        currency: 'INR', notes: '', amount: -500, icon: '🛒',
+        account: 'HDFC',
+        vendor: 'Zepto',
+        payment: 'UPI',
+        currency: 'INR',
+        notes: '',
+        amount: -500,
+        icon: '🛒',
       }),
     }),
   ),
@@ -88,7 +95,9 @@ describe('TransactionForm (add mode)', () => {
   });
 
   it('shows validation error when amount is empty on submit', async () => {
-    const { getByRole, findByText } = render(<TransactionForm mode="add" />, { wrapper: Wrapper as React.ComponentType });
+    const { getByRole, findByText } = render(<TransactionForm mode="add" />, {
+      wrapper: Wrapper as React.ComponentType,
+    });
     getByRole('button', { name: /save/i }).click();
     expect(await findByText(/amount.*required/i)).toBeInTheDocument();
   });

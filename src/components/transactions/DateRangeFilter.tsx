@@ -23,15 +23,9 @@ export default function DateRangeFilter({ period, onPeriodChange }: DateRangeFil
           onClick={() => onPeriodChange(value)}
           className={[
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
-            period === value
-              ? 'text-white shadow-sm'
-              : 'text-text-muted hover:text-text',
+            period === value ? 'text-white shadow-sm' : 'text-text-muted hover:text-text',
           ].join(' ')}
-          style={
-            period === value
-              ? { background: 'var(--brand-gradient)' }
-              : undefined
-          }
+          style={period === value ? { background: 'var(--brand-gradient)' } : undefined}
         >
           {label}
         </button>

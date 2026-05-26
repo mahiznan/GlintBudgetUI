@@ -29,9 +29,7 @@ const require = createRequire(import.meta.url);
 const admin = require('firebase-admin');
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, 'serviceAccount.json'), 'utf8'),
-);
+const serviceAccount = JSON.parse(readFileSync(join(__dirname, 'serviceAccount.json'), 'utf8'));
 
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 

@@ -14,9 +14,9 @@ describe('MiniCalendar', () => {
     const onChange = vi.fn();
     render(<MiniCalendar value="2026-05-19" onChange={onChange} activeType="expense" />);
     // All day cells are buttons. Find the one whose text is exactly "20".
-    const dayButtons = screen.getAllByRole('button').filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '20'
-    );
+    const dayButtons = screen
+      .getAllByRole('button')
+      .filter((b) => !b.getAttribute('aria-label') && b.textContent === '20');
     await user.click(dayButtons[0]!);
     expect(onChange).toHaveBeenCalledWith('2026-05-20');
   });
@@ -37,11 +37,11 @@ describe('MiniCalendar', () => {
 
   it('applies the brand gradient to the selected day when activeType is income', () => {
     const { container } = render(
-      <MiniCalendar value="2026-05-19" onChange={vi.fn()} activeType="income" />
+      <MiniCalendar value="2026-05-19" onChange={vi.fn()} activeType="income" />,
     );
     // Find all day buttons and filter for the one with text content "19" (the selected day)
     const dayButtons = Array.from(container.querySelectorAll('button')).filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '19'
+      (b) => !b.getAttribute('aria-label') && b.textContent === '19',
     );
     const selectedButton = dayButtons[0];
     expect(selectedButton).toBeDefined();
@@ -51,11 +51,9 @@ describe('MiniCalendar', () => {
   });
 
   it('omitting activeType applies the brand gradient to the selected day', () => {
-    const { container } = render(
-      <MiniCalendar value="2026-05-19" onChange={vi.fn()} />
-    );
+    const { container } = render(<MiniCalendar value="2026-05-19" onChange={vi.fn()} />);
     const dayButtons = Array.from(container.querySelectorAll('button')).filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '19'
+      (b) => !b.getAttribute('aria-label') && b.textContent === '19',
     );
     expect(dayButtons[0]!.getAttribute('style')).toContain('var(--brand-gradient)');
   });
@@ -66,9 +64,9 @@ describe('MiniCalendar', () => {
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     render(<MiniCalendar value={todayStr} onChange={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: /next month/i }));
-    const dayBtns = screen.getAllByRole('button').filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '15'
-    );
+    const dayBtns = screen
+      .getAllByRole('button')
+      .filter((b) => !b.getAttribute('aria-label') && b.textContent === '15');
     expect(dayBtns[0]).toBeDisabled();
   });
 
@@ -78,9 +76,9 @@ describe('MiniCalendar', () => {
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     render(<MiniCalendar value={todayStr} onChange={vi.fn()} activeType="expense" />);
     await user.click(screen.getByRole('button', { name: /next month/i }));
-    const dayBtns = screen.getAllByRole('button').filter(
-      (b) => !b.getAttribute('aria-label') && b.textContent === '15'
-    );
+    const dayBtns = screen
+      .getAllByRole('button')
+      .filter((b) => !b.getAttribute('aria-label') && b.textContent === '15');
     expect(dayBtns[0]).not.toBeDisabled();
   });
 });
