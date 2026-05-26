@@ -16,9 +16,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
   const [layoutWidth, setLayoutWidthState] = useState<'fixed' | 'full'>(DEFAULT_LAYOUT_WIDTH);
 
   useEffect(() => {
-    if (preference?.layoutWidth) {
-      setLayoutWidthState(preference.layoutWidth);
-    }
+    setLayoutWidthState(preference?.layoutWidth ?? DEFAULT_LAYOUT_WIDTH);
   }, [preference?.layoutWidth]);
 
   const setLayoutWidth = useCallback(
