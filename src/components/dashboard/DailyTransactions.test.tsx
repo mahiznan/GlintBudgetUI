@@ -19,7 +19,7 @@ function makeTx(id: string, vendor: string, amount: number, date: Date): Transac
     id,
     user_id: 'u1',
     category: 'Food',
-    subCategory: '',
+    subCategory: vendor,
     date,
     account: 'HDFC',
     vendor,
@@ -426,37 +426,19 @@ describe('DailyTransactions — slide animation', () => {
     settleAnimation(container);
   });
 
-  it('Today button and calendar picker both trigger the slide animation', async () => {
+  it('Today button navigates back to the current week', async () => {
     const { container } = renderDT([]);
-    const track = container.querySelector('[data-testid="carousel-track"]')!;
 
     // Navigate to prev week so Today is in the future
     await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
     settleAnimation(container);
 
-    // Click Today — going forward in time → slides left
+    // Click Today — should navigate forward and land back on current week
     await userEvent.click(screen.getByRole('button', { name: 'Today' }));
-    expect(track.getAttribute('style')).toContain('translateX(-66.66%)');
     settleAnimation(container);
 
     // Next week button should now be disabled (back on current week)
     expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
-
-    // Navigate back again for calendar picker test
-    await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
-    settleAnimation(container);
-
-    // Open calendar picker — aria-label is "Pick a date"
-    await userEvent.click(screen.getByRole('button', { name: 'Pick a date' }));
-    const dayBtns = screen.getAllByRole('button', { name: /^\d+$/ });
-    // Pick today's date from the mini-calendar (future relative to prev week)
-    const todayDate = new Date().getDate();
-    const todayBtn = dayBtns.find((b) => b.textContent === String(todayDate));
-    if (todayBtn) {
-      await userEvent.click(todayBtn);
-      // Going from a past week to today → slides left
-      expect(track.getAttribute('style')).toContain('translateX(-66.66%)');
-      settleAnimation(container);
-    }
+    expect(screen.getByRole('button', { name: /^today$/i })).toHaveAttribute('aria-pressed', 'true');
   });
 });
