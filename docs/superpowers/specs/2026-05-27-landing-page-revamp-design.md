@@ -82,10 +82,23 @@ Section label above the grid: "Everything you need to manage your money" (upperc
 
 ## Footer
 
-Remove the "iOS App Store" link. Keep:
+Remove the "iOS App Store" link and the build info line. Keep:
 - © year GlintBudget
 - Privacy Policy link
-- Build info line (commit + timestamp)
+
+The build info (`data-testid="build-info"`, commit hash + timestamp) moves out of the landing footer entirely — see Dashboard below.
+
+---
+
+## Dashboard — Build Info Line
+
+Add a single line at the very bottom of `src/routes/Dashboard.tsx`:
+
+```
+Build <commit-hash> · <build-timestamp>
+```
+
+Same content and formatting as the current `Footer.tsx` build info div (`data-testid="build-info"`). Render it below all dashboard widgets, left-aligned, `text-xs text-slate-400 font-mono px-4 pb-4`.
 
 ---
 
@@ -106,7 +119,8 @@ Remove the "iOS App Store" link. Keep:
 | `src/components/Hero.tsx` | Full rewrite — two-column layout, new copy, embeds `<SignInCard />` |
 | `src/components/SignInCard.tsx` | **New** — extracted sign-in logic from `SignIn.tsx`; standard Google button |
 | `src/components/FeatureStrip.tsx` | Replace third feature card copy; add section label |
-| `src/components/Footer.tsx` | Remove "iOS App Store" link |
+| `src/components/Footer.tsx` | Remove "iOS App Store" link and build info div |
+| `src/routes/Dashboard.tsx` | Add build info line (commit + timestamp) at the bottom |
 | `src/routes/SignIn.tsx` | Redirect to `/` (sign-in now inline on landing) |
 | `public/glint.jpg` | Already present — used as logo image in header and sign-in card |
 
