@@ -50,11 +50,13 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     payments: mergeWithDefaults(DEFAULT_PAYMENTS, (raw['payments'] as BudgetData[]) ?? []),
     defaultCurrency: (raw['default_currency'] as Preference['defaultCurrency']) ?? DEFAULT_CURRENCY,
     bookmarkedCurrencies: (raw['frequent_currencies'] as string[]) ?? [],
-    defaultEntries: raw['default_entries'] !== undefined
-      ? decodeDefaultEntries(raw['default_entries'])
-      : DEFAULT_ENTRIES,
+    defaultEntries:
+      raw['default_entries'] !== undefined
+        ? decodeDefaultEntries(raw['default_entries'])
+        : DEFAULT_ENTRIES,
     theme: raw['theme'] as string | undefined,
     spendingChartType: raw['spendingChartType'] as 'bar' | 'line' | undefined,
+    layoutWidth: raw['layoutWidth'] as 'fixed' | 'full' | undefined,
   };
 }
 
