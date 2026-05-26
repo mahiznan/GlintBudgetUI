@@ -42,7 +42,7 @@ describe('SignInCard', () => {
     signInWithGoogle.mockResolvedValue(undefined);
     renderWith({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /sign in with google/i }));
-    expect(signInWithGoogle).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(signInWithGoogle).toHaveBeenCalledTimes(1));
   });
 
   it('shows "Open dashboard" link when authenticated', () => {
@@ -65,7 +65,7 @@ describe('SignInCard', () => {
     signInWithGoogle.mockRejectedValue({ code: 'auth/popup-closed-by-user' });
     renderWith({ status: 'anonymous', user: null });
     await userEvent.click(screen.getByRole('button', { name: /sign in with google/i }));
-    expect(screen.queryByRole('alert')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
   });
 
   it('shows a generic failure message on any other error', async () => {
