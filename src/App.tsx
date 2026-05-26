@@ -5,6 +5,7 @@ import { RequireAuth } from './auth/RequireAuth';
 import { PreferenceProvider } from './context/PreferenceContext';
 import { TransactionProvider } from './context/TransactionContext';
 import { ThemeProvider } from './context/ThemeProvider';
+import { LayoutProvider } from './context/LayoutProvider';
 import Landing from './routes/Landing';
 
 const SignIn = lazy(() => import('./routes/SignIn'));
@@ -91,7 +92,9 @@ export default function App() {
       <PreferenceProvider>
         <TransactionProvider>
           <ThemeProvider>
-            <RouterProvider router={router} />
+            <LayoutProvider>
+              <RouterProvider router={router} />
+            </LayoutProvider>
           </ThemeProvider>
         </TransactionProvider>
       </PreferenceProvider>
