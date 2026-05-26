@@ -7,7 +7,6 @@ import {
   getWeekDays,
   isSameDay,
   isCurrentWeek,
-  formatTime,
   formatDayHeading,
   dayOfWeekOffset,
   localDateStr,
@@ -60,14 +59,14 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text truncate">{tx.vendor}</p>
-                  <p className="text-xs text-text-muted">
-                    {tx.category} · {formatTime(tx.date)}
+                  <p className="text-sm font-medium text-text truncate">{tx.subCategory}</p>
+                  <p className="text-xs text-text-muted truncate">
+                    {tx.category} · {tx.vendor}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 w-36">
                   <span
-                    className={`text-sm font-semibold ${isExpense ? 'text-red-600' : 'text-brand'}`}
+                    className={`flex-1 text-right text-sm font-semibold tabular-nums ${isExpense ? 'text-red-600' : 'text-brand'}`}
                   >
                     {isExpense ? '−' : '+'}
                     <span className="text-[10px] mr-0.5">{txSymbol}</span>
@@ -104,8 +103,8 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-text-muted">Day total</p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-base font-bold text-red-600">
+          <div className="flex items-center gap-2 flex-shrink-0 w-36">
+            <span className="flex-1 text-right text-base font-bold tabular-nums text-red-600">
               −<span className="text-xs mr-0.5">{currencySymbol}</span>
               {dayExpenses.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -272,7 +271,7 @@ export default function DailyTransactions({
             </button>
             {calendarOpen && (
               <div className="absolute left-0 top-full mt-1 z-50 bg-surface rounded-xl border border-border shadow-lg p-3 w-64 overflow-hidden">
-                <MiniCalendar value={localDateStr(selectedDate)} onChange={handleCalendarPick} />
+                <MiniCalendar value={localDateStr(selectedDate)} onChange={handleCalendarPick} compact />
               </div>
             )}
           </div>
@@ -367,7 +366,7 @@ export default function DailyTransactions({
         </button>
       </div>
 
-      <div className="overflow-hidden">
+      <div className="overflow-hidden w-full min-w-0">
         <div
           data-testid="carousel-track"
           ref={trackRef}

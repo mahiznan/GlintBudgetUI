@@ -4,6 +4,7 @@ interface MiniCalendarProps {
   value: string; // 'YYYY-MM-DD'
   onChange: (v: string) => void;
   activeType?: 'expense' | 'income' | 'brand';
+  compact?: boolean;
 }
 
 function getCalendarDays(year: number, month: number): Date[] {
@@ -26,7 +27,7 @@ function toDateStr(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export default function MiniCalendar({ value, onChange, activeType = 'brand' }: MiniCalendarProps) {
+export default function MiniCalendar({ value, onChange, activeType = 'brand', compact = false }: MiniCalendarProps) {
   const selected = value ? new Date(value + 'T00:00:00') : null;
   const [viewDate, setViewDate] = useState<Date>(() =>
     selected ? new Date(selected) : new Date(),
@@ -144,7 +145,7 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand' }: 
               type="button"
               onClick={() => onChange(ds)}
               disabled={isFuture}
-              className="aspect-square flex items-center justify-center text-[22px] font-medium rounded-[6px] disabled:cursor-not-allowed"
+              className={`aspect-square flex items-center justify-center ${compact ? 'text-[11px]' : 'text-[22px]'} font-medium rounded-[6px] disabled:cursor-not-allowed`}
               style={
                 isFuture
                   ? { color: '#cbd5e1', opacity: 0.4 }
