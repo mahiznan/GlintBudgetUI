@@ -18,6 +18,7 @@ import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
+import { BudgetPlannerCarousel } from '../components/planner/BudgetPlannerCarousel';
 
 interface DrillState {
   groupBy: GroupBy;
@@ -337,6 +338,8 @@ export default function Dashboard() {
         totalIncome={totalIncome}
         currencySymbol={currencySymbol}
       />
+
+      <BudgetPlannerCarousel />
 
       <div className="flex flex-col gap-4 md:flex-row">
         {/* Left column — 2/3 width on desktop, full width on mobile */}
