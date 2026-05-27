@@ -45,3 +45,51 @@ export interface Preference {
   spendingChartType?: 'bar' | 'line';
   layoutWidth?: 'fixed' | 'full';
 }
+
+export type PlannerPeriod = 'weekly' | 'monthly' | 'yearly' | 'custom';
+export type PlannerChartView = 'bar' | 'radial';
+export type CategoryStatus = 'exceeded' | 'near' | 'ok' | 'no-budget' | 'unplanned';
+
+export interface BudgetPlanner {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  currency: string;
+  active: boolean;
+  archived: boolean;
+  period: PlannerPeriod;
+  customStart?: Date;
+  customEnd?: Date;
+  repeatable: boolean;
+  filterAccounts: string[];
+  filterVendors: string[];
+  filterPayments: string[];
+  categoryBudgets: Array<{ category: string; amount: number }>;
+  chartView: PlannerChartView;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CategoryResult {
+  category: string;
+  planned: number;
+  spent: number;
+  remaining: number;
+  /** 0–100, capped; 0 when planned === 0 */
+  pct: number;
+  status: CategoryStatus;
+}
+
+export interface PlannerAggregation {
+  dateRange: { start: Date; end: Date };
+  periodLabel: string;
+  isCurrentPeriod: boolean;
+  summary: {
+    totalPlanned: number;
+    totalSpent: number;
+    totalRemaining: number;
+  };
+  categoryResults: CategoryResult[];
+  unplannedResults: CategoryResult[];
+}
