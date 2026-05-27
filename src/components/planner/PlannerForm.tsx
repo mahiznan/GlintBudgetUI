@@ -158,28 +158,43 @@ export function PlannerForm({ uid, mode, initial, onClose }: Props) {
       customEnd = eff.customEnd;
     }
 
-    const payload = {
-      user_id: uid,
-      name: form.name.trim(),
-      description: form.description.trim(),
-      currency: form.currency,
-      active: true,
-      archived: false,
-      period: form.period,
-      customStart,
-      customEnd,
-      repeatable: form.repeatable,
-      filterAccounts: form.filterAccounts,
-      filterVendors: form.filterVendors,
-      filterPayments: form.filterPayments,
-      categoryBudgets,
-      chartView: (initial?.chartView ?? 'bar') as BudgetPlanner['chartView'],
-    };
-
     if (mode === 'edit' && initial) {
-      updatePlanner(initial.id, payload);
+      updatePlanner(initial.id, {
+        user_id: uid,
+        name: form.name.trim(),
+        description: form.description.trim(),
+        currency: form.currency,
+        // Preserve active/archived — managed separately by toggle and archive action
+        active: initial.active,
+        archived: initial.archived,
+        period: form.period,
+        customStart,
+        customEnd,
+        repeatable: form.repeatable,
+        filterAccounts: form.filterAccounts,
+        filterVendors: form.filterVendors,
+        filterPayments: form.filterPayments,
+        categoryBudgets,
+        chartView: initial.chartView,
+      });
     } else {
-      addPlanner(payload);
+      addPlanner({
+        user_id: uid,
+        name: form.name.trim(),
+        description: form.description.trim(),
+        currency: form.currency,
+        active: true,
+        archived: false,
+        period: form.period,
+        customStart,
+        customEnd,
+        repeatable: form.repeatable,
+        filterAccounts: form.filterAccounts,
+        filterVendors: form.filterVendors,
+        filterPayments: form.filterPayments,
+        categoryBudgets,
+        chartView: 'bar',
+      });
     }
     startClose();
   }

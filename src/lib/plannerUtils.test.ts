@@ -44,7 +44,7 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
     payment: 'credit',
     currency: 'SGD',
     notes: '',
-    amount: 100,
+    amount: -100,
     icon: '',
     ...overrides,
   };
@@ -162,6 +162,16 @@ describe('filterTransactionsForPlanner', () => {
     const result = filterTransactionsForPlanner(makePlanner({ filterAccounts: [] }), txns, dateRange);
     expect(result).toHaveLength(2);
   });
+
+  it('excludes income transactions (positive amounts)', () => {
+    const txns = [
+      makeTx({ id: 'expense', amount: -200 }),
+      makeTx({ id: 'income', amount: 500 }),
+    ];
+    const result = filterTransactionsForPlanner(makePlanner(), txns, dateRange);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.id).toBe('expense');
+  });
 });
 
 // ── aggregateTransactions ─────────────────────────────────────────────────────
@@ -169,7 +179,7 @@ describe('filterTransactionsForPlanner', () => {
 describe('aggregateTransactions', () => {
   it('computes ok status when under 80%', () => {
     const planner = makePlanner({ categoryBudgets: [{ category: 'Food', amount: 1000 }] });
-    const txns = [makeTx({ amount: 500, category: 'Food' })];
+    const txns = [makeTx({ amount: -500, category: 'Food' })];
     const { categoryResults } = aggregateTransactions(planner, txns);
     expect(categoryResults[0]!.status).toBe('ok');
     expect(categoryResults[0]!.pct).toBe(50);
@@ -178,14 +188,14 @@ describe('aggregateTransactions', () => {
 
   it('computes near status at 80%+', () => {
     const planner = makePlanner({ categoryBudgets: [{ category: 'Food', amount: 1000 }] });
-    const txns = [makeTx({ amount: 820, category: 'Food' })];
+    const txns = [makeTx({ amount: -820, category: 'Food' })];
     const { categoryResults } = aggregateTransactions(planner, txns);
     expect(categoryResults[0]!.status).toBe('near');
   });
 
   it('computes exceeded status and negative remaining', () => {
     const planner = makePlanner({ categoryBudgets: [{ category: 'Food', amount: 500 }] });
-    const txns = [makeTx({ amount: 620, category: 'Food' })];
+    const txns = [makeTx({ amount: -620, category: 'Food' })];
     const { categoryResults } = aggregateTransactions(planner, txns);
     expect(categoryResults[0]!.status).toBe('exceeded');
     expect(categoryResults[0]!.remaining).toBe(-120);
@@ -194,7 +204,7 @@ describe('aggregateTransactions', () => {
 
   it('computes no-budget status when amount is 0', () => {
     const planner = makePlanner({ categoryBudgets: [{ category: 'Food', amount: 0 }] });
-    const txns = [makeTx({ amount: 50, category: 'Food' })];
+    const txns = [makeTx({ amount: -50, category: 'Food' })];
     const { categoryResults } = aggregateTransactions(planner, txns);
     expect(categoryResults[0]!.status).toBe('no-budget');
     expect(categoryResults[0]!.pct).toBe(0);
@@ -203,8 +213,8 @@ describe('aggregateTransactions', () => {
   it('detects unplanned categories', () => {
     const planner = makePlanner({ categoryBudgets: [{ category: 'Food', amount: 500 }] });
     const txns = [
-      makeTx({ category: 'Food', amount: 100 }),
-      makeTx({ id: 't2', category: 'Health', amount: 45 }),
+      makeTx({ category: 'Food', amount: -100 }),
+      makeTx({ id: 't2', category: 'Health', amount: -45 }),
     ];
     const { unplannedResults } = aggregateTransactions(planner, txns);
     expect(unplannedResults).toHaveLength(1);
@@ -229,9 +239,9 @@ describe('aggregateTransactions', () => {
       ],
     });
     const txns = [
-      makeTx({ id: 'a', category: 'A', amount: 50 }),
-      makeTx({ id: 'b', category: 'B', amount: 620 }),
-      makeTx({ id: 'c', category: 'C', amount: 170 }),
+      makeTx({ id: 'a', category: 'A', amount: -50 }),
+      makeTx({ id: 'b', category: 'B', amount: -620 }),
+      makeTx({ id: 'c', category: 'C', amount: -170 }),
     ];
     const { categoryResults } = aggregateTransactions(planner, txns);
     expect(categoryResults.map((r) => r.category)).toEqual(['B', 'C', 'A', 'D']);
@@ -245,8 +255,8 @@ describe('aggregateTransactions', () => {
       ],
     });
     const txns = [
-      makeTx({ category: 'Food', amount: 820 }),
-      makeTx({ id: 't2', category: 'Transport', amount: 290 }),
+      makeTx({ category: 'Food', amount: -820 }),
+      makeTx({ id: 't2', category: 'Transport', amount: -290 }),
     ];
     const { summary } = aggregateTransactions(planner, txns);
     expect(summary.totalPlanned).toBe(1300);

@@ -141,6 +141,7 @@ export function filterTransactionsForPlanner(
   dateRange: { start: Date; end: Date },
 ): Transaction[] {
   return transactions.filter((t) => {
+    if (t.amount >= 0) return false; // expenses only (negative amounts)
     if (t.date < dateRange.start || t.date > dateRange.end) return false;
     if (t.currency !== planner.currency) return false;
     if (planner.filterAccounts.length > 0 && !planner.filterAccounts.includes(t.account))
@@ -167,10 +168,10 @@ export function aggregateTransactions(
   planner: Pick<BudgetPlanner, 'categoryBudgets'>,
   filteredTransactions: Transaction[],
 ): Pick<PlannerAggregation, 'categoryResults' | 'unplannedResults' | 'summary'> {
-  // Group spend by category
+  // Group spend by category — use absolute value since expenses are negative
   const spendByCategory = new Map<string, number>();
   for (const t of filteredTransactions) {
-    spendByCategory.set(t.category, (spendByCategory.get(t.category) ?? 0) + t.amount);
+    spendByCategory.set(t.category, (spendByCategory.get(t.category) ?? 0) + Math.abs(t.amount));
   }
 
   // Build categoryResults from configured budgets

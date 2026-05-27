@@ -37,7 +37,7 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
     payment: 'credit',
     currency: 'SGD',
     notes: '',
-    amount: 500,
+    amount: -500,
     icon: '',
     ...overrides,
   };
