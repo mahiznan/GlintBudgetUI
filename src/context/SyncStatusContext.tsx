@@ -34,17 +34,17 @@ export function SyncStatusProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!hasPending) {
-      setStatus('synced');
-      return;
-    }
-
     const evaluate = () => {
+      if (!hasPending) {
+        setStatus('synced');
+        return;
+      }
       const age = Date.now() - lastWriteAt.current;
       setStatus(age <= 3000 ? 'syncing' : 'pending');
     };
 
     evaluate();
+    if (!hasPending) return;
     const id = setInterval(evaluate, 500);
     return () => clearInterval(id);
   }, [hasPending]);

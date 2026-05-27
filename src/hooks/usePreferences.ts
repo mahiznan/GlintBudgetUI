@@ -62,13 +62,12 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
 
 export function usePreferences(uid: string | null): UsePreferencesResult {
   const [data, setData] = useState<Preference | null>(null);
-  const [loading, setLoading] = useState(uid !== null);
+  const [loadedUid, setLoadedUid] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [hasPendingWrites, setHasPendingWrites] = useState(false);
 
   useEffect(() => {
     if (!uid) return;
-    setLoading(true);
     const ref = doc(db, 'preference', uid);
 
     return onSnapshot(
@@ -81,14 +80,16 @@ export function usePreferences(uid: string | null): UsePreferencesResult {
         } else {
           setData(docToPreference(uid, {}));
         }
-        setLoading(false);
+        setLoadedUid(uid);
       },
       (err: Error) => {
         setError(err);
-        setLoading(false);
+        setLoadedUid(uid);
       },
     );
   }, [uid]);
+
+  const loading = uid !== null && loadedUid !== uid;
 
   return { data, loading, error, hasPendingWrites };
 }
