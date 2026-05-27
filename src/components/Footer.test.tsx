@@ -25,8 +25,11 @@ describe('Footer', () => {
     expect(screen.queryByText(/ios/i)).toBeNull();
   });
 
-  it('does not render build info', () => {
+  it('renders build info centered in the footer', () => {
     render(<Footer />);
-    expect(screen.queryByTestId('build-info')).toBeNull();
+    const buildInfo = screen.getByTestId('build-info');
+    expect(buildInfo.textContent).toMatch(/Build/);
+    expect(buildInfo.textContent).toMatch(/UTC|\d{4}-\d{2}-\d{2}/);
+    expect(buildInfo.className).toMatch(/text-center/);
   });
 });

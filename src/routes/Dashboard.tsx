@@ -19,17 +19,6 @@ import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 
-function formatBuildTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const yyyy = d.getUTCFullYear();
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(d.getUTCDate()).padStart(2, '0');
-  const hh = String(d.getUTCHours()).padStart(2, '0');
-  const mi = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi} UTC`;
-}
-
 interface DrillState {
   groupBy: GroupBy;
   path: string[];
@@ -432,12 +421,6 @@ export default function Dashboard() {
         onSaved={refetch}
         transactions={periodTxns}
       />
-      <div
-        data-testid="build-info"
-        className="px-1 pb-2 text-xs text-slate-400 font-mono"
-      >
-        Build <code>{__APP_COMMIT__}</code> · {formatBuildTime(__APP_BUILD_TIME__)}
-      </div>
     </div>
   );
 }
