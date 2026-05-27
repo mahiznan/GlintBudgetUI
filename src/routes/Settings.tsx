@@ -14,6 +14,7 @@ import SubcategoriesTab from '../components/settings/SubcategoriesTab';
 import CurrencyTab from '../components/settings/CurrencyTab';
 import DefaultsTab from '../components/settings/DefaultsTab';
 import AppearanceTab from '../components/settings/AppearanceTab';
+import PlannerSettings from '../components/settings/PlannerSettings';
 
 const TABS = [
   { key: 'accounts', label: 'Accounts' },
@@ -24,6 +25,7 @@ const TABS = [
   { key: 'currency', label: 'Currency' },
   { key: 'defaults', label: 'Defaults' },
   { key: 'appearance', label: 'Appearance' },
+  { key: 'planners', label: 'Budget Planners' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -181,6 +183,7 @@ export default function Settings() {
           />
         )}
         {activeTab === 'appearance' && <AppearanceTab />}
+        {activeTab === 'planners' && <PlannerSettings uid={uid} />}
       </div>
     </div>
   );
