@@ -56,7 +56,6 @@ const prefCtx = {
   },
   loading: false,
   error: null,
-  refetch: vi.fn(),
 };
 
 function Wrapper({ children }: { children: React.ReactNode }) {

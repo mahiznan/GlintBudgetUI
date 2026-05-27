@@ -5,7 +5,6 @@ vi.mock('../context/TransactionContext', () => ({
     transactions: [],
     loading: false,
     error: null,
-    refetch: vi.fn(),
   }),
 }));
 
