@@ -14,7 +14,7 @@ export interface AppShellOutletContext {
 
 export default function AppShell() {
   const auth = useAuth();
-  const { transactions, refetch } = useTransactionContext();
+  const { transactions } = useTransactionContext();
   const { layoutWidth } = useLayout();
   const [period, setPeriod] = useState<Period>('month');
   const [fabOpen, setFabOpen] = useState(false);
@@ -45,7 +45,6 @@ export default function AppShell() {
       <AddTransactionDrawer
         open={fabOpen}
         onClose={() => setFabOpen(false)}
-        onSaved={refetch}
         transactions={transactions}
       />
     </div>

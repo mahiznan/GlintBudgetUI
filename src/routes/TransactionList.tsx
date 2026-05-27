@@ -11,17 +11,16 @@ import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog'
 export default function TransactionList() {
   const { preference } = usePreferenceContext();
   const { period } = useOutletContext<AppShellOutletContext>();
-  const { transactions, loading, error, refetch } = useTransactionContext();
+  const { transactions, loading, error } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const filtered = useMemo(() => filterByPeriod(transactions, period), [transactions, period]);
 
-  async function handleDelete(id: string) {
+  function handleDelete(id: string) {
     setDeletingId(null);
-    await deleteTx(id);
-    refetch();
+    deleteTx(id);
   }
 
   if (loading) {
@@ -39,7 +38,7 @@ export default function TransactionList() {
         role="alert"
       >
         Couldn't load transactions.{' '}
-        <button className="underline ml-1" onClick={refetch}>
+        <button className="underline ml-1" onClick={() => window.location.reload()}>
           Retry
         </button>
       </div>

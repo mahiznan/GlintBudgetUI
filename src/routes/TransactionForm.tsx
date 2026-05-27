@@ -328,7 +328,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
             className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
             style={{ background: 'var(--brand-gradient)' }}
           >
-            {loading ? 'Saving…' : 'Save'}
+            {loading ? 'Loading…' : 'Save'}
           </button>
         </div>
       </form>

@@ -56,7 +56,7 @@ export default function Dashboard() {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { period, setPeriod } = useOutletContext<AppShellOutletContext>();
   const { preference } = usePreferenceContext();
-  const { transactions: allTxns, loading, error, refetch } = useTransactionContext();
+  const { transactions: allTxns, loading, error } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
   const { mutate: updatePreference } = useUpdatePreference(uid);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -303,10 +303,9 @@ export default function Dashboard() {
     return currencySymbol;
   }, [drillState, currencySymbol, currencySymbolMap]);
 
-  async function handleDelete(id: string) {
+  function handleDelete(id: string) {
     setDeletingId(null);
-    await deleteTx(id);
-    refetch();
+    deleteTx(id);
   }
 
   if (loading) {
@@ -324,7 +323,7 @@ export default function Dashboard() {
         role="alert"
       >
         Couldn't load transactions.{' '}
-        <button className="underline ml-1" onClick={refetch}>
+        <button className="underline ml-1" onClick={() => window.location.reload()}>
           Retry
         </button>
       </div>
@@ -356,7 +355,7 @@ export default function Dashboard() {
             transactions={allTxns}
             currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
-            onTransactionAdded={refetch}
+            onTransactionAdded={() => {}}
           />
         </div>
 
@@ -418,7 +417,6 @@ export default function Dashboard() {
         open={editingId !== null}
         editId={editingId ?? undefined}
         onClose={() => setEditingId(null)}
-        onSaved={refetch}
         transactions={periodTxns}
       />
     </div>

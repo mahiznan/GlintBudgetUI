@@ -96,7 +96,7 @@ function validate(form: FormState): FormErrors {
 export interface AddTransactionDrawerProps {
   open: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved?: () => void;
   selectedDate?: Date;
   transactions?: Transaction[];
   editId?: string;
@@ -246,7 +246,7 @@ export default function AddTransactionDrawer({
     } else {
       addTx(txData);
     }
-    onSaved();
+    onSaved?.();
     startClose();
   }
 

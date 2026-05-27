@@ -33,7 +33,7 @@ export default function Settings() {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') ?? 'accounts') as TabKey;
-  const { preference, loading, error, refetch } = usePreferenceContext();
+  const { preference, loading, error } = usePreferenceContext();
   const { mutate } = useUpdatePreference(uid);
 
   function setTab(key: TabKey) {
@@ -45,32 +45,27 @@ export default function Settings() {
     items: BudgetData[],
   ): Promise<void> {
     mutate({ [field]: items });
-    refetch();
     return Promise.resolve();
   }
 
   function saveSubCategories(items: BudgetData[]): Promise<void> {
     mutate({ subCategories: items });
-    refetch();
     return Promise.resolve();
   }
 
   function saveCurrency(currency: Currency): Promise<void> {
     mutate({ default_currency: currency });
-    refetch();
     return Promise.resolve();
   }
 
   function saveBookmarks(codes: string[]): Promise<void> {
     mutate({ frequent_currencies: codes });
-    refetch();
     return Promise.resolve();
   }
 
   function saveDefaults(partial: Record<string, string>): Promise<void> {
     const current = preference?.defaultEntries ?? {};
     mutate({ default_entries: { ...current, ...partial } });
-    refetch();
     return Promise.resolve();
   }
 
@@ -89,7 +84,7 @@ export default function Settings() {
         role="alert"
       >
         Couldn't load preferences.{' '}
-        <button className="underline ml-1" onClick={refetch}>
+        <button className="underline ml-1" onClick={() => window.location.reload()}>
           Retry
         </button>
       </div>

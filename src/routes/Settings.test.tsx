@@ -24,7 +24,7 @@ vi.mock('../auth/AuthContext', () => ({
   useAuth: () => ({ status: 'authenticated', user: { uid: 'u1' } }),
 }));
 vi.mock('../hooks/useUpdatePreference', () => ({
-  useUpdatePreference: () => ({ mutate: vi.fn(), loading: false, error: null }),
+  useUpdatePreference: () => ({ mutate: vi.fn() }),
 }));
 vi.mock('../components/settings/BudgetDataTab', () => ({
   default: ({ itemType }: { itemType: string }) => <div data-testid={`budget-tab-${itemType}`} />,
