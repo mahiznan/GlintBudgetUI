@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes, Outlet } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { PreferenceContext } from '../context/PreferenceContext';
 import { TransactionContext } from '../context/TransactionContext';
+import { SyncStatusProvider } from '../context/SyncStatusContext';
 import type { AppShellOutletContext } from './AppShell';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
@@ -20,17 +21,19 @@ describe('TransactionList', () => {
   it('renders empty state after loading', async () => {
     const ctx: AppShellOutletContext = { period: 'month', setPeriod: vi.fn() };
     render(
-      <PreferenceContext.Provider value={prefCtx}>
-        <TransactionContext.Provider value={txCtx}>
-          <MemoryRouter>
-            <Routes>
-              <Route path="/" element={<Outlet context={ctx} />}>
-                <Route index element={<TransactionList />} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
-        </TransactionContext.Provider>
-      </PreferenceContext.Provider>,
+      <SyncStatusProvider>
+        <PreferenceContext.Provider value={prefCtx}>
+          <TransactionContext.Provider value={txCtx}>
+            <MemoryRouter>
+              <Routes>
+                <Route path="/" element={<Outlet context={ctx} />}>
+                  <Route index element={<TransactionList />} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </TransactionContext.Provider>
+        </PreferenceContext.Provider>
+      </SyncStatusProvider>,
     );
     expect(await screen.findByText(/no transactions/i)).toBeInTheDocument();
   });

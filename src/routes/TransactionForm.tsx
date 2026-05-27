@@ -79,8 +79,8 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
 
-  const { mutate: addTx, loading: adding, error: addError } = useAddTransaction();
-  const { mutate: updateTx, loading: updating, error: updateError } = useUpdateTransaction();
+  const { mutate: addTx } = useAddTransaction();
+  const { mutate: updateTx } = useUpdateTransaction();
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -137,7 +137,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
     if (Object.keys(errs).length > 0) {
@@ -164,16 +164,12 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       icon: categoryObj?.emoji ?? '',
     };
 
-    try {
-      if (mode === 'add') {
-        await addTx(txData);
-      } else {
-        await updateTx(id!, txData);
-      }
-      navigate('/app/transactions');
-    } catch {
-      // mutateError state is already set by the hook
+    if (mode === 'add') {
+      addTx(txData);
+    } else {
+      updateTx(id!, txData);
     }
+    navigate('/app/transactions');
   }
 
   const filteredSubCats: BudgetData[] =
@@ -186,8 +182,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
     parent: null,
   }));
 
-  const mutateError = addError ?? updateError;
-  const loading = adding || updating || loadingTx;
+  const loading = loadingTx;
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -318,12 +313,6 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
             className="rounded-xl border border-border px-4 py-3 text-sm bg-surface outline-none focus:ring-2 focus:ring-brand/30 text-text resize-none"
           />
         </div>
-
-        {mutateError && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">
-            {mutateError.message}
-          </p>
-        )}
 
         <div className="flex gap-3 pt-2">
           <button

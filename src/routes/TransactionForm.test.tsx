@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
 import { PreferenceContext } from '../context/PreferenceContext';
+import { SyncStatusProvider } from '../context/SyncStatusContext';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
@@ -60,29 +61,33 @@ const prefCtx = {
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   return (
-    <AuthContext.Provider value={authedCtx}>
-      <PreferenceContext.Provider value={prefCtx}>
-        <MemoryRouter initialEntries={['/app/transactions/new']}>
-          <Routes>
-            <Route path="/app/transactions/new" element={children} />
-          </Routes>
-        </MemoryRouter>
-      </PreferenceContext.Provider>
-    </AuthContext.Provider>
+    <SyncStatusProvider>
+      <AuthContext.Provider value={authedCtx}>
+        <PreferenceContext.Provider value={prefCtx}>
+          <MemoryRouter initialEntries={['/app/transactions/new']}>
+            <Routes>
+              <Route path="/app/transactions/new" element={children} />
+            </Routes>
+          </MemoryRouter>
+        </PreferenceContext.Provider>
+      </AuthContext.Provider>
+    </SyncStatusProvider>
   );
 }
 
 function EditWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <AuthContext.Provider value={authedCtx}>
-      <PreferenceContext.Provider value={prefCtx}>
-        <MemoryRouter initialEntries={['/app/transactions/tx1/edit']}>
-          <Routes>
-            <Route path="/app/transactions/:id/edit" element={children} />
-          </Routes>
-        </MemoryRouter>
-      </PreferenceContext.Provider>
-    </AuthContext.Provider>
+    <SyncStatusProvider>
+      <AuthContext.Provider value={authedCtx}>
+        <PreferenceContext.Provider value={prefCtx}>
+          <MemoryRouter initialEntries={['/app/transactions/tx1/edit']}>
+            <Routes>
+              <Route path="/app/transactions/:id/edit" element={children} />
+            </Routes>
+          </MemoryRouter>
+        </PreferenceContext.Provider>
+      </AuthContext.Provider>
+    </SyncStatusProvider>
   );
 }
 

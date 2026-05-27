@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
+import { useSyncStatus } from '../context/SyncStatusContext';
 import type { Transaction } from '../firestore/types';
 
 type TxInput = Omit<Transaction, 'id'>;
@@ -40,66 +40,36 @@ function encodePatch(patch: TxPatch): Record<string, unknown> {
 }
 
 export function useAddTransaction() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const { notifyWrite } = useSyncStatus();
 
-  async function mutate(tx: TxInput): Promise<string> {
-    setLoading(true);
-    setError(null);
-    try {
-      const id = crypto.randomUUID();
-      await setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, tx));
-      return id;
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
+  function mutate(tx: TxInput): string {
+    const id = crypto.randomUUID();
+    notifyWrite();
+    void setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, tx));
+    return id;
   }
 
-  return { mutate, loading, error };
+  return { mutate };
 }
 
 export function useUpdateTransaction() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const { notifyWrite } = useSyncStatus();
 
-  async function mutate(id: string, patch: TxPatch): Promise<void> {
-    setLoading(true);
-    setError(null);
-    try {
-      await updateDoc(doc(db, 'transactions', id), encodePatch(patch));
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
+  function mutate(id: string, patch: TxPatch): void {
+    notifyWrite();
+    void updateDoc(doc(db, 'transactions', id), encodePatch(patch));
   }
 
-  return { mutate, loading, error };
+  return { mutate };
 }
 
 export function useDeleteTransaction() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const { notifyWrite } = useSyncStatus();
 
-  async function mutate(id: string): Promise<void> {
-    setLoading(true);
-    setError(null);
-    try {
-      await deleteDoc(doc(db, 'transactions', id));
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
+  function mutate(id: string): void {
+    notifyWrite();
+    void deleteDoc(doc(db, 'transactions', id));
   }
 
-  return { mutate, loading, error };
+  return { mutate };
 }

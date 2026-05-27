@@ -45,14 +45,10 @@ beforeEach(() => {
     refetch: vi.fn(),
   } as ReturnType<typeof usePreferenceContext>);
   vi.mocked(useAddTransaction).mockReturnValue({
-    mutate: vi.fn().mockResolvedValue('new-id'),
-    loading: false,
-    error: null,
+    mutate: vi.fn().mockReturnValue('new-id'),
   });
   vi.mocked(useUpdateTransaction).mockReturnValue({
-    mutate: vi.fn().mockResolvedValue(undefined),
-    loading: false,
-    error: null,
+    mutate: vi.fn(),
   });
 });
 

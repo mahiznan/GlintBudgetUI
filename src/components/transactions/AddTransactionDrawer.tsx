@@ -113,10 +113,8 @@ export default function AddTransactionDrawer({
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
-  const { mutate: addTx, loading: addLoading, error: addError } = useAddTransaction();
-  const { mutate: updateTx, loading: updateLoading, error: updateError } = useUpdateTransaction();
-  const loading = addLoading || updateLoading;
-  const mutateError = addError ?? updateError;
+  const { mutate: addTx } = useAddTransaction();
+  const { mutate: updateTx } = useUpdateTransaction();
 
   const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate));
   const [errors, setErrors] = useState<FormErrors>({});
@@ -218,7 +216,7 @@ export default function AddTransactionDrawer({
     setActiveField(field);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate(form);
     if (Object.keys(errs).length > 0) {
@@ -243,17 +241,13 @@ export default function AddTransactionDrawer({
           : Math.abs(parseFloat(form.amount)),
       icon: categoryObj?.emoji ?? '',
     };
-    try {
-      if (editId) {
-        await updateTx(editId, txData);
-      } else {
-        await addTx(txData);
-      }
-      onSaved();
-      startClose();
-    } catch {
-      // mutateError state is set by the hook
+    if (editId) {
+      updateTx(editId, txData);
+    } else {
+      addTx(txData);
     }
+    onSaved();
+    startClose();
   }
 
   // Mirror iOS SuggestionToolbarView: show vendors from past transactions in addition to
@@ -556,11 +550,6 @@ export default function AddTransactionDrawer({
               </div>
             )}
 
-            {mutateError && (
-              <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 mt-3">
-                {mutateError.message}
-              </p>
-            )}
           </form>
         </div>
 
@@ -577,11 +566,10 @@ export default function AddTransactionDrawer({
             ref={saveRef}
             type="submit"
             form="add-tx-form"
-            disabled={loading}
-            className="flex-1 rounded-xl py-[14px] text-base font-semibold text-white transition-opacity disabled:opacity-60"
+            className="flex-1 rounded-xl py-[14px] text-base font-semibold text-white transition-opacity"
             style={{ background: saveGradient, boxShadow: saveShadow }}
           >
-            {loading ? 'Saving…' : editId ? 'Update' : 'Save'}
+            {editId ? 'Update' : 'Save'}
           </button>
         </div>
       </div>

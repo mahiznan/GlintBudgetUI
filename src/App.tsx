@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
 import { PreferenceProvider } from './context/PreferenceContext';
 import { TransactionProvider } from './context/TransactionContext';
+import { SyncStatusProvider } from './context/SyncStatusContext';
 import { ThemeProvider } from './context/ThemeProvider';
 import { LayoutProvider } from './context/LayoutProvider';
 import Landing from './routes/Landing';
@@ -89,15 +90,17 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <AuthProvider>
-      <PreferenceProvider>
-        <TransactionProvider>
-          <ThemeProvider>
-            <LayoutProvider>
-              <RouterProvider router={router} />
-            </LayoutProvider>
-          </ThemeProvider>
-        </TransactionProvider>
-      </PreferenceProvider>
+      <SyncStatusProvider>
+        <PreferenceProvider>
+          <TransactionProvider>
+            <ThemeProvider>
+              <LayoutProvider>
+                <RouterProvider router={router} />
+              </LayoutProvider>
+            </ThemeProvider>
+          </TransactionProvider>
+        </PreferenceProvider>
+      </SyncStatusProvider>
     </AuthProvider>
   );
 }
