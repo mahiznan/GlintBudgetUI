@@ -10,6 +10,8 @@ import AddTransactionDrawer from '../components/transactions/AddTransactionDrawe
 export interface AppShellOutletContext {
   period: Period;
   setPeriod: (p: Period) => void;
+  fabDate: Date;
+  setFabDate: (d: Date) => void;
 }
 
 export default function AppShell() {
@@ -18,6 +20,11 @@ export default function AppShell() {
   const { layoutWidth } = useLayout();
   const [period, setPeriod] = useState<Period>('month');
   const [fabOpen, setFabOpen] = useState(false);
+  const [fabDate, setFabDate] = useState<Date>(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
 
   if (auth.status !== 'authenticated') return null;
 
@@ -26,7 +33,7 @@ export default function AppShell() {
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-surface-alt">
         <div className={layoutWidth === 'fixed' ? 'max-w-5xl mx-auto w-full' : 'w-full'}>
-          <Outlet context={{ period, setPeriod } satisfies AppShellOutletContext} />
+          <Outlet context={{ period, setPeriod, fabDate, setFabDate } satisfies AppShellOutletContext} />
         </div>
       </main>
       <button
@@ -37,7 +44,7 @@ export default function AppShell() {
         style={{
           background: 'var(--brand-gradient)',
           boxShadow: '0 4px 20px var(--brand-glow)',
-          right: layoutWidth === 'fixed' ? 'max(0px, calc((100vw - 64rem) / 2))' : '1.5rem',
+          right: layoutWidth === 'fixed' ? 'max(1.5rem, calc((100vw - 64rem) / 2 + 1.5rem))' : '1.5rem',
         }}
       >
         +
@@ -46,6 +53,7 @@ export default function AppShell() {
         open={fabOpen}
         onClose={() => setFabOpen(false)}
         transactions={transactions}
+        selectedDate={fabDate}
       />
     </div>
   );

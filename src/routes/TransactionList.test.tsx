@@ -19,7 +19,8 @@ const txCtx = { transactions: [], loading: false, error: null, hasPendingWrites:
 
 describe('TransactionList', () => {
   it('renders empty state after loading', async () => {
-    const ctx: AppShellOutletContext = { period: 'month', setPeriod: vi.fn() };
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const ctx: AppShellOutletContext = { period: 'month', setPeriod: vi.fn(), fabDate: today, setFabDate: vi.fn() };
     render(
       <SyncStatusProvider>
         <PreferenceContext.Provider value={prefCtx}>

@@ -24,6 +24,7 @@ interface DailyTransactionsProps {
   currencySymbol: string;
   onDelete: (id: string) => void;
   onTransactionAdded?: () => void;
+  onDateChange?: (d: Date) => void;
 }
 
 interface DayPanelProps {
@@ -129,6 +130,7 @@ export default function DailyTransactions({
   currencySymbol,
   onDelete,
   onTransactionAdded,
+  onDateChange,
 }: DailyTransactionsProps) {
   const [weekStart, setWeekStart] = useState<Date>(() => getMondayOf(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -169,6 +171,7 @@ export default function DailyTransactions({
     setWeekStart(getMondayOf(target));
     setSelectedDate(target);
     setSliding(dir);
+    onDateChange?.(target);
   }
 
   function goToToday() {

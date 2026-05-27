@@ -55,7 +55,7 @@ function getCurrencySymbol(code: string): string {
 export default function Dashboard() {
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
-  const { period, setPeriod } = useOutletContext<AppShellOutletContext>();
+  const { period, setPeriod, setFabDate } = useOutletContext<AppShellOutletContext>();
   const { preference } = usePreferenceContext();
   const { transactions: allTxns, loading, error } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
@@ -359,6 +359,7 @@ export default function Dashboard() {
             currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
             onTransactionAdded={() => {}}
+            onDateChange={setFabDate}
           />
         </div>
 
