@@ -50,6 +50,7 @@ export function PlannerCard({ planner, transactions, onCardClick }: Props) {
 
   // Sync from prop when Firestore confirms (e.g., change from another device)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChartView(planner.chartView);
   }, [planner.chartView]);
 
