@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 export interface LayoutContextValue {
   layoutWidth: 'fixed' | 'full';
-  setLayoutWidth: (w: 'fixed' | 'full') => Promise<void>;
+  setLayoutWidth: (w: 'fixed' | 'full') => void;
 }
 
 export const LayoutContext = createContext<LayoutContextValue | null>(null);

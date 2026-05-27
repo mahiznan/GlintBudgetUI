@@ -42,7 +42,6 @@ beforeEach(() => {
     preference: stubPreference,
     loading: false,
     error: null,
-    refetch: vi.fn(),
   } as ReturnType<typeof usePreferenceContext>);
   vi.mocked(useAddTransaction).mockReturnValue({
     mutate: vi.fn().mockReturnValue('new-id'),

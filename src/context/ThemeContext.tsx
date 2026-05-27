@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 export interface ThemeContextValue {
   themeId: string;
-  setTheme: (id: string) => Promise<void>;
+  setTheme: (id: string) => void;
 }
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);

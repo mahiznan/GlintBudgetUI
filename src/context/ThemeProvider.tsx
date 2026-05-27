@@ -16,7 +16,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // waiting for a Firestore round-trip through usePreferences.
   const [themeId, setThemeId] = useState(DEFAULT_THEME_ID);
 
-  // Seed from Firestore preference once it loads (or re-loads after refetch).
+  // Seed from Firestore preference once it loads (or when onSnapshot delivers an update).
   useEffect(() => {
     if (preference?.theme) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -29,10 +29,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [themeId]);
 
   const setTheme = useCallback(
-    async (id: string) => {
+    (id: string) => {
       setThemeId(id);
       document.documentElement.dataset.theme = id;
-      await mutate({ theme: id });
+      mutate({ theme: id });
     },
     [mutate],
   );

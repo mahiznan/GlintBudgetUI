@@ -68,7 +68,7 @@ describe('ThemeProvider', () => {
 
   it('setTheme updates data-theme immediately and calls mutate', async () => {
     setupMocks(undefined);
-    let capturedSetTheme!: (id: string) => Promise<void>;
+    let capturedSetTheme!: (id: string) => void;
 
     function Capture() {
       const { setTheme } = useTheme();

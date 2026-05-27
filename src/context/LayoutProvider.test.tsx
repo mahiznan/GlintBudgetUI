@@ -57,7 +57,7 @@ describe('LayoutProvider', () => {
 
   it('setLayoutWidth updates state optimistically and calls mutate', async () => {
     setupMocks(undefined);
-    let capturedSet!: (w: 'fixed' | 'full') => Promise<void>;
+    let capturedSet!: (w: 'fixed' | 'full') => void;
 
     function Capture() {
       const { setLayoutWidth } = useLayout();

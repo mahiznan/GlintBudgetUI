@@ -23,9 +23,9 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
   }, [preference?.layoutWidth]);
 
   const setLayoutWidth = useCallback(
-    async (w: 'fixed' | 'full') => {
+    (w: 'fixed' | 'full') => {
       setLayoutWidthState(w);
-      await mutate({ layoutWidth: w });
+      mutate({ layoutWidth: w });
     },
     [mutate],
   );
