@@ -94,7 +94,7 @@ describe('usePlanners', () => {
   });
 
   it('returns empty array and error on failure', async () => {
-    const { result } = renderHook(() => usePlanners('u1'), { wrapper });
+    renderHook(() => usePlanners('u1'), { wrapper });
     // onSnapshot error path — need to capture errCb
     vi.mocked(onSnapshot).mockImplementation((_q, _opts, _cb, errCb) => {
       (errCb as (e: Error) => void)(new Error('permission denied'));

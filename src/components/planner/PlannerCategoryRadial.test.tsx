@@ -1,7 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { PlannerCategoryRadial } from './PlannerCategoryRadial';
-import type { CategoryResult } from '../../firestore/types';
 
 describe('PlannerCategoryRadial', () => {
   it('renders without crashing for ok status', () => {

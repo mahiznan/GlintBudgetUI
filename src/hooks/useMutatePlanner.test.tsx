@@ -74,7 +74,7 @@ describe('useUpdatePlanner', () => {
     const { result } = renderHook(() => useUpdatePlanner(), { wrapper });
     result.current.mutate('p1', { name: 'Renamed', chartView: 'radial' });
     expect(updateDoc).toHaveBeenCalledTimes(1);
-    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as Record<string, unknown>;
+    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
     expect(patch['name']).toBe('Renamed');
     expect(patch['chart_view']).toBe('radial');
   });
@@ -87,7 +87,7 @@ describe('useArchivePlanner', () => {
     const { result } = renderHook(() => useArchivePlanner(), { wrapper });
     result.current.mutate('p1');
     expect(updateDoc).toHaveBeenCalledTimes(1);
-    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as Record<string, unknown>;
+    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
     expect(patch['archived']).toBe(true);
     expect(patch['active']).toBe(false);
   });
