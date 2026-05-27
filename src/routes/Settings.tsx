@@ -34,39 +34,44 @@ export default function Settings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') ?? 'accounts') as TabKey;
   const { preference, loading, error, refetch } = usePreferenceContext();
-  const { mutate, loading: saving } = useUpdatePreference(uid);
+  const { mutate } = useUpdatePreference(uid);
 
   function setTab(key: TabKey) {
     setSearchParams({ tab: key });
   }
 
-  async function saveList(
+  function saveList(
     field: 'accounts' | 'categories' | 'vendors' | 'payments',
     items: BudgetData[],
-  ) {
-    await mutate({ [field]: items });
+  ): Promise<void> {
+    mutate({ [field]: items });
     refetch();
+    return Promise.resolve();
   }
 
-  async function saveSubCategories(items: BudgetData[]) {
-    await mutate({ subCategories: items });
+  function saveSubCategories(items: BudgetData[]): Promise<void> {
+    mutate({ subCategories: items });
     refetch();
+    return Promise.resolve();
   }
 
-  async function saveCurrency(currency: Currency) {
-    await mutate({ default_currency: currency });
+  function saveCurrency(currency: Currency): Promise<void> {
+    mutate({ default_currency: currency });
     refetch();
+    return Promise.resolve();
   }
 
-  async function saveBookmarks(codes: string[]) {
-    await mutate({ frequent_currencies: codes });
+  function saveBookmarks(codes: string[]): Promise<void> {
+    mutate({ frequent_currencies: codes });
     refetch();
+    return Promise.resolve();
   }
 
-  async function saveDefaults(partial: Record<string, string>) {
+  function saveDefaults(partial: Record<string, string>): Promise<void> {
     const current = preference?.defaultEntries ?? {};
-    await mutate({ default_entries: { ...current, ...partial } });
+    mutate({ default_entries: { ...current, ...partial } });
     refetch();
+    return Promise.resolve();
   }
 
   if (loading) {
@@ -121,7 +126,7 @@ export default function Settings() {
             allItems={preference.accounts}
             defaultItems={DEFAULT_ACCOUNTS}
             onSave={(items) => saveList('accounts', items)}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'categories' && (
@@ -130,7 +135,7 @@ export default function Settings() {
             allItems={preference.categories}
             defaultItems={DEFAULT_CATEGORIES}
             onSave={(items) => saveList('categories', items)}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'subcategories' && (
@@ -139,7 +144,7 @@ export default function Settings() {
             defaultItems={DEFAULT_SUBCATEGORIES}
             categories={preference.categories}
             onSave={saveSubCategories}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'vendors' && (
@@ -148,7 +153,7 @@ export default function Settings() {
             allItems={preference.vendors}
             defaultItems={[]}
             onSave={(items) => saveList('vendors', items)}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'payments' && (
@@ -157,7 +162,7 @@ export default function Settings() {
             allItems={preference.payments}
             defaultItems={DEFAULT_PAYMENTS}
             onSave={(items) => saveList('payments', items)}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'currency' && (
@@ -166,7 +171,7 @@ export default function Settings() {
             bookmarkedCurrencies={preference.bookmarkedCurrencies}
             onSaveCurrency={saveCurrency}
             onSaveBookmarks={saveBookmarks}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'defaults' && (
@@ -177,7 +182,7 @@ export default function Settings() {
             subCategories={preference.subCategories}
             defaultEntries={preference.defaultEntries}
             onSave={saveDefaults}
-            saving={saving}
+            saving={false}
           />
         )}
         {activeTab === 'appearance' && <AppearanceTab />}

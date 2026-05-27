@@ -23,8 +23,6 @@ function setupMocks(theme?: string) {
   vi.mocked(useAuth).mockReturnValue({ status: 'authenticated', user: { uid: 'u1' } } as never);
   vi.mocked(useUpdatePreference).mockReturnValue({
     mutate: mockMutate,
-    loading: false,
-    error: null,
   });
 }
 
