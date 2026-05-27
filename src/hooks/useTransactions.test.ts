@@ -1,21 +1,33 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
+
+const mockUnsub = vi.fn();
+let capturedCallback: ((snap: unknown) => void) | null = null;
+let capturedErrorCallback: ((err: Error) => void) | null = null;
+
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(() => 'col'),
   query: vi.fn(() => 'q'),
   where: vi.fn(() => 'w'),
   orderBy: vi.fn(() => 'o'),
   limit: vi.fn(() => 'l'),
-  getDocs: vi.fn(),
-  Timestamp: { fromDate: vi.fn((d: Date) => d) },
+  onSnapshot: vi.fn((_q, _opts, cb, errCb) => {
+    capturedCallback = cb as (snap: unknown) => void;
+    capturedErrorCallback = errCb as (err: Error) => void;
+    return mockUnsub;
+  }),
 }));
 
-import { getDocs } from 'firebase/firestore';
+import { onSnapshot } from 'firebase/firestore';
 import { useTransactions } from './useTransactions';
 
-function makeMockDoc(overrides: Record<string, unknown> = {}) {
+function makeSnap(docs: unknown[], hasPendingWrites = false) {
+  return { docs, metadata: { hasPendingWrites } };
+}
+
+function makeDoc(overrides: Record<string, unknown> = {}) {
   return {
     id: 'tx1',
     data: () => ({
@@ -36,42 +48,61 @@ function makeMockDoc(overrides: Record<string, unknown> = {}) {
 }
 
 describe('useTransactions', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => {
+    vi.resetAllMocks();
+    capturedCallback = null;
+    capturedErrorCallback = null;
+    vi.mocked(onSnapshot).mockImplementation((_q, _opts, cb, errCb) => {
+      capturedCallback = cb as (snap: unknown) => void;
+      capturedErrorCallback = errCb as (err: Error) => void;
+      return mockUnsub;
+    });
+  });
 
   it('returns loading=true and empty data initially', () => {
-    vi.mocked(getDocs).mockReturnValue(new Promise(() => {}));
-    const { result } = renderHook(() => useTransactions({ uid: 'u1', limit: 10 }));
+    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
     expect(result.current.loading).toBe(true);
     expect(result.current.data).toEqual([]);
   });
 
-  it('maps sub_category → subCategory and date Timestamp → Date', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(getDocs).mockResolvedValueOnce({ docs: [makeMockDoc()] } as any);
-    const { result } = renderHook(() => useTransactions({ uid: 'u1', limit: 10 }));
+  it('maps sub_category → subCategory and date Timestamp → Date on snapshot', async () => {
+    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
+    act(() => { capturedCallback!(makeSnap([makeDoc()])); });
     await waitFor(() => expect(result.current.loading).toBe(false));
-
     const tx = result.current.data[0]!;
     expect(tx.subCategory).toBe('Groceries');
     expect(tx.date).toBeInstanceOf(Date);
     expect(tx.id).toBe('tx1');
   });
 
-  it('sets error on Firestore failure', async () => {
-    vi.mocked(getDocs).mockRejectedValueOnce(new Error('quota exceeded'));
-    const { result } = renderHook(() => useTransactions({ uid: 'u1', limit: 10 }));
-    await waitFor(() => expect(result.current.error).not.toBeNull());
-    expect(result.current.error?.message).toBe('quota exceeded');
+  it('exposes hasPendingWrites: true from snapshot metadata', async () => {
+    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
+    act(() => { capturedCallback!(makeSnap([makeDoc()], true)); });
+    await waitFor(() => expect(result.current.hasPendingWrites).toBe(true));
+  });
+
+  it('exposes hasPendingWrites: false when snapshot confirms', async () => {
+    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
+    act(() => { capturedCallback!(makeSnap([makeDoc()], true)); });
+    act(() => { capturedCallback!(makeSnap([makeDoc()], false)); });
+    await waitFor(() => expect(result.current.hasPendingWrites).toBe(false));
+  });
+
+  it('sets error when onSnapshot calls the error callback', async () => {
+    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
+    act(() => { capturedErrorCallback!(new Error('quota exceeded')); });
+    await waitFor(() => expect(result.current.error?.message).toBe('quota exceeded'));
     expect(result.current.loading).toBe(false);
   });
 
-  it('applies date filters when start and end are provided', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(getDocs).mockResolvedValueOnce({ docs: [] } as any);
-    const start = new Date('2026-05-01');
-    const end = new Date('2026-05-31');
-    renderHook(() => useTransactions({ uid: 'u1', start, end }));
-    await waitFor(() => expect(getDocs).toHaveBeenCalled());
-    expect(getDocs).toHaveBeenCalledTimes(1);
+  it('unsubscribes the listener on unmount', () => {
+    const { unmount } = renderHook(() => useTransactions({ uid: 'u1' }));
+    unmount();
+    expect(mockUnsub).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not subscribe when uid is empty', () => {
+    renderHook(() => useTransactions({ uid: '' }));
+    expect(onSnapshot).not.toHaveBeenCalled();
   });
 });
