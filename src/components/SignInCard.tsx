@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { signInWithGoogle } from '../firebase/auth';
 
@@ -34,27 +34,15 @@ const GoogleIcon = () => (
 
 export default function SignInCard() {
   const auth = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  if (auth.status === 'authenticated') {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-md text-center">
-        <img
-          src="/glint.jpg"
-          alt=""
-          className="mx-auto mb-4 h-[52px] w-[52px] rounded-xl object-cover"
-        />
-        <p className="text-sm text-slate-600 mb-6">You&apos;re signed in.</p>
-        <Link
-          to="/app"
-          className="inline-block rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
-        >
-          Open dashboard →
-        </Link>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (auth.status === 'authenticated') {
+      navigate('/app', { replace: true });
+    }
+  }, [auth.status, navigate]);
 
   async function handleClick() {
     setError(null);

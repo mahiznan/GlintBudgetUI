@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
 import type { AuthState } from '../auth/types';
 
@@ -21,16 +21,27 @@ import SignInCard from './SignInCard';
 function renderWith(state: AuthState) {
   return render(
     <AuthContext.Provider value={state}>
-      <MemoryRouter>
-        <SignInCard />
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<SignInCard />} />
+          <Route path="/app" element={<span>dashboard</span>} />
+        </Routes>
       </MemoryRouter>
     </AuthContext.Provider>,
   );
 }
 
 describe('SignInCard', () => {
+  const originalError = console.error.bind(console);
   beforeEach(() => {
     signInWithGoogle.mockReset();
+    console.error = (...args: unknown[]) => {
+      if (typeof args[0] === 'string' && args[0].includes('not wrapped in act')) return;
+      originalError(...args);
+    };
+  });
+  afterEach(() => {
+    console.error = originalError;
   });
 
   it('renders a "Sign in with Google" button when anonymous', () => {
@@ -45,13 +56,12 @@ describe('SignInCard', () => {
     await waitFor(() => expect(signInWithGoogle).toHaveBeenCalledTimes(1));
   });
 
-  it('shows "Open dashboard" link when authenticated', () => {
+  it('redirects to /app when already authenticated', async () => {
     renderWith({
       status: 'authenticated',
       user: { uid: 'u', name: 'R', email: null, photoUrl: null },
     });
-    const link = screen.getByRole('link', { name: /open dashboard/i });
-    expect(link).toHaveAttribute('href', '/app');
+    await waitFor(() => expect(screen.getByText('dashboard')).toBeInTheDocument());
   });
 
   it('shows the popup-blocked message when signInWithGoogle throws auth/popup-blocked', async () => {
