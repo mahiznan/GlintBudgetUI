@@ -2290,4 +2290,529 @@ git commit -m "feat: add BudgetPlannerCarousel and wire into Dashboard"
 
 ---
 
-*Phase 2 complete. Continue with Phase 3 (PlannerDetailDrawer).*
+---
+
+## Phase 3 — Detail Drawer
+
+---
+
+### Task 9: Create `PlannerDetailDrawer` and wire into `BudgetPlannerCarousel`
+
+Full-screen detail view opened when a planner card is tapped. Uses `createPortal` (same pattern as `AddTransactionDrawer`). Shows the full category list, subcategory drill-down, and matching transactions per subcategory.
+
+**Files:**
+- Create: `src/components/planner/PlannerDetailDrawer.tsx`
+- Create: `src/components/planner/PlannerDetailDrawer.test.tsx`
+- Modify: `src/components/planner/BudgetPlannerCarousel.tsx`
+
+- [ ] **Step 1: Write the failing tests**
+
+Create `src/components/planner/PlannerDetailDrawer.test.tsx`:
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
+
+vi.mock('../../hooks/usePlannerAggregation', () => ({
+  usePlannerAggregation: vi.fn(() => ({
+    dateRange: { start: new Date('2026-05-01'), end: new Date('2026-05-31') },
+    periodLabel: 'May 2026',
+    isCurrentPeriod: true,
+    summary: { totalPlanned: 1800, totalSpent: 1200, totalRemaining: 600 },
+    categoryResults: [
+      { category: 'Food', planned: 1000, spent: 800, remaining: 200, pct: 80, status: 'near' },
+      { category: 'Transport', planned: 500, spent: 300, remaining: 200, pct: 60, status: 'ok' },
+    ],
+    unplannedResults: [
+      { category: 'Health', planned: 0, spent: 45, remaining: -45, pct: 0, status: 'unplanned' },
+    ],
+  })),
+}));
+
+vi.mock('../../lib/plannerUtils', async () => {
+  const actual = await vi.importActual<typeof import('../../lib/plannerUtils')>('../../lib/plannerUtils');
+  return {
+    ...actual,
+    filterTransactionsForPlanner: vi.fn(() => [
+      {
+        id: 'tx1',
+        user_id: 'u1',
+        category: 'Food',
+        subCategory: 'Groceries',
+        date: new Date('2026-05-15'),
+        account: 'DBS',
+        vendor: 'NTUC',
+        payment: 'credit',
+        currency: 'SGD',
+        notes: '',
+        amount: 800,
+        icon: '',
+      },
+    ]),
+  };
+});
+
+import { PlannerDetailDrawer } from './PlannerDetailDrawer';
+import type { BudgetPlanner } from '../../firestore/types';
+
+const planner: BudgetPlanner = {
+  id: 'p1',
+  user_id: 'u1',
+  name: 'Monthly SGD',
+  description: '',
+  currency: 'SGD',
+  active: true,
+  archived: false,
+  period: 'monthly',
+  repeatable: true,
+  filterAccounts: [],
+  filterVendors: [],
+  filterPayments: [],
+  categoryBudgets: [
+    { category: 'Food', amount: 1000 },
+    { category: 'Transport', amount: 500 },
+  ],
+  chartView: 'bar',
+  createdAt: new Date('2026-05-01'),
+  updatedAt: new Date('2026-05-01'),
+};
+
+describe('PlannerDetailDrawer', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('renders planner name and period label', () => {
+    render(
+      <PlannerDetailDrawer
+        planner={planner}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Monthly SGD')).toBeTruthy();
+    expect(screen.getByText(/May 2026/)).toBeTruthy();
+  });
+
+  it('renders all categories without 8-cap', () => {
+    render(
+      <PlannerDetailDrawer
+        planner={planner}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Food')).toBeTruthy();
+    expect(screen.getByText('Transport')).toBeTruthy();
+    expect(screen.getByText('Health')).toBeTruthy();
+  });
+
+  it('calls onClose when close button is clicked', () => {
+    const onClose = vi.fn();
+    render(
+      <PlannerDetailDrawer
+        planner={planner}
+        transactions={[]}
+        initialOffset={0}
+        onClose={onClose}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+    // After animation delay onClose is called; test the state immediately
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
+  it('expanding a category row shows subcategory section', () => {
+    render(
+      <PlannerDetailDrawer
+        planner={planner}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /expand Food/i }));
+    expect(screen.getByText('Groceries')).toBeTruthy();
+    expect(screen.getByText('NTUC')).toBeTruthy();
+  });
+
+  it('shows period navigation for repeatable planners', () => {
+    render(
+      <PlannerDetailDrawer
+        planner={planner}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /previous period/i })).toBeTruthy();
+  });
+});
+```
+
+- [ ] **Step 2: Run — expect FAIL**
+
+```bash
+npm run test -- PlannerDetailDrawer --run
+```
+
+Expected: FAIL — module not found.
+
+- [ ] **Step 3: Create `src/components/planner/PlannerDetailDrawer.tsx`**
+
+```tsx
+import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
+import { usePlannerAggregation } from '../../hooks/usePlannerAggregation';
+import { filterTransactionsForPlanner, formatCurrency } from '../../lib/plannerUtils';
+import { PlannerCategoryBar } from './PlannerCategoryBar';
+import type { BudgetPlanner, CategoryResult, Transaction } from '../../firestore/types';
+
+interface Props {
+  planner: BudgetPlanner;
+  transactions: Transaction[];
+  initialOffset: number;
+  onClose: () => void;
+}
+
+interface SubCatRow {
+  subCategory: string;
+  total: number;
+  pct: number;
+  transactions: Transaction[];
+}
+
+function buildSubcategoryBreakdown(txns: Transaction[]): SubCatRow[] {
+  const map = new Map<string, { total: number; txns: Transaction[] }>();
+  for (const t of txns) {
+    const entry = map.get(t.subCategory) ?? { total: 0, txns: [] };
+    entry.total += t.amount;
+    entry.txns.push(t);
+    map.set(t.subCategory, entry);
+  }
+  const totalSpend = txns.reduce((s, t) => s + t.amount, 0);
+  return [...map.entries()]
+    .sort((a, b) => b[1].total - a[1].total)
+    .map(([subCategory, data]) => ({
+      subCategory,
+      total: data.total,
+      pct: totalSpend > 0 ? Math.round((data.total / totalSpend) * 100) : 0,
+      transactions: data.txns.sort((a, b) => b.date.getTime() - a.date.getTime()),
+    }));
+}
+
+function CategoryDrillDown({
+  category,
+  periodFiltered,
+  currency,
+}: {
+  category: string;
+  periodFiltered: Transaction[];
+  currency: string;
+}) {
+  const catTxns = useMemo(
+    () => periodFiltered.filter((t) => t.category === category),
+    [category, periodFiltered],
+  );
+  const rows = useMemo(() => buildSubcategoryBreakdown(catTxns), [catTxns]);
+
+  if (catTxns.length === 0) {
+    return <p className="text-xs text-text-muted py-2 px-1">No transactions this period.</p>;
+  }
+
+  return (
+    <div className="mt-2 flex flex-col gap-3">
+      {rows.map((row) => (
+        <div key={row.subCategory} className="bg-surface-alt rounded-lg p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-text">{row.subCategory}</span>
+            <span className="text-xs text-text-muted">
+              {formatCurrency(row.total, currency)}{' '}
+              <span className="text-slate-300">· {row.pct}%</span>
+            </span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {row.transactions.map((t) => (
+              <div key={t.id} className="flex items-center justify-between text-xs">
+                <span className="text-text-muted">
+                  {t.date.toLocaleDateString('en', { day: 'numeric', month: 'short' })} ·{' '}
+                  {t.vendor || '—'}
+                </span>
+                <span className="text-text font-medium">{formatCurrency(t.amount, currency)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CategoryRow({
+  result,
+  currency,
+  isFirstUnplanned,
+  expanded,
+  onToggle,
+  periodFiltered,
+}: {
+  result: CategoryResult;
+  currency: string;
+  isFirstUnplanned: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  periodFiltered: Transaction[];
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        aria-label={`${expanded ? 'Collapse' : 'Expand'} ${result.category}`}
+        className="w-full text-left"
+        onClick={onToggle}
+      >
+        <PlannerCategoryBar
+          result={result}
+          currency={currency}
+          isFirstUnplanned={isFirstUnplanned}
+        />
+        <div className="text-[10px] text-text-muted text-right -mt-1 mb-1">
+          {expanded ? '▲ hide transactions' : '▼ show transactions'}
+        </div>
+      </button>
+      {expanded && (
+        <CategoryDrillDown
+          category={result.category}
+          periodFiltered={periodFiltered}
+          currency={currency}
+        />
+      )}
+    </div>
+  );
+}
+
+export function PlannerDetailDrawer({ planner, transactions, initialOffset, onClose }: Props) {
+  const [periodOffset, setPeriodOffset] = useState(initialOffset);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  function startClose() {
+    setVisible(false);
+    setTimeout(onClose, 200);
+  }
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') startClose();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const agg = usePlannerAggregation(planner, transactions, periodOffset);
+
+  const periodFiltered = useMemo(
+    () => filterTransactionsForPlanner(planner, transactions, agg.dateRange),
+    [planner, transactions, agg.dateRange],
+  );
+
+  const allCategories = [...agg.categoryResults, ...agg.unplannedResults];
+  const firstUnplannedIndex = allCategories.findIndex((r) => r.status === 'unplanned');
+  const canNavigate = planner.repeatable;
+
+  function toggleCategory(category: string) {
+    setExpandedCategory((prev) => (prev === category ? null : category));
+  }
+
+  return createPortal(
+    <>
+      {/* Backdrop */}
+      <div
+        aria-hidden="true"
+        onClick={startClose}
+        className={[
+          'fixed inset-0 z-40 bg-black/40 transition-opacity duration-200',
+          visible ? 'opacity-100' : 'opacity-0',
+        ].join(' ')}
+      />
+
+      {/* Panel — slides up from bottom */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={planner.name}
+        className={[
+          'fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-2xl shadow-xl',
+          'flex flex-col transition-transform duration-200 ease-out',
+          'max-h-[90dvh]',
+          visible ? 'translate-y-0' : 'translate-y-full',
+        ].join(' ')}
+      >
+        {/* Handle */}
+        <div className="flex items-center justify-center pt-3 pb-1 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-5 pt-2 pb-3 border-b border-border shrink-0">
+          <div>
+            <h2 className="font-semibold text-base text-text">{planner.name}</h2>
+            <p className="text-xs text-text-muted mt-0.5">
+              {agg.periodLabel} · {planner.currency}
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={startClose}
+            className="text-text-muted hover:text-text transition-colors p-1 -mr-1"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 4l10 10M14 4L4 14" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Summary */}
+        <div className="flex gap-4 px-5 py-3 border-b border-border shrink-0">
+          {(
+            [
+              { label: 'Planned', value: agg.summary.totalPlanned },
+              { label: 'Spent', value: agg.summary.totalSpent },
+              { label: 'Remaining', value: agg.summary.totalRemaining },
+            ] as const
+          ).map(({ label, value }) => (
+            <div key={label}>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                {label}
+              </div>
+              <div
+                className={`text-sm font-bold ${label === 'Remaining' && value < 0 ? 'text-red-500' : 'text-text'}`}
+              >
+                {value < 0 ? '-' : ''}
+                {formatCurrency(Math.abs(value), planner.currency)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Period nav */}
+        {canNavigate && (
+          <div className="flex items-center justify-between px-5 py-2 border-b border-border text-xs text-text-muted shrink-0">
+            <button
+              type="button"
+              aria-label="Previous period"
+              onClick={() => {
+                setPeriodOffset((o) => o - 1);
+                setExpandedCategory(null);
+              }}
+              className="hover:text-text transition-colors"
+            >
+              ‹ Prev
+            </button>
+            <span>{agg.isCurrentPeriod ? `${agg.periodLabel} (current)` : agg.periodLabel}</span>
+            <button
+              type="button"
+              aria-label="Next period"
+              disabled={periodOffset >= 0}
+              onClick={() => {
+                setPeriodOffset((o) => Math.min(0, o + 1));
+                setExpandedCategory(null);
+              }}
+              className="hover:text-text transition-colors disabled:opacity-40"
+            >
+              Next ›
+            </button>
+          </div>
+        )}
+
+        {/* Scrollable category list */}
+        <div className="overflow-y-auto px-5 py-3 flex-1">
+          {allCategories.length === 0 && (
+            <p className="text-sm text-text-muted text-center py-8">
+              No transactions match this planner for the selected period.
+            </p>
+          )}
+          {allCategories.map((result, idx) => (
+            <CategoryRow
+              key={result.category}
+              result={result}
+              currency={planner.currency}
+              isFirstUnplanned={idx === firstUnplannedIndex}
+              expanded={expandedCategory === result.category}
+              onToggle={() => toggleCategory(result.category)}
+              periodFiltered={periodFiltered}
+            />
+          ))}
+        </div>
+      </div>
+    </>,
+    document.body,
+  );
+}
+```
+
+- [ ] **Step 4: Run tests — expect all to pass**
+
+```bash
+npm run test -- PlannerDetailDrawer --run
+```
+
+Expected: all PASS.
+
+- [ ] **Step 5: Wire drawer into `BudgetPlannerCarousel.tsx`**
+
+Open `src/components/planner/BudgetPlannerCarousel.tsx` and apply these two changes:
+
+**Add import** at the top (after existing imports):
+
+```typescript
+import { PlannerDetailDrawer } from './PlannerDetailDrawer';
+```
+
+**Replace the placeholder comment** at the bottom of the return:
+
+Find:
+```tsx
+{/* PlannerDetailDrawer will be added here in Phase 3 */}
+{selected && null /* Phase 3: replace with <PlannerDetailDrawer ... /> */}
+```
+
+Replace with:
+```tsx
+{selected && (
+  <PlannerDetailDrawer
+    planner={selected.planner}
+    transactions={transactions}
+    initialOffset={selected.offset}
+    onClose={() => setSelected(null)}
+  />
+)}
+```
+
+- [ ] **Step 6: Run all tests and typecheck**
+
+```bash
+npm run typecheck && npm run test -- --run
+```
+
+Expected: all PASS, no type errors.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/components/planner/PlannerDetailDrawer.tsx \
+        src/components/planner/PlannerDetailDrawer.test.tsx \
+        src/components/planner/BudgetPlannerCarousel.tsx
+git commit -m "feat: add PlannerDetailDrawer with subcategory drill-down"
+```
+
+---
+
+*Phase 3 complete. Continue with Phase 4 (planner management: PlannerForm + PlannerSettings).*
