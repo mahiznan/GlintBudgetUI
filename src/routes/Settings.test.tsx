@@ -18,7 +18,6 @@ vi.mock('../context/PreferenceContext', () => ({
     },
     loading: false,
     error: null,
-    refetch: vi.fn(),
   })),
 }));
 vi.mock('../auth/AuthContext', () => ({
@@ -116,7 +115,6 @@ describe('Settings — loading state', () => {
       preference: null,
       loading: true,
       error: null,
-      refetch: vi.fn(),
     });
     renderSettings();
     expect(screen.getByRole('status')).toBeInTheDocument();

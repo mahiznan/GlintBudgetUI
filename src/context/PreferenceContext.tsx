@@ -6,7 +6,6 @@ export interface PreferenceContextValue {
   preference: Preference | null;
   loading: boolean;
   error: Error | null;
-  refetch: () => void;
 }
 
 export const PreferenceContext = createContext<PreferenceContextValue | null>(null);

@@ -14,8 +14,8 @@ vi.mock('firebase/firestore', () => ({
 
 import TransactionList from './TransactionList';
 
-const prefCtx = { preference: null, loading: false, error: null, refetch: vi.fn() };
-const txCtx = { transactions: [], loading: false, error: null, refetch: vi.fn() };
+const prefCtx = { preference: null, loading: false, error: null };
+const txCtx = { transactions: [], loading: false, error: null, hasPendingWrites: false };
 
 describe('TransactionList', () => {
   it('renders empty state after loading', async () => {

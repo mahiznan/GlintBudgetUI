@@ -5,6 +5,7 @@ vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn(() => 'doc-ref'),
   getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
+  onSnapshot: vi.fn(() => () => {}),
 }));
 vi.mock('../firebase/client', () => ({
   auth: {},
@@ -12,6 +13,7 @@ vi.mock('../firebase/client', () => ({
 }));
 
 import { AuthContext } from '../auth/AuthContext';
+import { SyncStatusProvider } from './SyncStatusContext';
 import { PreferenceProvider } from './PreferenceProvider';
 import { usePreferenceContext } from './usePreferenceContext';
 
@@ -29,9 +31,11 @@ describe('PreferenceContext', () => {
           user: { uid: 'u1', name: null, email: null, photoUrl: null },
         }}
       >
-        <PreferenceProvider>
-          <Consumer />
-        </PreferenceProvider>
+        <SyncStatusProvider>
+          <PreferenceProvider>
+            <Consumer />
+          </PreferenceProvider>
+        </SyncStatusProvider>
       </AuthContext.Provider>,
     );
     // initially renders (loading or done)

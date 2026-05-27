@@ -6,7 +6,7 @@ export interface TransactionContextValue {
   transactions: Transaction[];
   loading: boolean;
   error: Error | null;
-  refetch: () => void;
+  hasPendingWrites: boolean;
 }
 
 export const TransactionContext = createContext<TransactionContextValue | null>(null);
