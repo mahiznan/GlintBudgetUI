@@ -1306,4 +1306,988 @@ git commit -m "feat: add usePlannerAggregation hook"
 
 ---
 
-*Phase 1 complete. Continue with Phase 2 (widget components) in the next session.*
+---
+
+## Phase 2 — Widget Components
+
+---
+
+### Task 6: Create `PlannerCategoryBar` and `PlannerCategoryRadial`
+
+Purely presentational — no state, no hooks. Shared by `PlannerCard` (Phase 2) and `PlannerDetailDrawer` (Phase 3).
+
+**Files:**
+- Create: `src/components/planner/PlannerCategoryBar.tsx`
+- Create: `src/components/planner/PlannerCategoryRadial.tsx`
+- Create: `src/components/planner/PlannerCategoryBar.test.tsx`
+- Create: `src/components/planner/PlannerCategoryRadial.test.tsx`
+
+- [ ] **Step 1: Write the failing tests**
+
+Create `src/components/planner/PlannerCategoryBar.test.tsx`:
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { PlannerCategoryBar } from './PlannerCategoryBar';
+import type { CategoryResult } from '../../firestore/types';
+
+function makeResult(overrides: Partial<CategoryResult> = {}): CategoryResult {
+  return {
+    category: 'Food',
+    planned: 1000,
+    spent: 500,
+    remaining: 500,
+    pct: 50,
+    status: 'ok',
+    ...overrides,
+  };
+}
+
+describe('PlannerCategoryBar', () => {
+  it('renders category name', () => {
+    render(<PlannerCategoryBar result={makeResult()} currency="SGD" isFirstUnplanned={false} />);
+    expect(screen.getByText('Food')).toBeTruthy();
+  });
+
+  it('shows unplanned badge for unplanned status', () => {
+    render(
+      <PlannerCategoryBar
+        result={makeResult({ status: 'unplanned', planned: 0, remaining: -45, pct: 0 })}
+        currency="SGD"
+        isFirstUnplanned={true}
+      />,
+    );
+    expect(screen.getByText('unplanned')).toBeTruthy();
+  });
+
+  it('shows no-budget label', () => {
+    render(
+      <PlannerCategoryBar
+        result={makeResult({ status: 'no-budget', planned: 0, pct: 0 })}
+        currency="SGD"
+        isFirstUnplanned={false}
+      />,
+    );
+    expect(screen.getByText('no budget set')).toBeTruthy();
+  });
+
+  it('shows remaining label for ok status', () => {
+    render(<PlannerCategoryBar result={makeResult()} currency="SGD" isFirstUnplanned={false} />);
+    expect(screen.getByText(/remaining/i)).toBeTruthy();
+  });
+
+  it('shows exceeded label for exceeded status', () => {
+    render(
+      <PlannerCategoryBar
+        result={makeResult({ status: 'exceeded', spent: 620, planned: 500, remaining: -120, pct: 100 })}
+        currency="SGD"
+        isFirstUnplanned={false}
+      />,
+    );
+    expect(screen.getByText(/exceeded/i)).toBeTruthy();
+  });
+});
+```
+
+Create `src/components/planner/PlannerCategoryRadial.test.tsx`:
+
+```typescript
+import { render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { PlannerCategoryRadial } from './PlannerCategoryRadial';
+import type { CategoryResult } from '../../firestore/types';
+
+describe('PlannerCategoryRadial', () => {
+  it('renders without crashing for ok status', () => {
+    const { container } = render(
+      <PlannerCategoryRadial
+        result={{ category: 'Food', planned: 1000, spent: 500, remaining: 500, pct: 50, status: 'ok' }}
+        currency="SGD"
+      />,
+    );
+    expect(container.querySelector('svg')).toBeTruthy();
+    expect(container.textContent).toContain('Food');
+  });
+
+  it('renders exceeded state', () => {
+    const { container } = render(
+      <PlannerCategoryRadial
+        result={{ category: 'Shopping', planned: 500, spent: 620, remaining: -120, pct: 100, status: 'exceeded' }}
+        currency="SGD"
+      />,
+    );
+    expect(container.textContent).toContain('Over');
+  });
+
+  it('renders unplanned with dashed ring', () => {
+    const { container } = render(
+      <PlannerCategoryRadial
+        result={{ category: 'Health', planned: 0, spent: 45, remaining: -45, pct: 0, status: 'unplanned' }}
+        currency="SGD"
+      />,
+    );
+    expect(container.querySelector('circle[stroke-dasharray]')).toBeTruthy();
+  });
+});
+```
+
+- [ ] **Step 2: Run — expect FAIL**
+
+```bash
+npm run test -- PlannerCategoryBar PlannerCategoryRadial --run
+```
+
+Expected: FAIL — modules not found.
+
+- [ ] **Step 3: Create `src/components/planner/PlannerCategoryBar.tsx`**
+
+```tsx
+import { formatCurrency } from '../../lib/plannerUtils';
+import type { CategoryResult } from '../../firestore/types';
+
+const BAR_COLOR: Record<CategoryResult['status'], string> = {
+  exceeded: '#ef4444',
+  near: '#f97316',
+  ok: 'var(--color-brand)',
+  'no-budget': '#cbd5e1',
+  unplanned: '#cbd5e1',
+};
+
+const REMAIN_COLOR: Record<CategoryResult['status'], string> = {
+  exceeded: 'text-red-500',
+  near: 'text-orange-500',
+  ok: 'text-green-600',
+  'no-budget': '',
+  unplanned: '',
+};
+
+interface Props {
+  result: CategoryResult;
+  currency: string;
+  /** True when this is the first unplanned entry — renders the dashed divider above it */
+  isFirstUnplanned: boolean;
+}
+
+export function PlannerCategoryBar({ result, currency, isFirstUnplanned }: Props) {
+  const isUnplanned = result.status === 'unplanned';
+  const isNoBudget = result.status === 'no-budget';
+
+  function remainLabel(): string {
+    if (isUnplanned || isNoBudget) return '';
+    if (result.remaining < 0)
+      return `${formatCurrency(Math.abs(result.remaining), currency)} exceeded 🔴`;
+    if (result.status === 'near')
+      return `${formatCurrency(result.remaining, currency)} left ⚠️`;
+    return `${formatCurrency(result.remaining, currency)} remaining`;
+  }
+
+  const label = remainLabel();
+
+  return (
+    <div
+      className={[
+        'mb-2',
+        isFirstUnplanned ? 'mt-2 pt-2 border-t border-dashed border-border' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <div className="flex items-center justify-between mb-0.5">
+        <span
+          className={`text-xs font-medium truncate max-w-[55%] ${isUnplanned || isNoBudget ? 'text-text-muted' : 'text-text'}`}
+        >
+          {result.category}
+          {isUnplanned && (
+            <span className="ml-1.5 text-[10px] bg-yellow-100 text-yellow-800 rounded px-1 py-0.5">
+              unplanned
+            </span>
+          )}
+          {isNoBudget && (
+            <span className="ml-1.5 text-[10px] text-slate-400">no budget set</span>
+          )}
+        </span>
+        <span className="text-xs text-text-muted shrink-0">
+          {formatCurrency(result.spent, currency)}
+          {result.planned > 0 && (
+            <span className="text-slate-300">
+              {' '}/ {formatCurrency(result.planned, currency)}
+            </span>
+          )}
+        </span>
+      </div>
+
+      <div className="h-2 rounded-full overflow-hidden bg-border">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${result.pct}%`, background: BAR_COLOR[result.status] }}
+        />
+      </div>
+
+      {label && (
+        <div className={`text-[11px] text-right mt-0.5 ${REMAIN_COLOR[result.status]}`}>
+          {label}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Create `src/components/planner/PlannerCategoryRadial.tsx`**
+
+```tsx
+import { formatCurrency } from '../../lib/plannerUtils';
+import type { CategoryResult } from '../../firestore/types';
+
+const RING_COLOR: Record<CategoryResult['status'], string> = {
+  exceeded: '#ef4444',
+  near: '#f97316',
+  ok: 'var(--color-brand)',
+  'no-budget': '#cbd5e1',
+  unplanned: '#cbd5e1',
+};
+
+interface Props {
+  result: CategoryResult;
+  currency: string;
+}
+
+export function PlannerCategoryRadial({ result, currency }: Props) {
+  const R = 21;
+  const circumference = 2 * Math.PI * R;
+  const dashOffset = circumference - (circumference * result.pct) / 100;
+  const isUnplanned = result.status === 'unplanned';
+  const isExceeded = result.status === 'exceeded';
+  const color = RING_COLOR[result.status];
+
+  function innerLabel(): string {
+    if (isExceeded) return 'Over';
+    if (isUnplanned) return formatCurrency(result.spent, currency);
+    return `${result.pct}%`;
+  }
+
+  function subLabel(): string {
+    if (isExceeded) return `-${formatCurrency(Math.abs(result.remaining), currency)}`;
+    if (result.status === 'near' || result.status === 'ok')
+      return `${formatCurrency(result.remaining, currency)} left`;
+    return '';
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-0.5 min-w-0">
+      <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">
+        {/* Track */}
+        <circle
+          cx="26"
+          cy="26"
+          r={R}
+          fill="none"
+          stroke={isUnplanned ? '#f1f5f9' : '#e2e8f0'}
+          strokeWidth="4.5"
+          {...(isUnplanned ? { strokeDasharray: '4 3' } : {})}
+        />
+        {/* Progress */}
+        {!isUnplanned && (
+          <circle
+            cx="26"
+            cy="26"
+            r={R}
+            fill="none"
+            stroke={color}
+            strokeWidth="4.5"
+            strokeDasharray={`${circumference}`}
+            strokeDashoffset={dashOffset}
+            strokeLinecap="round"
+            transform="rotate(-90 26 26)"
+          />
+        )}
+        {/* Inner label */}
+        <text
+          x="26"
+          y="30"
+          textAnchor="middle"
+          fontSize={isExceeded ? 7.5 : 9}
+          fontWeight="600"
+          fill={isExceeded ? '#ef4444' : '#0f172a'}
+        >
+          {innerLabel()}
+        </text>
+      </svg>
+
+      <span className="text-[10px] font-medium text-center leading-tight truncate w-full px-0.5 text-text">
+        {result.category}
+      </span>
+
+      {subLabel() && (
+        <span
+          className={`text-[9px] text-center ${isExceeded ? 'text-red-500' : 'text-green-600'}`}
+        >
+          {subLabel()}
+        </span>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 5: Run tests — expect all to pass**
+
+```bash
+npm run test -- PlannerCategoryBar PlannerCategoryRadial --run
+```
+
+Expected: all PASS.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/components/planner/PlannerCategoryBar.tsx \
+        src/components/planner/PlannerCategoryBar.test.tsx \
+        src/components/planner/PlannerCategoryRadial.tsx \
+        src/components/planner/PlannerCategoryRadial.test.tsx
+git commit -m "feat: add PlannerCategoryBar and PlannerCategoryRadial components"
+```
+
+---
+
+### Task 7: Create `PlannerCard`
+
+The full widget card. Has its own `periodOffset` and `expanded` state. Toggle persists `chartView` to Firestore via `useUpdatePlanner`.
+
+**Files:**
+- Create: `src/components/planner/PlannerCard.tsx`
+- Create: `src/components/planner/PlannerCard.test.tsx`
+
+- [ ] **Step 1: Write the failing test**
+
+Create `src/components/planner/PlannerCard.test.tsx`:
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
+
+vi.mock('../../hooks/usePlannerAggregation', () => ({
+  usePlannerAggregation: vi.fn(() => ({
+    dateRange: { start: new Date('2026-05-01'), end: new Date('2026-05-31') },
+    periodLabel: 'May 2026',
+    isCurrentPeriod: true,
+    summary: { totalPlanned: 1800, totalSpent: 1200, totalRemaining: 600 },
+    categoryResults: [
+      { category: 'Food', planned: 1000, spent: 800, remaining: 200, pct: 80, status: 'near' },
+      { category: 'Transport', planned: 500, spent: 300, remaining: 200, pct: 60, status: 'ok' },
+      { category: 'Shopping', planned: 300, spent: 100, remaining: 200, pct: 33, status: 'ok' },
+    ],
+    unplannedResults: [],
+  })),
+}));
+
+vi.mock('../../hooks/useMutatePlanner', () => ({
+  useUpdatePlanner: vi.fn(() => ({ mutate: vi.fn() })),
+}));
+
+vi.mock('../../context/SyncStatusContext', () => ({
+  useSyncStatus: vi.fn(() => ({ notifyWrite: vi.fn() })),
+  SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+import { PlannerCard } from './PlannerCard';
+import type { BudgetPlanner } from '../../firestore/types';
+
+const planner: BudgetPlanner = {
+  id: 'p1',
+  user_id: 'u1',
+  name: 'Monthly SGD',
+  description: '',
+  currency: 'SGD',
+  active: true,
+  archived: false,
+  period: 'monthly',
+  repeatable: true,
+  filterAccounts: [],
+  filterVendors: [],
+  filterPayments: [],
+  categoryBudgets: [
+    { category: 'Food', amount: 1000 },
+    { category: 'Transport', amount: 500 },
+    { category: 'Shopping', amount: 300 },
+  ],
+  chartView: 'bar',
+  createdAt: new Date('2026-05-01'),
+  updatedAt: new Date('2026-05-01'),
+};
+
+describe('PlannerCard', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('renders planner name and period label', () => {
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.getByText('Monthly SGD')).toBeTruthy();
+    expect(screen.getByText(/May 2026/)).toBeTruthy();
+  });
+
+  it('renders summary totals', () => {
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.getByText(/1,800|1800/)).toBeTruthy();
+  });
+
+  it('renders category bars', () => {
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.getByText('Food')).toBeTruthy();
+    expect(screen.getByText('Transport')).toBeTruthy();
+  });
+
+  it('shows period navigation footer for repeatable planners', () => {
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.getByText(/Prev|‹/)).toBeTruthy();
+    expect(screen.getByText(/Next|›/)).toBeTruthy();
+  });
+
+  it('hides period navigation for non-repeatable planners', () => {
+    const nonRepeatable = { ...planner, repeatable: false, customStart: new Date('2026-05-01'), customEnd: new Date('2026-05-31') };
+    render(<PlannerCard planner={nonRepeatable} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.queryByText(/Prev|‹/)).toBeNull();
+  });
+
+  it('calls onCardClick when card body is clicked', () => {
+    const onCardClick = vi.fn();
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={onCardClick} />);
+    fireEvent.click(screen.getByRole('button', { name: /open planner detail/i }));
+    expect(onCardClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows expand button when categories exceed 8', () => {
+    const { usePlannerAggregation } = await import('../../hooks/usePlannerAggregation');
+    vi.mocked(usePlannerAggregation).mockReturnValue({
+      dateRange: { start: new Date(), end: new Date() },
+      periodLabel: 'May 2026',
+      isCurrentPeriod: true,
+      summary: { totalPlanned: 0, totalSpent: 0, totalRemaining: 0 },
+      categoryResults: Array.from({ length: 10 }, (_, i) => ({
+        category: `Cat${i}`,
+        planned: 100,
+        spent: 50,
+        remaining: 50,
+        pct: 50,
+        status: 'ok' as const,
+      })),
+      unplannedResults: [],
+    });
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    expect(screen.getByText(/\+ 2 more/)).toBeTruthy();
+  });
+});
+```
+
+- [ ] **Step 2: Run — expect FAIL**
+
+```bash
+npm run test -- PlannerCard --run
+```
+
+Expected: FAIL — module not found.
+
+- [ ] **Step 3: Create `src/components/planner/PlannerCard.tsx`**
+
+```tsx
+import { useState } from 'react';
+import { usePlannerAggregation } from '../../hooks/usePlannerAggregation';
+import { useUpdatePlanner } from '../../hooks/useMutatePlanner';
+import { formatCurrency } from '../../lib/plannerUtils';
+import { PlannerCategoryBar } from './PlannerCategoryBar';
+import { PlannerCategoryRadial } from './PlannerCategoryRadial';
+import type { BudgetPlanner, Transaction } from '../../firestore/types';
+
+const MAX_VISIBLE = 8;
+
+interface Props {
+  planner: BudgetPlanner;
+  transactions: Transaction[];
+  /** Called when the card body is tapped. Receives the current periodOffset. */
+  onCardClick: (periodOffset: number) => void;
+}
+
+function BarIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <rect x="1" y="3" width="12" height="2.2" rx="1" fill={active ? 'var(--color-brand)' : '#94a3b8'} />
+      <rect x="1" y="6.4" width="8" height="2.2" rx="1" fill={active ? 'var(--color-brand)' : '#94a3b8'} />
+      <rect x="1" y="9.8" width="10" height="2.2" rx="1" fill={active ? 'var(--color-brand)' : '#94a3b8'} />
+    </svg>
+  );
+}
+
+function RadialIcon({ active }: { active: boolean }) {
+  const c = active ? 'var(--color-brand)' : '#94a3b8';
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <circle cx="7" cy="7" r="5.5" stroke="#e2e8f0" strokeWidth="2" />
+      <circle
+        cx="7" cy="7" r="5.5"
+        stroke={c}
+        strokeWidth="2"
+        strokeDasharray="21.5 13"
+        strokeLinecap="round"
+        transform="rotate(-90 7 7)"
+      />
+    </svg>
+  );
+}
+
+export function PlannerCard({ planner, transactions, onCardClick }: Props) {
+  const [periodOffset, setPeriodOffset] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const { mutate: updatePlanner } = useUpdatePlanner();
+
+  const agg = usePlannerAggregation(planner, transactions, periodOffset);
+
+  const allCategories = [...agg.categoryResults, ...agg.unplannedResults];
+  const visibleCategories = expanded ? allCategories : allCategories.slice(0, MAX_VISIBLE);
+  const hiddenCount = Math.max(0, allCategories.length - MAX_VISIBLE);
+  const firstUnplannedIndex = allCategories.findIndex((r) => r.status === 'unplanned');
+
+  const canNavigate = planner.repeatable;
+
+  function handleToggle(view: BudgetPlanner['chartView']) {
+    updatePlanner(planner.id, { chartView: view });
+  }
+
+  return (
+    <div className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm flex flex-col">
+      {/* ── Card body (tappable) ── */}
+      <button
+        type="button"
+        aria-label="Open planner detail"
+        className="text-left p-4 pb-3 hover:bg-surface-alt/50 transition-colors"
+        onClick={() => onCardClick(periodOffset)}
+      >
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm text-text truncate">{planner.name}</h3>
+            <p className="text-xs text-text-muted mt-0.5">
+              {agg.periodLabel} · {planner.currency}
+              {!agg.isCurrentPeriod && (
+                <span className="ml-1 text-[10px] bg-surface-alt border border-border rounded px-1">
+                  past
+                </span>
+              )}
+            </p>
+          </div>
+
+          {/* Bar / Radial toggle */}
+          <div
+            className="flex gap-0.5 bg-surface-alt border border-border rounded-md p-0.5 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Bar view"
+              onClick={() => handleToggle('bar')}
+              className={`rounded p-1 transition-all ${
+                planner.chartView === 'bar' ? 'bg-surface shadow-sm' : ''
+              }`}
+            >
+              <BarIcon active={planner.chartView === 'bar'} />
+            </button>
+            <button
+              type="button"
+              aria-label="Radial view"
+              onClick={() => handleToggle('radial')}
+              className={`rounded p-1 transition-all ${
+                planner.chartView === 'radial' ? 'bg-surface shadow-sm' : ''
+              }`}
+            >
+              <RadialIcon active={planner.chartView === 'radial'} />
+            </button>
+          </div>
+        </div>
+
+        {/* Summary row */}
+        <div className="flex gap-4">
+          {(
+            [
+              { label: 'Planned', value: agg.summary.totalPlanned },
+              { label: 'Spent', value: agg.summary.totalSpent },
+              { label: 'Remaining', value: agg.summary.totalRemaining },
+            ] as const
+          ).map(({ label, value }) => (
+            <div key={label} className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                {label}
+              </span>
+              <span
+                className={`text-sm font-bold leading-tight ${
+                  label === 'Remaining' && value < 0 ? 'text-red-500' : 'text-text'
+                }`}
+              >
+                {value < 0 ? '-' : ''}
+                {formatCurrency(Math.abs(value), planner.currency)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </button>
+
+      {/* ── Category list ── */}
+      <div className="px-4 pb-1" onClick={(e) => e.stopPropagation()}>
+        {planner.chartView === 'bar' ? (
+          <>
+            {visibleCategories.map((r, idx) => (
+              <PlannerCategoryBar
+                key={r.category}
+                result={r}
+                currency={planner.currency}
+                isFirstUnplanned={idx === firstUnplannedIndex}
+              />
+            ))}
+          </>
+        ) : (
+          <div className="grid grid-cols-4 gap-1 py-1">
+            {visibleCategories.map((r) => (
+              <PlannerCategoryRadial key={r.category} result={r} currency={planner.currency} />
+            ))}
+          </div>
+        )}
+
+        {/* Expand / collapse */}
+        {!expanded && hiddenCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="w-full text-center text-xs text-text-muted py-2 hover:text-text transition-colors"
+          >
+            + {hiddenCount} more
+          </button>
+        )}
+        {expanded && hiddenCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="w-full text-center text-xs text-text-muted py-1.5 hover:text-text transition-colors"
+          >
+            ↑ Show less
+          </button>
+        )}
+      </div>
+
+      {/* ── Period navigation footer (repeatable planners only) ── */}
+      {canNavigate && (
+        <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-surface-alt text-xs text-text-muted mt-auto">
+          <button
+            type="button"
+            aria-label="Previous period"
+            onClick={() => {
+              setPeriodOffset((o) => o - 1);
+              setExpanded(false);
+            }}
+            className="hover:text-text transition-colors px-1"
+          >
+            ‹ Prev
+          </button>
+          <span className="text-center leading-tight">
+            {agg.isCurrentPeriod ? `${agg.periodLabel} (current)` : agg.periodLabel}
+          </span>
+          <button
+            type="button"
+            aria-label="Next period"
+            onClick={() => {
+              setPeriodOffset((o) => Math.min(0, o + 1));
+              setExpanded(false);
+            }}
+            disabled={periodOffset >= 0}
+            className="hover:text-text transition-colors px-1 disabled:opacity-40"
+          >
+            Next ›
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Run tests — expect all to pass**
+
+```bash
+npm run test -- PlannerCard --run
+```
+
+Expected: all PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/components/planner/PlannerCard.tsx src/components/planner/PlannerCard.test.tsx
+git commit -m "feat: add PlannerCard widget component"
+```
+
+---
+
+### Task 8: Create `BudgetPlannerCarousel` and wire into `Dashboard`
+
+The horizontal scroll container. Tracks which planner is selected (for the detail drawer in Phase 3). Wires into Dashboard between `HeroStatsRow` and `SpendingChart`.
+
+**Files:**
+- Create: `src/components/planner/BudgetPlannerCarousel.tsx`
+- Create: `src/components/planner/BudgetPlannerCarousel.test.tsx`
+- Modify: `src/routes/Dashboard.tsx`
+
+- [ ] **Step 1: Write the failing test**
+
+Create `src/components/planner/BudgetPlannerCarousel.test.tsx`:
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
+
+vi.mock('../../auth/AuthContext', () => ({
+  useAuth: vi.fn(() => ({ status: 'authenticated', user: { uid: 'u1' } })),
+}));
+
+vi.mock('../../hooks/usePlanners', () => ({
+  usePlanners: vi.fn(() => ({
+    planners: [],
+    loading: false,
+    error: null,
+    hasPendingWrites: false,
+  })),
+}));
+
+vi.mock('../../context/TransactionContext', () => ({
+  useTransactionContext: vi.fn(() => ({ transactions: [], loading: false, error: null, hasPendingWrites: false })),
+}));
+
+vi.mock('../../hooks/usePlannerAggregation', () => ({
+  usePlannerAggregation: vi.fn(() => ({
+    dateRange: { start: new Date(), end: new Date() },
+    periodLabel: 'May 2026',
+    isCurrentPeriod: true,
+    summary: { totalPlanned: 0, totalSpent: 0, totalRemaining: 0 },
+    categoryResults: [],
+    unplannedResults: [],
+  })),
+}));
+
+vi.mock('../../hooks/useMutatePlanner', () => ({
+  useUpdatePlanner: vi.fn(() => ({ mutate: vi.fn() })),
+}));
+
+vi.mock('../../context/SyncStatusContext', () => ({
+  useSyncStatus: vi.fn(() => ({ notifyWrite: vi.fn() })),
+  SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+import { usePlanners } from '../../hooks/usePlanners';
+import { BudgetPlannerCarousel } from './BudgetPlannerCarousel';
+import type { BudgetPlanner } from '../../firestore/types';
+
+function makePlanner(id: string, name: string): BudgetPlanner {
+  return {
+    id,
+    user_id: 'u1',
+    name,
+    description: '',
+    currency: 'SGD',
+    active: true,
+    archived: false,
+    period: 'monthly',
+    repeatable: true,
+    filterAccounts: [],
+    filterVendors: [],
+    filterPayments: [],
+    categoryBudgets: [],
+    chartView: 'bar',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+describe('BudgetPlannerCarousel', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('shows empty state when there are no active planners', () => {
+    render(<BudgetPlannerCarousel />);
+    expect(screen.getByText(/create your first budget planner/i)).toBeTruthy();
+  });
+
+  it('renders a card for each active planner', () => {
+    vi.mocked(usePlanners).mockReturnValue({
+      planners: [makePlanner('p1', 'Monthly SGD'), makePlanner('p2', 'Weekly Cash')],
+      loading: false,
+      error: null,
+      hasPendingWrites: false,
+    });
+    render(<BudgetPlannerCarousel />);
+    expect(screen.getByText('Monthly SGD')).toBeTruthy();
+    expect(screen.getByText('Weekly Cash')).toBeTruthy();
+  });
+
+  it('shows loading state', () => {
+    vi.mocked(usePlanners).mockReturnValue({
+      planners: [],
+      loading: true,
+      error: null,
+      hasPendingWrites: false,
+    });
+    render(<BudgetPlannerCarousel />);
+    expect(screen.getByRole('status')).toBeTruthy();
+  });
+
+  it('excludes inactive and archived planners', () => {
+    vi.mocked(usePlanners).mockReturnValue({
+      planners: [
+        makePlanner('p1', 'Active'),
+        { ...makePlanner('p2', 'Inactive'), active: false },
+        { ...makePlanner('p3', 'Archived'), archived: true },
+      ],
+      loading: false,
+      error: null,
+      hasPendingWrites: false,
+    });
+    render(<BudgetPlannerCarousel />);
+    expect(screen.getByText('Active')).toBeTruthy();
+    expect(screen.queryByText('Inactive')).toBeNull();
+    expect(screen.queryByText('Archived')).toBeNull();
+  });
+});
+```
+
+- [ ] **Step 2: Run — expect FAIL**
+
+```bash
+npm run test -- BudgetPlannerCarousel --run
+```
+
+Expected: FAIL — module not found.
+
+- [ ] **Step 3: Create `src/components/planner/BudgetPlannerCarousel.tsx`**
+
+```tsx
+import { useState } from 'react';
+import { useAuth } from '../../auth/AuthContext';
+import { usePlanners } from '../../hooks/usePlanners';
+import { useTransactionContext } from '../../context/TransactionContext';
+import { PlannerCard } from './PlannerCard';
+import type { BudgetPlanner } from '../../firestore/types';
+
+// selectedPlanner state is set here and passed down in Phase 3 when
+// PlannerDetailDrawer is added. For now, the onCardClick stores selection
+// but nothing renders.
+export function BudgetPlannerCarousel() {
+  const auth = useAuth();
+  const uid = auth.status === 'authenticated' ? auth.user.uid : '';
+  const { planners, loading } = usePlanners(uid);
+  const { transactions } = useTransactionContext();
+
+  const [selected, setSelected] = useState<{
+    planner: BudgetPlanner;
+    offset: number;
+  } | null>(null);
+
+  const activePlanners = planners.filter((p) => p.active && !p.archived);
+
+  if (loading) {
+    return (
+      <div role="status" className="flex gap-4 overflow-hidden py-1">
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="shrink-0 w-80 h-56 rounded-xl bg-surface-alt border border-border animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (activePlanners.length === 0) {
+    return (
+      <div className="flex items-center justify-center rounded-xl border border-dashed border-border bg-surface-alt py-8 px-6 text-center">
+        <div>
+          <p className="text-sm font-medium text-text">No active budget planners</p>
+          <p className="text-xs text-text-muted mt-1">
+            Create your first budget planner in{' '}
+            <span className="text-brand font-medium">Settings → Budget Planners</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Horizontal scroll carousel with snap */}
+      <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {activePlanners.map((planner) => (
+          <div key={planner.id} className="snap-start shrink-0 w-80 sm:w-96">
+            <PlannerCard
+              planner={planner}
+              transactions={transactions}
+              onCardClick={(offset) => setSelected({ planner, offset })}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* PlannerDetailDrawer will be added here in Phase 3 */}
+      {selected && null /* Phase 3: replace with <PlannerDetailDrawer ... /> */}
+    </>
+  );
+}
+```
+
+- [ ] **Step 4: Run tests — expect all to pass**
+
+```bash
+npm run test -- BudgetPlannerCarousel --run
+```
+
+Expected: all PASS.
+
+- [ ] **Step 5: Wire carousel into `Dashboard.tsx`**
+
+Add the import at the top of `src/routes/Dashboard.tsx` (after existing dashboard imports):
+
+```typescript
+import { BudgetPlannerCarousel } from '../components/planner/BudgetPlannerCarousel';
+```
+
+Then in the JSX, insert the carousel between `<HeroStatsRow ... />` and the two-column `<div className="flex flex-col gap-4 md:flex-row">`. The result should look like:
+
+```tsx
+return (
+  <div className="flex flex-col gap-4 p-3 sm:p-6">
+    <HeroStatsRow ... />
+
+    {/* Budget Planner carousel */}
+    <BudgetPlannerCarousel />
+
+    <div className="flex flex-col gap-4 md:flex-row">
+      {/* ... rest of dashboard ... */}
+    </div>
+    ...
+  </div>
+);
+```
+
+- [ ] **Step 6: Typecheck and run all tests**
+
+```bash
+npm run typecheck && npm run test -- --run
+```
+
+Expected: all PASS, no type errors.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/components/planner/BudgetPlannerCarousel.tsx \
+        src/components/planner/BudgetPlannerCarousel.test.tsx \
+        src/routes/Dashboard.tsx
+git commit -m "feat: add BudgetPlannerCarousel and wire into Dashboard"
+```
+
+---
+
+*Phase 2 complete. Continue with Phase 3 (PlannerDetailDrawer).*
