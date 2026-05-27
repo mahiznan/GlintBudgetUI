@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { usePreferenceContext } from '../../context/PreferenceContext';
+import { useLayout } from '../../context/LayoutContext';
 import { useAddPlanner, useUpdatePlanner } from '../../hooks/useMutatePlanner';
 import { computeEffectiveDates } from '../../lib/plannerUtils';
 import type { BudgetPlanner, PlannerPeriod } from '../../firestore/types';
@@ -92,6 +93,7 @@ interface Props {
 
 export function PlannerForm({ uid, mode, initial, onClose }: Props) {
   const { preference } = usePreferenceContext();
+  const { layoutWidth } = useLayout();
   const { mutate: addPlanner } = useAddPlanner();
   const { mutate: updatePlanner } = useUpdatePlanner();
 
@@ -213,8 +215,11 @@ export function PlannerForm({ uid, mode, initial, onClose }: Props) {
         aria-modal="true"
         aria-label={mode === 'create' ? 'New Budget Planner' : 'Edit Budget Planner'}
         className={[
-          'fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-2xl shadow-xl',
+          'fixed bottom-0 z-50 bg-surface rounded-t-2xl shadow-xl w-full',
           'flex flex-col transition-transform duration-200 ease-out max-h-[95dvh]',
+          layoutWidth === 'fixed'
+            ? 'left-1/2 -translate-x-1/2 max-w-5xl'
+            : 'left-0 right-0',
           visible ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >

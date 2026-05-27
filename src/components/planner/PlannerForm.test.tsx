@@ -7,6 +7,10 @@ vi.mock('../../hooks/useMutatePlanner', () => ({
   useUpdatePlanner: vi.fn(() => ({ mutate: vi.fn() })),
 }));
 
+vi.mock('../../context/LayoutContext', () => ({
+  useLayout: vi.fn(() => ({ layoutWidth: 'fixed', setLayoutWidth: vi.fn() })),
+}));
+
 vi.mock('../../context/SyncStatusContext', () => ({
   useSyncStatus: vi.fn(() => ({ notifyWrite: vi.fn() })),
   SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,

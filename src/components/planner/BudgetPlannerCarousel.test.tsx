@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 
@@ -68,7 +69,7 @@ describe('BudgetPlannerCarousel', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('shows empty state when there are no active planners', () => {
-    render(<BudgetPlannerCarousel />);
+    render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByText(/create your first budget planner/i)).toBeTruthy();
   });
 
@@ -79,7 +80,7 @@ describe('BudgetPlannerCarousel', () => {
       error: null,
       hasPendingWrites: false,
     });
-    render(<BudgetPlannerCarousel />);
+    render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByText('Monthly SGD')).toBeTruthy();
     expect(screen.getByText('Weekly Cash')).toBeTruthy();
   });
@@ -91,7 +92,7 @@ describe('BudgetPlannerCarousel', () => {
       error: null,
       hasPendingWrites: false,
     });
-    render(<BudgetPlannerCarousel />);
+    render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByRole('status')).toBeTruthy();
   });
 
@@ -106,7 +107,7 @@ describe('BudgetPlannerCarousel', () => {
       error: null,
       hasPendingWrites: false,
     });
-    render(<BudgetPlannerCarousel />);
+    render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByText('Active')).toBeTruthy();
     expect(screen.queryByText('Inactive')).toBeNull();
     expect(screen.queryByText('Archived')).toBeNull();

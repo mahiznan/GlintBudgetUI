@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { usePlanners } from '../../hooks/usePlanners';
 import { useTransactionContext } from '../../context/TransactionContext';
@@ -42,7 +43,12 @@ export function BudgetPlannerCarousel() {
           <p className="text-sm font-medium text-text">No active budget planners</p>
           <p className="text-xs text-text-muted mt-1">
             Create your first budget planner in{' '}
-            <span className="text-brand font-medium">Settings → Budget Planners</span>
+            <Link
+              to="/app/settings?tab=planners"
+              className="text-brand font-medium hover:underline"
+            >
+              Settings → Budget Planners
+            </Link>
           </p>
         </div>
       </div>

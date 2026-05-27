@@ -6,6 +6,10 @@ vi.mock('../../hooks/usePlanners', () => ({
   usePlanners: vi.fn(() => ({ planners: [], loading: false, error: null, hasPendingWrites: false })),
 }));
 
+vi.mock('../../context/LayoutContext', () => ({
+  useLayout: vi.fn(() => ({ layoutWidth: 'fixed', setLayoutWidth: vi.fn() })),
+}));
+
 vi.mock('../../hooks/useMutatePlanner', () => ({
   useArchivePlanner: vi.fn(() => ({ mutate: vi.fn() })),
   useDeletePlanner: vi.fn(() => ({ mutate: vi.fn() })),
