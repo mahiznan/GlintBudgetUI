@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import Footer from './Footer';
 
 describe('Footer', () => {
@@ -18,11 +19,14 @@ describe('Footer', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 
-  it('renders the build commit hash and timestamp injected at build time', () => {
+  it('does not render the iOS App Store link', () => {
     render(<Footer />);
-    const buildInfo = screen.getByTestId('build-info');
-    // commit hash and the literal "Build" / "UTC" labels are always present
-    expect(buildInfo.textContent).toMatch(/Build/);
-    expect(buildInfo.textContent).toMatch(/UTC|\d{4}-\d{2}-\d{2}/);
+    expect(screen.queryByText(/app store/i)).toBeNull();
+    expect(screen.queryByText(/ios/i)).toBeNull();
+  });
+
+  it('does not render build info', () => {
+    render(<Footer />);
+    expect(screen.queryByTestId('build-info')).toBeNull();
   });
 });
