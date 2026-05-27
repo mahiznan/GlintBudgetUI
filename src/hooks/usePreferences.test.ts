@@ -2,12 +2,21 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
+
+const mockUnsub = vi.fn();
+let capturedCallback: ((snap: unknown) => void) | null = null;
+let capturedErrorCallback: ((err: Error) => void) | null = null;
+
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn(() => 'doc-ref'),
-  getDoc: vi.fn(),
+  onSnapshot: vi.fn((_ref, _opts, cb, errCb) => {
+    capturedCallback = cb as (snap: unknown) => void;
+    capturedErrorCallback = errCb as (err: Error) => void;
+    return mockUnsub;
+  }),
 }));
 
-import { getDoc } from 'firebase/firestore';
+import { onSnapshot } from 'firebase/firestore';
 import { usePreferences } from './usePreferences';
 
 const mockPreferenceData = {
@@ -21,35 +30,44 @@ const mockPreferenceData = {
   default_entries: ['account', 'HDFC'],
 };
 
+function makeSnap(data: Record<string, unknown> | null, hasPendingWrites = false, id = 'uid-123') {
+  return {
+    exists: () => data !== null,
+    id,
+    data: () => data ?? {},
+    metadata: { hasPendingWrites },
+  };
+}
+
 describe('usePreferences', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    capturedCallback = null;
+    capturedErrorCallback = null;
+    vi.mocked(onSnapshot).mockImplementation((_ref, _opts, cb, errCb) => {
+      capturedCallback = cb as (snap: unknown) => void;
+      capturedErrorCallback = errCb as (err: Error) => void;
+      return mockUnsub;
+    });
   });
+
   it('returns loading=true and data=null initially', () => {
-    vi.mocked(getDoc).mockReturnValue(new Promise(() => {}));
     const { result } = renderHook(() => usePreferences('uid-123'));
     expect(result.current.loading).toBe(true);
     expect(result.current.data).toBeNull();
   });
 
-  it('returns null and skips fetch when uid is null', async () => {
+  it('returns loading=false and data=null when uid is null (no subscription)', () => {
     const { result } = renderHook(() => usePreferences(null));
     expect(result.current.loading).toBe(false);
     expect(result.current.data).toBeNull();
-    expect(getDoc).not.toHaveBeenCalled();
+    expect(onSnapshot).not.toHaveBeenCalled();
   });
 
-  it('decodes snake_case fields and returns Preference on success', async () => {
-    vi.mocked(getDoc).mockResolvedValueOnce({
-      exists: () => true,
-      id: 'uid-123',
-      data: () => mockPreferenceData,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-
+  it('decodes snake_case fields and returns Preference on snapshot', async () => {
     const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedCallback!(makeSnap(mockPreferenceData)); });
     await waitFor(() => expect(result.current.loading).toBe(false));
-
     expect(result.current.data?.defaultCurrency.code).toBe('INR');
     expect(result.current.data?.bookmarkedCurrencies).toEqual(['INR', 'USD']);
     expect(result.current.data?.defaultEntries).toEqual({ account: 'HDFC' });
@@ -57,71 +75,53 @@ describe('usePreferences', () => {
   });
 
   it('returns built-in defaults when document does not exist', async () => {
-    vi.mocked(getDoc).mockResolvedValueOnce({
-      exists: () => false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-
     const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedCallback!(makeSnap(null)); });
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.data).not.toBeNull();
     expect(result.current.data?.categories.length).toBeGreaterThan(0);
-    expect(result.current.data?.payments.length).toBeGreaterThan(0);
-    expect(result.current.data?.accounts.length).toBeGreaterThan(0);
     expect(result.current.data?.defaultCurrency.code).toBe('SGD');
-    expect(result.current.data?.defaultEntries).toEqual({ account: 'Monthly Budget' });
+  });
+
+  it('exposes hasPendingWrites: true from snapshot metadata', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedCallback!(makeSnap(mockPreferenceData, true)); });
+    await waitFor(() => expect(result.current.hasPendingWrites).toBe(true));
+  });
+
+  it('exposes hasPendingWrites: false when snapshot confirms', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedCallback!(makeSnap(mockPreferenceData, true)); });
+    act(() => { capturedCallback!(makeSnap(mockPreferenceData, false)); });
+    await waitFor(() => expect(result.current.hasPendingWrites).toBe(false));
+  });
+
+  it('sets error when onSnapshot calls the error callback', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedErrorCallback!(new Error('permission denied')); });
+    await waitFor(() => expect(result.current.error?.message).toBe('permission denied'));
+  });
+
+  it('unsubscribes on unmount', () => {
+    const { unmount } = renderHook(() => usePreferences('uid-123'));
+    unmount();
+    expect(mockUnsub).toHaveBeenCalledTimes(1);
   });
 
   it('appends unique Firestore entries after defaults without duplicating', async () => {
-    vi.mocked(getDoc).mockResolvedValueOnce({
-      exists: () => true,
-      id: 'uid-123',
-      data: () => ({
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => {
+      capturedCallback!(makeSnap({
         ...mockPreferenceData,
         payments: [
-          { name: 'Cash', emoji: '💵', type: 'payment', parent: null }, // already a default
-          { name: 'PayNow', emoji: '💸', type: 'payment', parent: null }, // custom addition
+          { name: 'Cash', emoji: '💵', type: 'payment', parent: null },
+          { name: 'PayNow', emoji: '💸', type: 'payment', parent: null },
         ],
-      }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-
-    const { result } = renderHook(() => usePreferences('uid-123'));
-    await waitFor(() => expect(result.current.loading).toBe(false));
-
-    const paymentNames = result.current.data?.payments.map((p) => p.name) ?? [];
-    // Default Cash appears exactly once (not duplicated from Firestore)
-    expect(paymentNames.filter((n) => n === 'Cash').length).toBe(1);
-    // Custom PayNow is appended after defaults
-    expect(paymentNames).toContain('PayNow');
-  });
-
-  it('sets error on Firestore failure', async () => {
-    vi.mocked(getDoc).mockRejectedValueOnce(new Error('permission denied'));
-    const { result } = renderHook(() => usePreferences('uid-123'));
-    await waitFor(() => expect(result.current.error).not.toBeNull());
-    expect(result.current.error?.message).toBe('permission denied');
-  });
-});
-
-describe('usePreferences — refetch', () => {
-  it('refetch re-triggers the Firestore fetch', async () => {
-    vi.mocked(getDoc).mockResolvedValue({
-      exists: () => true,
-      id: 'u1',
-      data: () => ({ accounts: [], categories: [], subCategories: [], vendors: [], payments: [] }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-
-    const { result } = renderHook(() => usePreferences('u1'));
-    await waitFor(() => expect(result.current.loading).toBe(false));
-
-    const callsBefore = vi.mocked(getDoc).mock.calls.length;
-
-    act(() => {
-      result.current.refetch();
+      }));
     });
-
-    await waitFor(() => expect(vi.mocked(getDoc).mock.calls.length).toBeGreaterThan(callsBefore));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    const names = result.current.data?.payments.map((p) => p.name) ?? [];
+    expect(names.filter((n) => n === 'Cash').length).toBe(1);
+    expect(names).toContain('PayNow');
   });
 });

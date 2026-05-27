@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import type { BudgetData, Preference } from '../firestore/types';
 import {
@@ -15,6 +15,8 @@ interface UsePreferencesResult {
   data: Preference | null;
   loading: boolean;
   error: Error | null;
+  hasPendingWrites: boolean;
+  /** @deprecated No-op: onSnapshot keeps data live automatically. */
   refetch: () => void;
 }
 
@@ -64,26 +66,31 @@ export function usePreferences(uid: string | null): UsePreferencesResult {
   const [data, setData] = useState<Preference | null>(null);
   const [loading, setLoading] = useState(uid !== null);
   const [error, setError] = useState<Error | null>(null);
-  const [tick, setTick] = useState(0);
-
-  const refetch = useCallback(() => setTick((t) => t + 1), []);
+  const [hasPendingWrites, setHasPendingWrites] = useState(false);
 
   useEffect(() => {
     if (!uid) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     const ref = doc(db, 'preference', uid);
-    getDoc(ref)
-      .then((snap) => {
+
+    return onSnapshot(
+      ref,
+      { includeMetadataChanges: true },
+      (snap) => {
+        setHasPendingWrites(snap.metadata.hasPendingWrites);
         if (snap.exists()) {
           setData(docToPreference(snap.id, snap.data() as Record<string, unknown>));
         } else {
           setData(docToPreference(uid, {}));
         }
-      })
-      .catch((err: unknown) => setError(err instanceof Error ? err : new Error(String(err))))
-      .finally(() => setLoading(false));
-  }, [uid, tick]);
+        setLoading(false);
+      },
+      (err: Error) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
+  }, [uid]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, hasPendingWrites, refetch: () => {} };
 }
