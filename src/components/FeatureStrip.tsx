@@ -2,17 +2,20 @@ const FEATURES = [
   {
     emoji: '💱',
     title: 'Multi-currency',
-    description: 'Default currency with per-transaction overrides.',
+    description:
+      'Default currency with per-transaction overrides. Perfect for travel or international spending.',
   },
   {
     emoji: '📊',
     title: 'Smart reports',
-    description: 'Pie and bar charts filtered by category, vendor, account.',
+    description:
+      'Pie and bar charts filtered by category, vendor, and account. See where your money really goes.',
   },
   {
     emoji: '📱',
-    title: 'iOS, soon web',
-    description: 'Built for iPhone today. The web app is on the way.',
+    title: 'Mobile-friendly',
+    description:
+      'Fully responsive — looks great and works perfectly on your phone, tablet, or desktop.',
   },
 ] as const;
 
@@ -20,6 +23,9 @@ function FeatureStrip() {
   return (
     <section id="features" className="bg-white py-20">
       <div className="mx-auto max-w-6xl px-6">
+        <p className="mb-12 text-center text-xs font-semibold uppercase tracking-widest text-slate-400">
+          Everything you need to manage your money
+        </p>
         <div className="grid gap-10 sm:grid-cols-3">
           {FEATURES.map((feature) => (
             <div key={feature.title} className="text-center">
