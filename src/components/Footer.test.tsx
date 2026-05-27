@@ -39,6 +39,13 @@ describe('Footer', () => {
     expect(buildInfo.closest('footer > div')).toBe(privacyLink.closest('footer > div'));
   });
 
+  it('renders build info as a middle item, not nested inside the Privacy Policy container', () => {
+    render(<Footer />);
+    const buildInfo = screen.getByTestId('build-info');
+    const privacyLink = screen.getByRole('link', { name: /privacy policy/i });
+    expect(buildInfo.parentElement).not.toBe(privacyLink.parentElement);
+  });
+
   it('build info uses theme font not monospace', () => {
     render(<Footer />);
     const buildInfo = screen.getByTestId('build-info');

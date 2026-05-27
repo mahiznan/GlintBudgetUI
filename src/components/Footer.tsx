@@ -16,14 +16,14 @@ function Footer() {
     <footer id="footer" className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-slate-600 sm:flex-row">
         <p>© {year} GlintBudget</p>
-        <div className="flex flex-wrap items-center gap-6">
+        <span data-testid="build-info" className="text-xs text-slate-400">
+          Build <code>{__APP_COMMIT__}</code> · {formatBuildTime(__APP_BUILD_TIME__)}
+        </span>
+        <nav aria-label="Legal" className="flex gap-6">
           <a href="#" className="hover:text-brand" aria-disabled="true">
             Privacy Policy
           </a>
-          <span data-testid="build-info" className="text-xs text-slate-400">
-            Build <code>{__APP_COMMIT__}</code> · {formatBuildTime(__APP_BUILD_TIME__)}
-          </span>
-        </div>
+        </nav>
       </div>
     </footer>
   );
