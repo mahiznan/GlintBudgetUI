@@ -2,15 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./client', () => ({ app: { name: '[DEFAULT]' } }));
 vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({ type: 'firestore' })),
+  initializeFirestore: vi.fn(() => ({ type: 'firestore' })),
+  persistentLocalCache: vi.fn(() => ({ kind: 'persistent' })),
 }));
 
 import { db } from './db';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache } from 'firebase/firestore';
 
 describe('db', () => {
-  it('calls getFirestore with the app and exports the result', () => {
-    expect(getFirestore).toHaveBeenCalled();
+  it('calls initializeFirestore with persistentLocalCache and exports the result', () => {
+    expect(persistentLocalCache).toHaveBeenCalled();
+    expect(initializeFirestore).toHaveBeenCalledWith(
+      { name: '[DEFAULT]' },
+      { localCache: { kind: 'persistent' } },
+    );
     expect(db).toEqual({ type: 'firestore' });
   });
 });
