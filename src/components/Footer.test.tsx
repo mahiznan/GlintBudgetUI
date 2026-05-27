@@ -25,11 +25,23 @@ describe('Footer', () => {
     expect(screen.queryByText(/ios/i)).toBeNull();
   });
 
-  it('renders build info centered in the footer', () => {
+  it('renders build info with commit and timestamp', () => {
     render(<Footer />);
     const buildInfo = screen.getByTestId('build-info');
     expect(buildInfo.textContent).toMatch(/Build/);
     expect(buildInfo.textContent).toMatch(/UTC|\d{4}-\d{2}-\d{2}/);
-    expect(buildInfo.className).toMatch(/text-center/);
+  });
+
+  it('renders build info in the same row as the Privacy Policy link', () => {
+    render(<Footer />);
+    const buildInfo = screen.getByTestId('build-info');
+    const privacyLink = screen.getByRole('link', { name: /privacy policy/i });
+    expect(buildInfo.closest('footer > div')).toBe(privacyLink.closest('footer > div'));
+  });
+
+  it('build info uses theme font not monospace', () => {
+    render(<Footer />);
+    const buildInfo = screen.getByTestId('build-info');
+    expect(buildInfo.className).not.toMatch(/font-mono/);
   });
 });
