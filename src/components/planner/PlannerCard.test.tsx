@@ -27,6 +27,7 @@ vi.mock('../../context/SyncStatusContext', () => ({
 }));
 
 import { PlannerCard } from './PlannerCard';
+import { useUpdatePlanner } from '../../hooks/useMutatePlanner';
 import type { BudgetPlanner } from '../../firestore/types';
 
 const planner: BudgetPlanner = {
@@ -82,6 +83,27 @@ describe('PlannerCard', () => {
     const nonRepeatable = { ...planner, repeatable: false, customStart: new Date('2026-05-01'), customEnd: new Date('2026-05-31') };
     render(<PlannerCard planner={nonRepeatable} transactions={[]} onCardClick={vi.fn()} />);
     expect(screen.queryByText(/Prev|‹/)).toBeNull();
+  });
+
+  it('switches to radial view immediately on toggle without waiting for prop update', () => {
+    const { container } = render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    // bar view: no radial SVGs
+    expect(container.querySelectorAll('svg[width="52"]').length).toBe(0);
+
+    fireEvent.click(screen.getByRole('button', { name: /radial view/i }));
+
+    // radial SVGs appear immediately — planner prop has NOT changed
+    expect(container.querySelectorAll('svg[width="52"]').length).toBeGreaterThan(0);
+  });
+
+  it('calls updatePlanner with new chartView when toggle is clicked', () => {
+    const mutate = vi.fn();
+    vi.mocked(useUpdatePlanner).mockReturnValue({ mutate });
+
+    render(<PlannerCard planner={planner} transactions={[]} onCardClick={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /radial view/i }));
+
+    expect(mutate).toHaveBeenCalledWith('p1', { chartView: 'radial' });
   });
 
   it('calls onCardClick when card body is clicked', () => {

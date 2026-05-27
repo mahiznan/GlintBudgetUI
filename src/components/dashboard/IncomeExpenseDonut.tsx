@@ -30,7 +30,7 @@ export default function IncomeExpenseDonut({
       ) : (
         <>
           <div className="relative" style={{ height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={160}>
               <PieChart>
                 <Pie
                   data={categories}

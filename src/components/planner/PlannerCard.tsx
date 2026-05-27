@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePlannerAggregation } from '../../hooks/usePlannerAggregation';
 import { useUpdatePlanner } from '../../hooks/useMutatePlanner';
 import { formatCurrency } from '../../lib/plannerUtils';
@@ -45,7 +45,13 @@ function RadialIcon({ active }: { active: boolean }) {
 export function PlannerCard({ planner, transactions, onCardClick }: Props) {
   const [periodOffset, setPeriodOffset] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [chartView, setChartView] = useState<BudgetPlanner['chartView']>(planner.chartView);
   const { mutate: updatePlanner } = useUpdatePlanner();
+
+  // Sync from prop when Firestore confirms (e.g., change from another device)
+  useEffect(() => {
+    setChartView(planner.chartView);
+  }, [planner.chartView]);
 
   const agg = usePlannerAggregation(planner, transactions, periodOffset);
 
@@ -57,6 +63,7 @@ export function PlannerCard({ planner, transactions, onCardClick }: Props) {
   const canNavigate = planner.repeatable;
 
   function handleToggle(view: BudgetPlanner['chartView']) {
+    setChartView(view);
     updatePlanner(planner.id, { chartView: view });
   }
 
@@ -116,27 +123,27 @@ export function PlannerCard({ planner, transactions, onCardClick }: Props) {
             aria-label="Bar view"
             onClick={() => handleToggle('bar')}
             className={`rounded p-1 transition-all ${
-              planner.chartView === 'bar' ? 'bg-surface shadow-sm' : ''
+              chartView === 'bar' ? 'bg-surface shadow-sm' : ''
             }`}
           >
-            <BarIcon active={planner.chartView === 'bar'} />
+            <BarIcon active={chartView === 'bar'} />
           </button>
           <button
             type="button"
             aria-label="Radial view"
             onClick={() => handleToggle('radial')}
             className={`rounded p-1 transition-all ${
-              planner.chartView === 'radial' ? 'bg-surface shadow-sm' : ''
+              chartView === 'radial' ? 'bg-surface shadow-sm' : ''
             }`}
           >
-            <RadialIcon active={planner.chartView === 'radial'} />
+            <RadialIcon active={chartView === 'radial'} />
           </button>
         </div>
       </div>
 
       {/* ── Category list ── */}
       <div className="px-4 pb-1" onClick={(e) => e.stopPropagation()}>
-        {planner.chartView === 'bar' ? (
+        {chartView === 'bar' ? (
           <>
             {visibleCategories.map((r, idx) => (
               <PlannerCategoryBar

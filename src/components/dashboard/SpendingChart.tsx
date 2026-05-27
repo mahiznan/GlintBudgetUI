@@ -256,8 +256,7 @@ export default function SpendingChart({
         </div>
       </div>
 
-      <div style={{ height: 220 }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={220}>
           {chartType === 'bar' ? (
             <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
               <defs>
@@ -300,7 +299,6 @@ export default function SpendingChart({
             </AreaChart>
           )}
         </ResponsiveContainer>
-      </div>
     </div>
   );
 }
