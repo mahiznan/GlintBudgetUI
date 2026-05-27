@@ -1,3 +1,5 @@
+vi.mock('../components/layout/SyncPill', () => ({ default: () => <span data-testid="sync-pill" /> }));
+
 vi.mock('../context/TransactionContext', () => ({
   useTransactionContext: () => ({
     transactions: [],

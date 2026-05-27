@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { signOutCurrentUser } from '../../firebase/auth';
 import { useTheme } from '../../context/ThemeContext';
 import { THEMES } from '../../lib/themes';
+import SyncPill from './SyncPill';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', icon: '◈', to: '/app/dashboard' },
@@ -72,6 +73,7 @@ export default function Sidebar() {
                 />
               ))}
             </div>
+            <SyncPill />
             <button
               type="button"
               onClick={() => void handleSignOut()}
@@ -130,6 +132,7 @@ export default function Sidebar() {
                   />
                 ))}
               </div>
+              <SyncPill />
               <button
                 type="button"
                 onClick={() => void handleSignOut()}

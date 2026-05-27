@@ -8,6 +8,7 @@ vi.mock('../../firebase/auth', () => ({
   signOutCurrentUser: vi.fn(),
 }));
 vi.mock('../../context/ThemeContext', () => ({ useTheme: vi.fn() }));
+vi.mock('./SyncPill', () => ({ default: () => <span data-testid="sync-pill" /> }));
 
 import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
