@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { usePlanners } from '../../hooks/usePlanners';
 import { useTransactionContext } from '../../context/TransactionContext';
 import { PlannerCard } from './PlannerCard';
+import { PlannerDetailDrawer } from './PlannerDetailDrawer';
 import type { BudgetPlanner } from '../../firestore/types';
 
 // selectedPlanner state is set here and passed down in Phase 3 when
@@ -63,8 +64,14 @@ export function BudgetPlannerCarousel() {
         ))}
       </div>
 
-      {/* PlannerDetailDrawer will be added here in Phase 3 */}
-      {selected && null /* Phase 3: replace with <PlannerDetailDrawer ... /> */}
+      {selected && (
+        <PlannerDetailDrawer
+          planner={selected.planner}
+          transactions={transactions}
+          initialOffset={selected.offset}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </>
   );
 }
