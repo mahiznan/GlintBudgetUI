@@ -16,8 +16,6 @@ interface UsePreferencesResult {
   loading: boolean;
   error: Error | null;
   hasPendingWrites: boolean;
-  /** @deprecated No-op: onSnapshot keeps data live automatically. */
-  refetch: () => void;
 }
 
 // Swift Codable encodes [BudgetDataType:String] as a flat alternating array.
@@ -92,5 +90,5 @@ export function usePreferences(uid: string | null): UsePreferencesResult {
     );
   }, [uid]);
 
-  return { data, loading, error, hasPendingWrites, refetch: () => {} };
+  return { data, loading, error, hasPendingWrites };
 }
