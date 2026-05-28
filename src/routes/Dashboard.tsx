@@ -339,8 +339,6 @@ export default function Dashboard() {
         currencySymbol={currencySymbol}
       />
 
-      <BudgetPlannerCarousel />
-
       <div className="flex flex-col gap-4 md:flex-row">
         {/* Left column — 2/3 width on desktop, full width on mobile */}
         <div className="flex flex-col gap-4 md:flex-[2] min-w-0">
@@ -361,6 +359,7 @@ export default function Dashboard() {
             onTransactionAdded={() => {}}
             onDateChange={setFabDate}
           />
+          <BudgetPlannerCarousel />
         </div>
 
         {/* Right column — 1/3 width on desktop, full width on mobile */}

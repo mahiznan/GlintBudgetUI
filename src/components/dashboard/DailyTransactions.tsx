@@ -361,8 +361,7 @@ export default function DailyTransactions({
         <button
           type="button"
           onClick={goToNextWeek}
-          disabled={onCurrentWeek}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-sm font-bold flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-sm font-bold flex-shrink-0"
           aria-label="Next week"
         >
           ›
