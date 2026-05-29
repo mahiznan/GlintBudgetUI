@@ -21,7 +21,6 @@ const SYMBOL: Record<string, string> = Object.fromEntries(
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
-  currencySymbol: string;
   onDelete: (id: string) => void;
   onTransactionAdded?: () => void;
   onDateChange?: (d: Date) => void;
@@ -30,19 +29,22 @@ interface DailyTransactionsProps {
 interface DayPanelProps {
   date: Date;
   transactions: Transaction[];
-  currencySymbol: string;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
 }
 
-function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayPanelProps) {
+function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
   const dayTxns = transactions
     .filter((t) => isSameDay(t.date, date))
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  const dayExpenses = dayTxns
-    .filter((t) => t.amount < 0)
-    .reduce((s, t) => s + Math.abs(t.amount), 0);
+  // Group expense totals by currency so mixed-currency days show a line per currency
+  const expenseTotals = new Map<string, number>();
+  for (const tx of dayTxns) {
+    if (tx.amount < 0) {
+      expenseTotals.set(tx.currency, (expenseTotals.get(tx.currency) ?? 0) + Math.abs(tx.amount));
+    }
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -67,7 +69,7 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 w-36">
                   <span
-                    className={`flex-1 text-right text-sm font-semibold tabular-nums ${isExpense ? 'text-red-600' : 'text-brand'}`}
+                    className={`flex-1 text-right text-sm font-semibold tabular-nums ${isExpense ? 'text-red-600' : 'text-green-600'}`}
                   >
                     {isExpense ? '−' : '+'}
                     <span className="text-[10px] mr-0.5">{txSymbol}</span>
@@ -98,27 +100,34 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
           })}
         </div>
       )}
-      {dayTxns.length > 0 && dayExpenses > 0 && (
-        <div className="border-t border-border pt-2 flex items-center gap-3">
-          <span className="w-8 flex-shrink-0" aria-hidden="true" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-muted">Day total</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0 w-36">
-            <span className="flex-1 text-right text-base font-bold tabular-nums text-red-600">
-              −<span className="text-xs mr-0.5">{currencySymbol}</span>
-              {dayExpenses.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-            <span className="p-1 invisible select-none" aria-hidden="true">
-              ✏️
-            </span>
-            <span className="p-1 invisible select-none" aria-hidden="true">
-              🗑
-            </span>
-          </div>
+      {expenseTotals.size > 0 && (
+        <div className="border-t border-border pt-2 flex flex-col gap-1">
+          {Array.from(expenseTotals.entries()).map(([currency, total], i) => {
+            const sym = SYMBOL[currency] ?? currency;
+            return (
+              <div key={currency} className="flex items-center gap-3">
+                <span className="w-8 flex-shrink-0" aria-hidden="true" />
+                <div className="flex-1 min-w-0">
+                  {i === 0 && <p className="text-sm font-semibold text-text-muted">Day total</p>}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 w-36">
+                  <span className="flex-1 text-right text-sm font-bold tabular-nums text-red-600">
+                    −<span className="text-[10px] mr-0.5">{sym}</span>
+                    {total.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                  <span className="p-1 invisible select-none" aria-hidden="true">
+                    ✏️
+                  </span>
+                  <span className="p-1 invisible select-none" aria-hidden="true">
+                    🗑
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -127,7 +136,6 @@ function DayPanel({ date, transactions, currencySymbol, onDelete, onEdit }: DayP
 
 export default function DailyTransactions({
   transactions,
-  currencySymbol,
   onDelete,
   onTransactionAdded,
   onDateChange,
@@ -388,7 +396,6 @@ export default function DailyTransactions({
               <DayPanel
                 date={panels[slot]}
                 transactions={transactions}
-                currencySymbol={currencySymbol}
                 onDelete={onDelete}
                 onEdit={(id) => {
                   setEditingId(id);

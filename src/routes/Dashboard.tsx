@@ -354,7 +354,6 @@ export default function Dashboard() {
           />
           <DailyTransactions
             transactions={allTxns}
-            currencySymbol={currencySymbol}
             onDelete={(id) => setDeletingId(id)}
             onTransactionAdded={() => {}}
             onDateChange={setFabDate}

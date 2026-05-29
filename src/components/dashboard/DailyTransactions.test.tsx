@@ -47,7 +47,7 @@ function daysAgo(n: number, hours = 12): Date {
 function renderDT(transactions: Transaction[]) {
   return render(
     <MemoryRouter>
-      <DailyTransactions transactions={transactions} currencySymbol="₹" onDelete={vi.fn()} />
+      <DailyTransactions transactions={transactions} onDelete={vi.fn()} />
     </MemoryRouter>,
   );
 }
@@ -120,7 +120,6 @@ describe('DailyTransactions — transaction list', () => {
       <MemoryRouter>
         <DailyTransactions
           transactions={[makeTx('tx1', 'Zomato', -350, todayAt())]}
-          currencySymbol="₹"
           onDelete={onDelete}
         />
       </MemoryRouter>,
@@ -171,7 +170,6 @@ describe('DailyTransactions — week navigation', () => {
       <MemoryRouter>
         <DailyTransactions
           transactions={[makeTx('tx1', 'TargetVendor', -300, targetDate)]}
-          currencySymbol="₹"
           onDelete={vi.fn()}
         />
       </MemoryRouter>,
@@ -230,7 +228,6 @@ describe('DailyTransactions — edit button', () => {
       <MemoryRouter>
         <DailyTransactions
           transactions={[makeTx('tx1', 'Swiggy', -400, todayAt())]}
-          currencySymbol="₹"
           onDelete={vi.fn()}
         />
       </MemoryRouter>,
@@ -244,7 +241,6 @@ describe('DailyTransactions — edit button', () => {
       <MemoryRouter>
         <DailyTransactions
           transactions={[makeTx('tx1', 'Swiggy', -400, todayAt())]}
-          currencySymbol="₹"
           onDelete={vi.fn()}
         />
       </MemoryRouter>,
@@ -377,7 +373,6 @@ describe('DailyTransactions — slide animation', () => {
       <MemoryRouter>
         <DailyTransactions
           transactions={[makeTx('tx-prev', 'PrevWeekVendor', -100, prevSunday)]}
-          currencySymbol="₹"
           onDelete={vi.fn()}
         />
       </MemoryRouter>,
