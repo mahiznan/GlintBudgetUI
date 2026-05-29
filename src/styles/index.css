@@ -142,6 +142,19 @@ body {
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
 }
 
+/* Prevent iOS Safari auto-zoom on input focus.
+   iOS zooms whenever a focused input has font-size < 16px. Scoped to
+   coarse-pointer (touch) devices so desktop layout is unaffected. */
+@media (pointer: coarse) {
+  input[type='text'],
+  input[type='date'],
+  input[type='email'],
+  input[type='search'],
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* Tabular numeric rendering for financial amounts.
    font-variant-numeric alone is insufficient for Figtree — the OpenType
    "tnum" feature must also be activated directly so every digit (0–9)
