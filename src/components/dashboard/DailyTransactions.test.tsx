@@ -78,9 +78,9 @@ describe('DailyTransactions — date strip', () => {
     expect(pressed.some((b) => b.textContent?.includes(todayNum))).toBe(true);
   });
 
-  it('next week button is disabled on the current week', () => {
+  it('next week button is always enabled (allows navigating to future weeks)', () => {
     renderDT([]);
-    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
   });
 
   it('prev week button is always enabled', () => {
@@ -137,13 +137,13 @@ describe('DailyTransactions — week navigation', () => {
     expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
   });
 
-  it('disables next week button again after returning to current week', async () => {
+  it('next week button remains enabled after round-trip navigation', async () => {
     const { container } = renderDT([]);
     await userEvent.click(screen.getByRole('button', { name: /previous week/i }));
     settleAnimation(container);
     await userEvent.click(screen.getByRole('button', { name: /next week/i }));
     settleAnimation(container);
-    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
   });
 
   it('selects Sunday when navigating to a previous week', async () => {
@@ -280,8 +280,8 @@ describe('DailyTransactions — Today button', () => {
     settleAnimation(container);
     await userEvent.click(screen.getByRole('button', { name: /^today$/i }));
     settleAnimation(container);
-    // Next week button should be disabled again (we're back on the current week)
-    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    // Next week button stays enabled (navigation to future weeks is allowed)
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
     // Today's date tile should be selected
     const todayNum = new Date().getDate().toString();
     const pressed = screen.getAllByRole('button', { pressed: true });
@@ -356,8 +356,8 @@ describe('DailyTransactions — slide animation', () => {
     )!;
     await userEvent.click(todayTile); // already selected — should be a no-op
     settleAnimation(container);
-    // weekStart unchanged — next week button remains disabled
-    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    // weekStart unchanged — next week button stays enabled (future navigation allowed)
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
   });
 
   it('shows prev-week transactions in center panel after settling animation', async () => {
@@ -437,8 +437,8 @@ describe('DailyTransactions — slide animation', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Today' }));
     settleAnimation(container);
 
-    // Next week button should now be disabled (back on current week)
-    expect(screen.getByRole('button', { name: /next week/i })).toBeDisabled();
+    // Next week button stays enabled (future navigation is allowed)
+    expect(screen.getByRole('button', { name: /next week/i })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: /^today$/i })).toHaveAttribute('aria-pressed', 'true');
   });
 });

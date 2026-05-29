@@ -155,7 +155,6 @@ export default function DailyTransactions({
   const trackRef = useRef<HTMLDivElement>(null);
 
   const weekDays = getWeekDays(weekStart);
-  const onCurrentWeek = isCurrentWeek(weekStart);
   const isToday = isSameDay(selectedDate, new Date());
 
   function navigateTo(targetDate: Date) {
