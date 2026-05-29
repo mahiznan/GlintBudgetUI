@@ -14,13 +14,13 @@ export default function TransactionRow({
   onDelete,
 }: TransactionRowProps) {
   return (
-    <tr className="border-b border-border hover:bg-surface-alt transition-colors">
+    <tr className="border-b border-border even:bg-surface-alt hover:bg-slate-100 transition-colors">
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
           <span className="text-xl">{tx.icon || '💸'}</span>
           <div>
-            <p className="text-sm font-medium text-text">{tx.vendor}</p>
-            <p className="text-xs text-text-muted">{tx.account}</p>
+            <p className="text-sm font-medium text-text">{tx.subCategory}</p>
+            <p className="text-xs text-text-muted">{tx.vendor}</p>
           </div>
         </div>
       </td>

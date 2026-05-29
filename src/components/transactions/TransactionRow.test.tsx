@@ -41,9 +41,19 @@ function renderRow(tx = expenseTx, onDelete = vi.fn()) {
 }
 
 describe('TransactionRow', () => {
-  it('renders vendor, category, and absolute amount', () => {
+  it('renders subCategory as primary text and vendor below it', () => {
     renderRow();
+    expect(screen.getByText('Groceries')).toBeInTheDocument();
     expect(screen.getByText('Zepto')).toBeInTheDocument();
+  });
+
+  it('does not render account', () => {
+    renderRow();
+    expect(screen.queryByText('HDFC')).not.toBeInTheDocument();
+  });
+
+  it('renders category badge and absolute amount', () => {
+    renderRow();
     expect(screen.getByText('Food')).toBeInTheDocument();
     expect(screen.getByText(/₹500/)).toBeInTheDocument();
   });
