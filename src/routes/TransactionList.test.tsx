@@ -1,10 +1,13 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, Outlet } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { PreferenceContext } from '../context/PreferenceContext';
 import { TransactionContext } from '../context/TransactionContext';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
 import type { AppShellOutletContext } from './AppShell';
+import type { Transaction } from '../firestore/types';
+import type { TransactionContextValue } from '../context/TransactionContext';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
@@ -15,27 +18,76 @@ vi.mock('firebase/firestore', () => ({
 import TransactionList from './TransactionList';
 
 const prefCtx = { preference: null, loading: false, error: null };
-const txCtx = { transactions: [], loading: false, error: null, hasPendingWrites: false };
+const emptyTxCtx = { transactions: [], loading: false, error: null, hasPendingWrites: false };
+
+const today = new Date();
+
+const matchingTx: Transaction = {
+  id: 'tx-match',
+  user_id: 'u1',
+  category: 'Food',
+  subCategory: 'Groceries',
+  date: today,
+  account: 'HDFC',
+  vendor: 'Big Basket',
+  payment: 'UPI',
+  currency: 'INR',
+  notes: '',
+  amount: -500,
+  icon: '🛒',
+};
+
+const nonMatchingTx: Transaction = {
+  ...matchingTx,
+  id: 'tx-no-match',
+  vendor: 'Swiggy',
+  subCategory: 'Dining Out',
+};
+
+function makeCtx(): AppShellOutletContext {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return { period: 'month', setPeriod: vi.fn(), fabDate: d, setFabDate: vi.fn() };
+}
+
+function renderList(txCtx: TransactionContextValue = emptyTxCtx) {
+  return render(
+    <SyncStatusProvider>
+      <PreferenceContext.Provider value={prefCtx}>
+        <TransactionContext.Provider value={txCtx}>
+          <MemoryRouter>
+            <Routes>
+              <Route path="/" element={<Outlet context={makeCtx()} />}>
+                <Route index element={<TransactionList />} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </TransactionContext.Provider>
+      </PreferenceContext.Provider>
+    </SyncStatusProvider>,
+  );
+}
 
 describe('TransactionList', () => {
   it('renders empty state after loading', async () => {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const ctx: AppShellOutletContext = { period: 'month', setPeriod: vi.fn(), fabDate: today, setFabDate: vi.fn() };
-    render(
-      <SyncStatusProvider>
-        <PreferenceContext.Provider value={prefCtx}>
-          <TransactionContext.Provider value={txCtx}>
-            <MemoryRouter>
-              <Routes>
-                <Route path="/" element={<Outlet context={ctx} />}>
-                  <Route index element={<TransactionList />} />
-                </Route>
-              </Routes>
-            </MemoryRouter>
-          </TransactionContext.Provider>
-        </PreferenceContext.Provider>
-      </SyncStatusProvider>,
-    );
+    renderList();
     expect(await screen.findByText(/no transactions/i)).toBeInTheDocument();
+  });
+
+  it('renders a search input', () => {
+    renderList();
+    expect(screen.getByPlaceholderText(/search transactions/i)).toBeInTheDocument();
+  });
+
+  it('filters transactions by search query', async () => {
+    renderList({
+      transactions: [matchingTx, nonMatchingTx],
+      loading: false,
+      error: null,
+      hasPendingWrites: false,
+    });
+    await userEvent.type(screen.getByPlaceholderText(/search transactions/i), 'basket');
+    expect(screen.getByText('Big Basket')).toBeInTheDocument();
+    expect(screen.queryByText('Swiggy')).not.toBeInTheDocument();
   });
 });
