@@ -1,10 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactionContext } from '../context/TransactionContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
-import { filterByPeriod } from '../lib/dateUtils';
-import type { AppShellOutletContext } from './AppShell';
 import TransactionTable, { type SortKey } from '../components/transactions/TransactionTable';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 
@@ -12,7 +9,6 @@ const PAGE_SIZE = 25;
 
 export default function TransactionList() {
   const { preference } = usePreferenceContext();
-  const { period } = useOutletContext<AppShellOutletContext>();
   const { transactions, loading, error } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
 
@@ -41,13 +37,11 @@ export default function TransactionList() {
   }
 
   const processed = useMemo(() => {
-    const periodFiltered = filterByPeriod(transactions, period);
-
     const q = searchQuery.trim().toLowerCase();
     const searched =
       q === ''
-        ? periodFiltered
-        : periodFiltered.filter(
+        ? transactions
+        : transactions.filter(
             (tx) =>
               tx.subCategory.toLowerCase().includes(q) ||
               tx.vendor.toLowerCase().includes(q) ||
@@ -71,7 +65,7 @@ export default function TransactionList() {
           return d * (a.amount - b.amount);
       }
     });
-  }, [transactions, period, searchQuery, sortKey, sortDir]);
+  }, [transactions, searchQuery, sortKey, sortDir]);
 
   const hasMore = visibleCount < processed.length;
   const visible = processed.slice(0, visibleCount);

@@ -1,11 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes, Outlet } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { PreferenceContext } from '../context/PreferenceContext';
 import { TransactionContext } from '../context/TransactionContext';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
-import type { AppShellOutletContext } from './AppShell';
 import type { Transaction } from '../firestore/types';
 import type { TransactionContextValue } from '../context/TransactionContext';
 
@@ -44,12 +43,6 @@ const nonMatchingTx: Transaction = {
   subCategory: 'Dining Out',
 };
 
-function makeCtx(): AppShellOutletContext {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return { period: 'month', setPeriod: vi.fn(), fabDate: d, setFabDate: vi.fn() };
-}
-
 function renderList(txCtx: TransactionContextValue = emptyTxCtx) {
   return render(
     <SyncStatusProvider>
@@ -57,9 +50,7 @@ function renderList(txCtx: TransactionContextValue = emptyTxCtx) {
         <TransactionContext.Provider value={txCtx}>
           <MemoryRouter>
             <Routes>
-              <Route path="/" element={<Outlet context={makeCtx()} />}>
-                <Route index element={<TransactionList />} />
-              </Route>
+              <Route index element={<TransactionList />} />
             </Routes>
           </MemoryRouter>
         </TransactionContext.Provider>
