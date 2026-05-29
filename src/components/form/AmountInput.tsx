@@ -52,6 +52,7 @@ export default function AmountInput({
           style={{
             color: value ? '#0f172a' : '#cbd5e1',
             fontVariantNumeric: 'tabular-nums',
+            fontFeatureSettings: '"tnum" 1',
             letterSpacing: '-1px',
           }}
         />

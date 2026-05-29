@@ -69,7 +69,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 w-36">
                   <span
-                    className={`flex-1 text-right text-sm font-semibold tabular-nums ${isExpense ? 'text-red-600' : 'text-green-600'}`}
+                    className={`flex-1 text-right text-sm font-semibold tabnum ${isExpense ? 'text-red-600' : 'text-green-600'}`}
                   >
                     {isExpense ? '−' : '+'}
                     <span className="text-[10px] mr-0.5">{txSymbol}</span>
@@ -111,7 +111,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                   {i === 0 && <p className="text-sm font-semibold text-text-muted">Day total</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 w-36">
-                  <span className="flex-1 text-right text-sm font-bold tabular-nums text-red-600">
+                  <span className="flex-1 text-right text-sm font-bold tabnum text-red-600">
                     −<span className="text-[10px] mr-0.5">{sym}</span>
                     {total.toLocaleString('en-US', {
                       minimumFractionDigits: 2,

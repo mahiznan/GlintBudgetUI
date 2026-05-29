@@ -141,3 +141,12 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
 }
+
+/* Tabular numeric rendering for financial amounts.
+   font-variant-numeric alone is insufficient for Figtree — the OpenType
+   "tnum" feature must also be activated directly so every digit (0–9)
+   occupies an identical advance width, making all digit columns align. */
+.tabnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
