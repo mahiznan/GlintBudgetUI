@@ -30,15 +30,20 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
   const [fromTxOpen, setFromTxOpen] = useState(false);
+  const [txSearch, setTxSearch] = useState('');
 
   const allVendorNames: Set<string> = new Set([
     ...vendors.map((v) => v.name),
     ...vendorNames,
   ]);
 
-  const txOnlyVendors = [...vendorNames].filter(
-    (name) => !vendors.some((v) => v.name.toLowerCase() === name.toLowerCase()),
-  );
+  const txOnlyVendors = [...vendorNames]
+    .filter((name) => !vendors.some((v) => v.name.toLowerCase() === name.toLowerCase()))
+    .sort((a, b) => a.localeCompare(b));
+
+  const filteredTxVendors = txSearch.trim()
+    ? txOnlyVendors.filter((name) => name.toLowerCase().includes(txSearch.trim().toLowerCase()))
+    : txOnlyVendors;
 
   function startEdit(item: BudgetData) {
     setEditingName(item.name);
@@ -227,24 +232,39 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
           <span aria-hidden="true">{fromTxOpen ? '▾' : '▸'}</span>
         </button>
         {fromTxOpen && (
-          <div className="divide-y divide-border border-t border-border">
-            {txLoading && (
-              <p className="px-5 py-3 text-sm text-text-muted">Loading…</p>
-            )}
-            {!txLoading && txOnlyVendors.length === 0 && (
-              <p className="px-5 py-3 text-sm text-text-muted">
-                All transaction vendors are already saved.
-              </p>
-            )}
-            {!txLoading && txOnlyVendors.map((name) => (
-              <TxVendorRow
-                key={name}
-                name={name}
-                allVendorNames={allVendorNames}
-                onSaveToList={handleSaveToList}
-                onRename={handleTxRename}
+          <div className="border-t border-border">
+            <div className="px-5 py-3 border-b border-border">
+              <input
+                type="search"
+                value={txSearch}
+                onChange={(e) => setTxSearch(e.target.value)}
+                placeholder="Search vendors…"
+                className="w-full border border-border rounded-lg px-3 py-1.5 text-sm"
+                aria-label="Search transaction vendors"
               />
-            ))}
+            </div>
+            <div className="divide-y divide-border">
+              {txLoading && (
+                <p className="px-5 py-3 text-sm text-text-muted">Loading…</p>
+              )}
+              {!txLoading && txOnlyVendors.length === 0 && (
+                <p className="px-5 py-3 text-sm text-text-muted">
+                  All transaction vendors are already saved.
+                </p>
+              )}
+              {!txLoading && txOnlyVendors.length > 0 && filteredTxVendors.length === 0 && (
+                <p className="px-5 py-3 text-sm text-text-muted">No vendors match your search.</p>
+              )}
+              {!txLoading && filteredTxVendors.map((name) => (
+                <TxVendorRow
+                  key={name}
+                  name={name}
+                  allVendorNames={allVendorNames}
+                  onSaveToList={handleSaveToList}
+                  onRename={handleTxRename}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
