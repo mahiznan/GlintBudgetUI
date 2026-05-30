@@ -1,4 +1,3 @@
-import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
@@ -19,9 +18,10 @@ vi.mock('firebase/firestore', () => ({
 import { getDocs, writeBatch } from 'firebase/firestore';
 import { useBulkRenameAccount } from './useBulkRenameAccount';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
+import React from 'react';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  React.createElement(SyncStatusProvider, null, children)
+  <SyncStatusProvider>{children}</SyncStatusProvider>
 );
 
 function makeSnap(count: number) {
