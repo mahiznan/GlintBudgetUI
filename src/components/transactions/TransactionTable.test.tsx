@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import TransactionTable, { type SortKey } from './TransactionTable';
 import type { Transaction } from '../../firestore/types';
@@ -28,15 +27,14 @@ const defaultSort = {
 
 function renderTable(overrides = {}) {
   return render(
-    <MemoryRouter>
-      <TransactionTable
-        transactions={[tx]}
-        currencySymbol="₹"
-        onDelete={vi.fn()}
-        {...defaultSort}
-        {...overrides}
-      />
-    </MemoryRouter>,
+    <TransactionTable
+      transactions={[tx]}
+      currencySymbol="₹"
+      onDelete={vi.fn()}
+      onEdit={vi.fn()}
+      {...defaultSort}
+      {...overrides}
+    />,
   );
 }
 
@@ -51,14 +49,13 @@ describe('TransactionTable', () => {
 
   it('shows empty state when no transactions', () => {
     render(
-      <MemoryRouter>
-        <TransactionTable
-          transactions={[]}
-          currencySymbol="₹"
-          onDelete={vi.fn()}
-          {...defaultSort}
-        />
-      </MemoryRouter>,
+      <TransactionTable
+        transactions={[]}
+        currencySymbol="₹"
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+        {...defaultSort}
+      />,
     );
     expect(screen.getByText(/no transactions/i)).toBeInTheDocument();
   });

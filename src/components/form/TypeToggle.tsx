@@ -21,7 +21,7 @@ export default function TypeToggle({ value, onChange }: TypeToggleProps) {
               isActive
                 ? {
                     background:
-                      type === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)',
+                      type === 'expense' ? 'var(--expense-gradient)' : 'var(--income-gradient)',
                     color: '#fff',
                   }
                 : { background: '#e2e8f0', color: '#94a3b8' }

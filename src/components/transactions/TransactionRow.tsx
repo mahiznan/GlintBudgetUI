@@ -1,17 +1,18 @@
-import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
-import { formatCurrency, formatDateShort, formatTime } from '../../lib/dateUtils';
+import { formatCurrency, formatDateWithYear } from '../../lib/dateUtils';
 
 interface TransactionRowProps {
   transaction: Transaction;
   currencySymbol: string;
   onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 export default function TransactionRow({
   transaction: tx,
   currencySymbol,
   onDelete,
+  onEdit,
 }: TransactionRowProps) {
   return (
     <tr className="border-b border-border even:bg-surface-alt hover:bg-slate-100 transition-colors">
@@ -30,24 +31,25 @@ export default function TransactionRow({
         </span>
       </td>
       <td className="py-3 px-4 text-xs text-text-muted">
-        {formatDateShort(tx.date)} {formatTime(tx.date)}
+        {formatDateWithYear(tx.date)}
       </td>
       <td className="py-3 px-4 text-xs text-text-muted">{tx.payment}</td>
       <td className="py-3 px-4 text-right">
-        <span className={`text-sm font-semibold ${tx.amount < 0 ? 'text-red-600' : 'text-brand'}`}>
+        <span className={`text-sm font-semibold ${tx.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
           {tx.amount < 0 ? '−' : '+'}
           {formatCurrency(Math.abs(tx.amount), currencySymbol)}
         </span>
       </td>
       <td className="py-3 px-4 text-right">
         <div className="flex items-center justify-end gap-1">
-          <Link
-            to={`/app/transactions/${tx.id}/edit`}
+          <button
+            type="button"
+            onClick={() => onEdit(tx.id)}
             className="p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-green-50 transition-colors"
             aria-label={`Edit ${tx.vendor}`}
           >
             ✏️
-          </Link>
+          </button>
           <button
             type="button"
             onClick={() => onDelete(tx.id)}

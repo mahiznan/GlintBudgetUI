@@ -4,6 +4,7 @@ import { useTransactionContext } from '../context/TransactionContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import TransactionTable, { type SortKey } from '../components/transactions/TransactionTable';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
+import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 
 const PAGE_SIZE = 25;
 
@@ -13,6 +14,7 @@ export default function TransactionList() {
   const { mutate: deleteTx } = useDeleteTransaction();
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,6 +127,7 @@ export default function TransactionList() {
         transactions={visible}
         currencySymbol={currencySymbol}
         onDelete={setDeletingId}
+        onEdit={setEditingId}
         sortKey={sortKey}
         sortDir={sortDir}
         onSort={handleSort}
@@ -139,6 +142,14 @@ export default function TransactionList() {
         <DeleteConfirmDialog
           onConfirm={() => handleDelete(deletingId)}
           onCancel={() => setDeletingId(null)}
+        />
+      )}
+      {editingId !== null && (
+        <AddTransactionDrawer
+          open={true}
+          editId={editingId}
+          onClose={() => setEditingId(null)}
+          transactions={transactions}
         />
       )}
     </div>

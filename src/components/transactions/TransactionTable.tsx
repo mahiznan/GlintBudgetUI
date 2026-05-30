@@ -7,6 +7,7 @@ interface TransactionTableProps {
   transactions: Transaction[];
   currencySymbol: string;
   onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
   sortKey: SortKey;
   sortDir: 'asc' | 'desc';
   onSort: (key: SortKey) => void;
@@ -15,7 +16,7 @@ interface TransactionTableProps {
 const COLUMNS: { label: string; key: SortKey | null }[] = [
   { label: 'Subcategory & Vendor', key: 'subCategory' },
   { label: 'Category', key: 'category' },
-  { label: 'Date & Time', key: 'date' },
+  { label: 'Date', key: 'date' },
   { label: 'Payment', key: 'payment' },
   { label: 'Amount', key: 'amount' },
   { label: '', key: null },
@@ -30,6 +31,7 @@ export default function TransactionTable({
   transactions,
   currencySymbol,
   onDelete,
+  onEdit,
   sortKey,
   sortDir,
   onSort,
@@ -78,6 +80,7 @@ export default function TransactionTable({
               transaction={tx}
               currencySymbol={currencySymbol}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           ))}
         </tbody>

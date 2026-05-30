@@ -273,7 +273,7 @@ export default function AddTransactionDrawer({
   }));
 
   const saveGradient =
-    form.type === 'expense' ? 'var(--expense-gradient)' : 'var(--brand-gradient)';
+    form.type === 'expense' ? 'var(--expense-gradient)' : 'var(--income-gradient)';
   const saveShadow =
     form.type === 'expense' ? '0 4px 14px rgba(220,38,38,0.30)' : '0 4px 14px rgba(34,197,94,0.30)';
 

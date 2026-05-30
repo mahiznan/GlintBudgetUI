@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import TransactionRow from './TransactionRow';
 import type { Transaction } from '../../firestore/types';
@@ -28,15 +27,13 @@ const incomeTx: Transaction = {
   amount: 50000,
 };
 
-function renderRow(tx = expenseTx, onDelete = vi.fn()) {
+function renderRow(tx = expenseTx, onDelete = vi.fn(), onEdit = vi.fn()) {
   return render(
-    <MemoryRouter>
-      <table>
-        <tbody>
-          <TransactionRow transaction={tx} currencySymbol="₹" onDelete={onDelete} />
-        </tbody>
-      </table>
-    </MemoryRouter>,
+    <table>
+      <tbody>
+        <TransactionRow transaction={tx} currencySymbol="₹" onDelete={onDelete} onEdit={onEdit} />
+      </tbody>
+    </table>,
   );
 }
 
@@ -67,21 +64,20 @@ describe('TransactionRow', () => {
   it('shows income amount in brand color with plus sign', () => {
     renderRow(incomeTx);
     const amountEl = screen.getByText(/\+₹50,000/);
-    expect(amountEl).toHaveClass('text-brand');
+    expect(amountEl).toHaveClass('text-green-600');
   });
 
   it('has correct aria-labels on edit and delete buttons', () => {
     renderRow();
-    expect(screen.getByRole('link', { name: /edit zepto/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit zepto/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /delete zepto/i })).toBeInTheDocument();
   });
 
-  it('edit link routes to /app/transactions/tx1/edit', () => {
-    renderRow();
-    expect(screen.getByRole('link', { name: /edit zepto/i })).toHaveAttribute(
-      'href',
-      '/app/transactions/tx1/edit',
-    );
+  it('calls onEdit with the transaction id', async () => {
+    const onEdit = vi.fn();
+    renderRow(expenseTx, vi.fn(), onEdit);
+    await userEvent.click(screen.getByRole('button', { name: /edit zepto/i }));
+    expect(onEdit).toHaveBeenCalledWith('tx1');
   });
 
   it('calls onDelete with the transaction id', async () => {

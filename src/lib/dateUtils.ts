@@ -182,6 +182,10 @@ export function formatDateShort(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+export function formatDateWithYear(date: Date): string {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }

@@ -41,6 +41,7 @@
     #f87171,
     #dc2626
   ); /* intentionally theme-invariant: expense = always red */
+  --income-gradient: linear-gradient(135deg, #22c55e, #16a34a); /* intentionally theme-invariant: income = always green */
   --brand-glow: rgba(150, 191, 13, 0.45);
   --brand-gradient-text: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
 }
