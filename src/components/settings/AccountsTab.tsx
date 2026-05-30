@@ -40,7 +40,7 @@ export default function AccountsTab({
     name: string;
     source: 'active' | 'archived';
   } | null>(null);
-  const [archivedOpen, setArchivedOpen] = useState(true);
+  const [archivedOpen, setArchivedOpen] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
 
   function isDefault(item: BudgetData): boolean {

@@ -79,9 +79,10 @@ describe('AccountsTab — active accounts rendering', () => {
     expect(screen.queryByText(/Archived/)).not.toBeInTheDocument();
   });
 
-  it('shows archived section with account name when archivedAccounts has items', () => {
+  it('shows archived section with account name when archivedAccounts has items', async () => {
     renderTab({ archivedAccounts: [archivedItem] });
     expect(screen.getByText(/Archived \(1\)/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Archived/i }));
     expect(screen.getByText('Old Wallet')).toBeInTheDocument();
   });
 });
@@ -109,6 +110,7 @@ describe('AccountsTab — delete', () => {
   it('calls onSaveArchived without the deleted item when deleting from archived section', async () => {
     const onSaveArchived = vi.fn();
     renderTab({ archivedAccounts: [archivedItem], onSaveArchived });
+    await userEvent.click(screen.getByRole('button', { name: /Archived/i }));
     await userEvent.click(screen.getByLabelText('Delete Old Wallet'));
     await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
     expect(onSaveArchived).toHaveBeenCalledWith([]);
@@ -136,6 +138,7 @@ describe('AccountsTab — archive & restore', () => {
       onSaveActive,
       onSaveArchived,
     });
+    await userEvent.click(screen.getByRole('button', { name: /Archived/i }));
     await userEvent.click(screen.getByLabelText('Restore Old Wallet'));
     expect(onSaveActive).toHaveBeenCalledWith([archivedItem]);
     expect(onSaveArchived).toHaveBeenCalledWith([]);
@@ -147,6 +150,7 @@ describe('AccountsTab — archive & restore', () => {
       accounts: [defaultItem, userItemA],
       archivedAccounts: [conflictItem],
     });
+    await userEvent.click(screen.getByRole('button', { name: /Archived/i }));
     await userEvent.click(screen.getByLabelText('Restore HDFC'));
     expect(screen.getByText(/already exists/i)).toBeInTheDocument();
   });
