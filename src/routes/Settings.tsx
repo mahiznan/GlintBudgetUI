@@ -9,6 +9,7 @@ import {
   DEFAULT_SUBCATEGORIES,
 } from '../lib/defaultPreferences';
 import type { BudgetData, Currency } from '../firestore/types';
+import AccountsTab from '../components/settings/AccountsTab';
 import BudgetDataTab from '../components/settings/BudgetDataTab';
 import SubcategoriesTab from '../components/settings/SubcategoriesTab';
 import CurrencyTab from '../components/settings/CurrencyTab';
@@ -48,6 +49,10 @@ export default function Settings() {
   ): Promise<void> {
     mutate({ [field]: items });
     return Promise.resolve();
+  }
+
+  function saveArchivedAccounts(items: BudgetData[]): void {
+    mutate({ archivedAccounts: items });
   }
 
   function saveSubCategories(items: BudgetData[]): Promise<void> {
@@ -118,12 +123,13 @@ export default function Settings() {
       {/* Tab content */}
       <div className="p-6">
         {activeTab === 'accounts' && (
-          <BudgetDataTab
-            itemType="account"
-            allItems={preference.accounts}
+          <AccountsTab
+            accounts={preference.accounts}
+            archivedAccounts={preference.archivedAccounts}
             defaultItems={DEFAULT_ACCOUNTS}
-            onSave={(items) => saveList('accounts', items)}
-            saving={false}
+            onSaveActive={(items) => saveList('accounts', items)}
+            onSaveArchived={saveArchivedAccounts}
+            uid={uid}
           />
         )}
         {activeTab === 'categories' && (

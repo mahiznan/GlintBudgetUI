@@ -26,6 +26,9 @@ vi.mock('../auth/AuthContext', () => ({
 vi.mock('../hooks/useUpdatePreference', () => ({
   useUpdatePreference: () => ({ mutate: vi.fn() }),
 }));
+vi.mock('../components/settings/AccountsTab', () => ({
+  default: () => <div data-testid="accounts-tab" />,
+}));
 vi.mock('../components/settings/BudgetDataTab', () => ({
   default: ({ itemType }: { itemType: string }) => <div data-testid={`budget-tab-${itemType}`} />,
 }));
@@ -68,7 +71,7 @@ describe('Settings — tab bar', () => {
 
   it('defaults to Accounts tab when no query param', () => {
     renderSettings();
-    expect(screen.getByTestId('budget-tab-account')).toBeInTheDocument();
+    expect(screen.getByTestId('accounts-tab')).toBeInTheDocument();
   });
 
   it('renders Categories tab when tab=categories', () => {
