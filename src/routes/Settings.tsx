@@ -10,6 +10,7 @@ import {
 } from '../lib/defaultPreferences';
 import type { BudgetData, Currency } from '../firestore/types';
 import AccountsTab from '../components/settings/AccountsTab';
+import VendorsTab from '../components/settings/VendorsTab';
 import BudgetDataTab from '../components/settings/BudgetDataTab';
 import SubcategoriesTab from '../components/settings/SubcategoriesTab';
 import CurrencyTab from '../components/settings/CurrencyTab';
@@ -151,12 +152,10 @@ export default function Settings() {
           />
         )}
         {activeTab === 'vendors' && (
-          <BudgetDataTab
-            itemType="vendor"
-            allItems={preference.vendors}
-            defaultItems={[]}
+          <VendorsTab
+            vendors={preference.vendors}
+            uid={uid}
             onSave={(items) => saveList('vendors', items)}
-            saving={false}
           />
         )}
         {activeTab === 'payments' && (

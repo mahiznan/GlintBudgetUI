@@ -30,6 +30,9 @@ vi.mock('../hooks/useUpdatePreference', () => ({
 vi.mock('../components/settings/AccountsTab', () => ({
   default: () => <div data-testid="accounts-tab" />,
 }));
+vi.mock('../components/settings/VendorsTab', () => ({
+  default: () => <div data-testid="vendors-tab" />,
+}));
 vi.mock('../components/settings/BudgetDataTab', () => ({
   default: ({ itemType }: { itemType: string }) => <div data-testid={`budget-tab-${itemType}`} />,
 }));
@@ -87,7 +90,7 @@ describe('Settings — tab bar', () => {
 
   it('renders Vendors tab when tab=vendors', () => {
     renderSettings('vendors');
-    expect(screen.getByTestId('budget-tab-vendor')).toBeInTheDocument();
+    expect(screen.getByTestId('vendors-tab')).toBeInTheDocument();
   });
 
   it('renders Payments tab when tab=payments', () => {
