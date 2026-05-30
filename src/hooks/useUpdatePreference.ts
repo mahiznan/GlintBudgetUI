@@ -9,6 +9,7 @@ export interface FirestorePreferencePartial {
   subCategories?: BudgetData[];
   vendors?: BudgetData[];
   payments?: BudgetData[];
+  archivedAccounts?: BudgetData[];
   default_currency?: Currency;
   frequent_currencies?: string[];
   default_entries?: Record<string, string>;

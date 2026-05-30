@@ -50,6 +50,7 @@ const prefCtx = {
     subCategories: [],
     vendors: [{ name: 'Zepto', emoji: null, type: 'vendor', parent: null }],
     payments: [{ name: 'UPI', emoji: null, type: 'payment', parent: null }],
+    archivedAccounts: [],
     defaultCurrency: { name: 'Indian Rupee', code: 'INR', symbol: '₹' },
     bookmarkedCurrencies: ['INR'],
     defaultEntries: null,

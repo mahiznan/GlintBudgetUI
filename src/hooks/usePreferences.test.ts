@@ -124,4 +124,43 @@ describe('usePreferences', () => {
     expect(names.filter((n) => n === 'Cash').length).toBe(1);
     expect(names).toContain('PayNow');
   });
+
+  it('decodes archivedAccounts from Firestore', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => {
+      capturedCallback!(
+        makeSnap({
+          ...mockPreferenceData,
+          archivedAccounts: [{ name: 'Old Wallet', emoji: '👛', type: 'account', parent: null }],
+        }),
+      );
+    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.archivedAccounts).toHaveLength(1);
+    expect(result.current.data?.archivedAccounts[0]!.name).toBe('Old Wallet');
+  });
+
+  it('defaults archivedAccounts to [] when field is absent', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => { capturedCallback!(makeSnap(mockPreferenceData)); });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.archivedAccounts).toEqual([]);
+  });
+
+  it('mergeWithDefaults prefers Firestore version when names match (allows emoji override)', async () => {
+    const { result } = renderHook(() => usePreferences('uid-123'));
+    act(() => {
+      capturedCallback!(
+        makeSnap({
+          ...mockPreferenceData,
+          accounts: [{ name: 'Monthly Budget', emoji: '💰', type: 'account', parent: null }],
+        }),
+      );
+    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    const monthly = result.current.data?.accounts.find((a) => a.name === 'Monthly Budget');
+    expect(monthly?.emoji).toBe('💰');
+    // still only one "Monthly Budget" (no duplicate)
+    expect(result.current.data?.accounts.filter((a) => a.name === 'Monthly Budget')).toHaveLength(1);
+  });
 });

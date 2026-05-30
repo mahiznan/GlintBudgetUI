@@ -38,6 +38,7 @@ export interface Preference {
   subCategories: BudgetData[];
   vendors: BudgetData[];
   payments: BudgetData[];
+  archivedAccounts: BudgetData[];
   defaultCurrency: Currency;
   bookmarkedCurrencies: string[];
   defaultEntries: Record<string, string> | null;

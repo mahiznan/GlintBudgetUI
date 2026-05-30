@@ -31,10 +31,21 @@ function decodeDefaultEntries(raw: unknown): Record<string, string> {
 
 // Mirrors iOS PreferenceService.loadUserPreferences(): start with defaults,
 // then append any user-added entries from Firestore that aren't already present.
+// If a Firestore item matches a default by name (case-insensitive), the Firestore
+// version is used (allows user to override default emoji/settings).
 function mergeWithDefaults(defaults: BudgetData[], fromFirestore: BudgetData[]): BudgetData[] {
-  const seen = new Set(defaults.map((d) => `${d.name}::${d.parent ?? ''}`));
-  const additions = fromFirestore.filter((d) => !seen.has(`${d.name}::${d.parent ?? ''}`));
-  return [...defaults, ...additions];
+  const firestoreByKey = new Map(
+    fromFirestore.map((d) => [`${d.name.toLowerCase()}::${d.parent ?? ''}`, d]),
+  );
+  const result: BudgetData[] = [];
+  for (const def of defaults) {
+    const key = `${def.name.toLowerCase()}::${def.parent ?? ''}`;
+    // Use Firestore version if stored (allows user to override default emoji); else use constant.
+    result.push(firestoreByKey.get(key) ?? def);
+    firestoreByKey.delete(key);
+  }
+  firestoreByKey.forEach((item) => result.push(item));
+  return result;
 }
 
 function docToPreference(id: string, raw: Record<string, unknown>): Preference {
@@ -48,6 +59,7 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     ),
     vendors: (raw['vendors'] as BudgetData[]) ?? [],
     payments: mergeWithDefaults(DEFAULT_PAYMENTS, (raw['payments'] as BudgetData[]) ?? []),
+    archivedAccounts: (raw['archivedAccounts'] as BudgetData[]) ?? [],
     defaultCurrency: (raw['default_currency'] as Preference['defaultCurrency']) ?? DEFAULT_CURRENCY,
     bookmarkedCurrencies: (raw['frequent_currencies'] as string[]) ?? [],
     defaultEntries:
