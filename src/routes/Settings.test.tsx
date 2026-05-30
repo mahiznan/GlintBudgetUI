@@ -8,6 +8,7 @@ vi.mock('../context/PreferenceContext', () => ({
     preference: {
       id: 'u1',
       accounts: [],
+      archivedAccounts: [],
       categories: [],
       subCategories: [],
       vendors: [],
