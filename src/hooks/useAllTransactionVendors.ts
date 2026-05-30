@@ -13,10 +13,8 @@ export function useAllTransactionVendors(uid: string): UseAllTransactionVendorsR
 
   useEffect(() => {
     if (!uid) {
-      setLoading(false);
       return;
     }
-    setLoading(true);
     const col = collection(db, 'transactions');
     const q = query(col, where('user_id', '==', uid));
     return onSnapshot(

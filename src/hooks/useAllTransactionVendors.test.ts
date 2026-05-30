@@ -10,7 +10,8 @@ vi.mock('firebase/firestore', () => ({
   collection: vi.fn(() => 'col'),
   query: vi.fn(() => 'q'),
   where: vi.fn(() => 'w'),
-  onSnapshot: vi.fn((_q, cb, _errCb) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onSnapshot: vi.fn((_q, cb, _) => {
     capturedCallback = cb as (snap: unknown) => void;
     return mockUnsub;
   }),
@@ -32,7 +33,8 @@ describe('useAllTransactionVendors', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     capturedCallback = null;
-    vi.mocked(onSnapshot).mockImplementation((_q, cb, _errCb) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    vi.mocked(onSnapshot).mockImplementation((_q, cb, _) => {
       capturedCallback = cb as (snap: unknown) => void;
       return mockUnsub;
     });
