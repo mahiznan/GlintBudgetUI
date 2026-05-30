@@ -13,11 +13,9 @@ interface AccountsTabProps {
 
 function isDuplicate(name: string, items: BudgetData[], excludeName?: string): boolean {
   const lower = name.trim().toLowerCase();
-  return items.some(
-    (item) =>
-      item.name.toLowerCase() === lower &&
-      item.name.toLowerCase() !== (excludeName?.toLowerCase() ?? '\0'),
-  );
+  return items
+    .filter((item) => item.name.toLowerCase() !== (excludeName?.toLowerCase() ?? ''))
+    .some((item) => item.name.toLowerCase() === lower);
 }
 
 export default function AccountsTab({
@@ -71,7 +69,7 @@ export default function AccountsTab({
       // Default accounts: name is read-only; only emoji can change.
       // Write the default with its new emoji alongside user items so
       // mergeWithDefaults will pick up the Firestore version.
-      const defaultItem = accounts.find((i) => i.name === oldName)!;
+      const defaultItem = accounts.find((i) => i.name.toLowerCase() === oldName.toLowerCase())!;
       onSaveActive([
         { ...defaultItem, emoji: editEmoji.slice(0, 2) || defaultItem.emoji },
         ...userItems,
@@ -116,6 +114,7 @@ export default function AccountsTab({
   }
 
   function handleArchive(item: BudgetData) {
+    setRestoreError(null);
     onSaveActive(userItems.filter((i) => i.name !== item.name));
     onSaveArchived([...archivedAccounts, item]);
   }
@@ -295,7 +294,10 @@ export default function AccountsTab({
         <div className="card-surface rounded-2xl overflow-hidden">
           <button
             type="button"
-            onClick={() => setArchivedOpen((o) => !o)}
+            onClick={() => {
+              setArchivedOpen((o) => !o);
+              setRestoreError(null);
+            }}
             className="w-full flex items-center justify-between px-5 py-4 text-sm font-semibold text-text-muted hover:bg-surface-alt transition-colors"
             aria-expanded={archivedOpen}
           >
