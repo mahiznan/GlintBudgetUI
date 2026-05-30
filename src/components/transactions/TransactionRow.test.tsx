@@ -31,7 +31,7 @@ function renderRow(tx = expenseTx, onDelete = vi.fn(), onEdit = vi.fn()) {
   return render(
     <table>
       <tbody>
-        <TransactionRow transaction={tx} currencySymbol="₹" onDelete={onDelete} onEdit={onEdit} />
+        <TransactionRow transaction={tx} onDelete={onDelete} onEdit={onEdit} />
       </tbody>
     </table>,
   );

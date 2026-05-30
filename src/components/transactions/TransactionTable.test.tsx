@@ -29,7 +29,6 @@ function renderTable(overrides = {}) {
   return render(
     <TransactionTable
       transactions={[tx]}
-      currencySymbol="₹"
       onDelete={vi.fn()}
       onEdit={vi.fn()}
       {...defaultSort}
@@ -51,7 +50,6 @@ describe('TransactionTable', () => {
     render(
       <TransactionTable
         transactions={[]}
-        currencySymbol="₹"
         onDelete={vi.fn()}
         onEdit={vi.fn()}
         {...defaultSort}

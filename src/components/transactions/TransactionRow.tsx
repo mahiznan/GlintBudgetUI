@@ -1,19 +1,23 @@
 import type { Transaction } from '../../firestore/types';
 import { formatCurrency, formatDateWithYear } from '../../lib/dateUtils';
+import { CURRENCIES } from '../../lib/currencies';
+
+const SYMBOL: Record<string, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.symbol]),
+);
 
 interface TransactionRowProps {
   transaction: Transaction;
-  currencySymbol: string;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
 }
 
 export default function TransactionRow({
   transaction: tx,
-  currencySymbol,
   onDelete,
   onEdit,
 }: TransactionRowProps) {
+  const currencySymbol = SYMBOL[tx.currency] ?? tx.currency;
   return (
     <tr className="border-b border-border even:bg-surface-alt hover:bg-slate-100 transition-colors">
       <td className="py-3 px-4">

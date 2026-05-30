@@ -5,7 +5,6 @@ export type SortKey = 'subCategory' | 'category' | 'date' | 'payment' | 'amount'
 
 interface TransactionTableProps {
   transactions: Transaction[];
-  currencySymbol: string;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   sortKey: SortKey;
@@ -29,7 +28,6 @@ function SortIndicator({ colKey, sortKey, sortDir }: { colKey: SortKey; sortKey:
 
 export default function TransactionTable({
   transactions,
-  currencySymbol,
   onDelete,
   onEdit,
   sortKey,
@@ -78,7 +76,6 @@ export default function TransactionTable({
             <TransactionRow
               key={tx.id}
               transaction={tx}
-              currencySymbol={currencySymbol}
               onDelete={onDelete}
               onEdit={onEdit}
             />

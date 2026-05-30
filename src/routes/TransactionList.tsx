@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactionContext } from '../context/TransactionContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import TransactionTable, { type SortKey } from '../components/transactions/TransactionTable';
@@ -9,7 +8,6 @@ import AddTransactionDrawer from '../components/transactions/AddTransactionDrawe
 const PAGE_SIZE = 25;
 
 export default function TransactionList() {
-  const { preference } = usePreferenceContext();
   const { transactions, loading, error } = useTransactionContext();
   const { mutate: deleteTx } = useDeleteTransaction();
 
@@ -20,8 +18,6 @@ export default function TransactionList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
-
-  const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
 
   function handleSort(key: SortKey) {
     setVisibleCount(PAGE_SIZE);
@@ -125,7 +121,6 @@ export default function TransactionList() {
       </div>
       <TransactionTable
         transactions={visible}
-        currencySymbol={currencySymbol}
         onDelete={setDeletingId}
         onEdit={setEditingId}
         sortKey={sortKey}
