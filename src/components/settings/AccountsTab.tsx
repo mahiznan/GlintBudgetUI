@@ -100,7 +100,8 @@ export default function AccountsTab({
   function handleAdd() {
     const name = addName.trim();
     if (!name) return;
-    if (isDuplicate(name, accounts)) {
+    const allNames = [...accounts, ...archivedAccounts];
+    if (isDuplicate(name, allNames)) {
       setAddError(`"${name}" already exists.`);
       return;
     }
