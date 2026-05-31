@@ -109,17 +109,18 @@ async function main() {
     process.exit(0);
   }
 
-  console.log(`Found ${snap.docs.length} matching transactions.`);
+  const countLabel = `Found ${snap.docs.length} matching transaction${snap.docs.length === 1 ? '' : 's'}`;
 
   // ── Dry run ───────────────────────────────────────────────────────────────
   if (dryRun) {
-    console.log('');
+    console.log(`${countLabel}:`);
     snap.docs.forEach((d) => console.log(`  ${d.id}  ${field} = "${oldName}"`));
     console.log(`\n(dry-run) Would update ${snap.docs.length} transactions. Re-run without --dry-run to apply.`);
     process.exit(0);
   }
 
   // ── Batch write ───────────────────────────────────────────────────────────
+  console.log(`${countLabel}.`);
   console.log('');
   const groups = chunk(snap.docs, 500);
   let committed = 0;

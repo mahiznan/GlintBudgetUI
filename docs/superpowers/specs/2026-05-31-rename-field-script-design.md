@@ -10,8 +10,7 @@ A standalone Node.js (TypeScript) admin script that finds all Firestore transact
 ## CLI Interface
 
 ```
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json \
-npx tsx scripts/rename-field.ts \
+node scripts/rename-field.mjs \
   --uid <firebase-user-id> \
   --old "Old Name" \
   --new "New Name" \
@@ -72,11 +71,11 @@ Found 3 matching transactions:
 
 ## Architecture
 
-**File:** `scripts/rename-field.ts` — single self-contained file, no helper modules.
+**File:** `scripts/rename-field.mjs` — single self-contained file, no helper modules.
 
-**New dev dependency:** `firebase-admin`
+**No new dependencies** — firebase-admin is already installed.
 
-**`tsx`** is already available in the project for running TypeScript scripts.
+Run with `node scripts/rename-field.mjs` (no tsx needed; follows the existing migrate-firestore.mjs pattern).
 
 ### Flow
 
@@ -84,20 +83,20 @@ Found 3 matching transactions:
 parse args
   → validate required args (uid, old, new) — exit 1 if missing
   → validate --field against allowlist — exit 1 if invalid
-  → check GOOGLE_APPLICATION_CREDENTIALS — exit 1 if missing
-  → initializeApp(cert(serviceAccountPath))
+  → read scripts/serviceAccount.json relative to script file
+  → initializeApp(cert(serviceAccount))
   → getFirestore()
   → query: transactions where user_id == uid AND <field> == oldName
   → if dry-run: print matching doc IDs and exit 0
   → chunk docs into groups of 500
-  → for each group in parallel:
+  → for each group sequentially:
       writeBatch → update <field> to newName on each doc → commit
   → print summary
 ```
 
 ### Batching
 
-Mirrors the existing `useBulkRenameVendor` hook pattern. Firestore write batches are capped at 500 operations. Large result sets are split into chunks of 500 and all chunks are committed in parallel via `Promise.all`.
+Mirrors the existing `useBulkRenameVendor` hook pattern. Firestore write batches are capped at 500 operations. Large result sets are split into chunks of 500 and chunks are committed sequentially to ensure the partial-write counter is accurate on failure.
 
 ## Error Handling
 
@@ -105,8 +104,7 @@ Mirrors the existing `useBulkRenameVendor` hook pattern. Firestore write batches
 |---|---|
 | Missing `--uid`, `--old`, or `--new` | Print usage, exit 1 (before any Firestore call) |
 | Invalid `--field` value | Print allowlist, exit 1 (before any Firestore call) |
-| `GOOGLE_APPLICATION_CREDENTIALS` not set | Print descriptive message, exit 1 |
-| Service account file not found / invalid | Firebase Admin throws on init; caught, printed, exit 1 |
+| `scripts/serviceAccount.json` missing or unreadable | Print path + Firebase Console instructions, exit 1 |
 | Firestore query/write error | Caught, raw error message printed, exit 1 |
 | Zero matches found | Print "No transactions matched." and exit 0 (no writes) |
 
@@ -123,6 +121,5 @@ Mirrors the existing `useBulkRenameVendor` hook pattern. Firestore write batches
 ## Setup Instructions (summary for reference)
 
 1. In Firebase Console → Project Settings → Service Accounts → Generate new private key → download JSON.
-2. `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json`
-3. `npm install --save-dev firebase-admin` (if not already installed)
-4. `npx tsx scripts/rename-field.ts --uid <uid> --old "X" --new "Y" --dry-run`
+2. Save the file as `scripts/serviceAccount.json` (already in .gitignore).
+3. `node scripts/rename-field.mjs --uid <uid> --old "X" --new "Y" --dry-run`
