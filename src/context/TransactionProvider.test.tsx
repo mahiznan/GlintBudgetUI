@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('../firebase/client', () => ({ auth: {}, app: {} }));
 
-const mockUseTransactions = vi.fn((_filter: unknown) => ({
+const mockUseTransactions = vi.fn(() => ({
   data: [] as import('../firestore/types').Transaction[],
   loading: false,
   error: null as Error | null,
