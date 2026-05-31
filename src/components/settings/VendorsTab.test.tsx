@@ -1,20 +1,39 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { BudgetData } from '../../firestore/types';
+import type { BudgetData, Transaction } from '../../firestore/types';
 
 const mockBulkRenameVendor = vi.hoisted(() => vi.fn());
 vi.mock('../../hooks/useBulkRenameVendor', () => ({
   useBulkRenameVendor: () => ({ mutate: mockBulkRenameVendor }),
 }));
 
-const mockVendorNames = vi.hoisted(() => ({ value: new Set<string>(), loading: false }));
-vi.mock('../../hooks/useAllTransactionVendors', () => ({
-  useAllTransactionVendors: () => ({
-    vendorNames: mockVendorNames.value,
-    loading: mockVendorNames.loading,
+const mockTxCtx = vi.hoisted(() => ({ transactions: [] as Transaction[], loading: false }));
+vi.mock('../../context/TransactionContext', () => ({
+  useTransactionContext: () => ({
+    transactions: mockTxCtx.transactions,
+    loading: mockTxCtx.loading,
+    error: null,
+    hasPendingWrites: false,
   }),
 }));
+
+function makeTx(vendor: string): Transaction {
+  return {
+    id: vendor,
+    user_id: 'u1',
+    category: 'Food',
+    subCategory: '',
+    date: new Date(),
+    account: 'Cash',
+    vendor,
+    payment: 'Cash',
+    currency: 'SGD',
+    notes: '',
+    amount: 10,
+    icon: '',
+  };
+}
 
 import VendorsTab from './VendorsTab';
 
@@ -30,8 +49,8 @@ function renderTab(overrides: Partial<React.ComponentProps<typeof VendorsTab>> =
 describe('VendorsTab — rendering', () => {
   beforeEach(() => {
     mockBulkRenameVendor.mockReset();
-    mockVendorNames.value = new Set([saved.name, txOnly]);
-    mockVendorNames.loading = false;
+    mockTxCtx.transactions = [makeTx(saved.name), makeTx(txOnly)];
+    mockTxCtx.loading = false;
   });
 
   it('renders "Saved Vendors" heading and saved vendor name', () => {
@@ -63,8 +82,8 @@ describe('VendorsTab — rendering', () => {
 
 describe('VendorsTab — add', () => {
   beforeEach(() => {
-    mockVendorNames.value = new Set([saved.name]);
-    mockVendorNames.loading = false;
+    mockTxCtx.transactions = [makeTx(saved.name)];
+    mockTxCtx.loading = false;
   });
 
   it('blocks adding a duplicate name and shows error', async () => {
@@ -91,8 +110,8 @@ describe('VendorsTab — add', () => {
 describe('VendorsTab — rename modal', () => {
   beforeEach(() => {
     mockBulkRenameVendor.mockReset();
-    mockVendorNames.value = new Set([saved.name]);
-    mockVendorNames.loading = false;
+    mockTxCtx.transactions = [makeTx(saved.name)];
+    mockTxCtx.loading = false;
   });
 
   it('opens rename modal when saved vendor name changes', async () => {
@@ -142,8 +161,8 @@ describe('VendorsTab — rename modal', () => {
 
 describe('VendorsTab — delete', () => {
   beforeEach(() => {
-    mockVendorNames.value = new Set([saved.name]);
-    mockVendorNames.loading = false;
+    mockTxCtx.transactions = [makeTx(saved.name)];
+    mockTxCtx.loading = false;
   });
 
   it('shows delete dialog on delete click, dismisses on Cancel', async () => {
@@ -165,8 +184,8 @@ describe('VendorsTab — delete', () => {
 
 describe('VendorsTab — save to list', () => {
   beforeEach(() => {
-    mockVendorNames.value = new Set([saved.name, txOnly]);
-    mockVendorNames.loading = false;
+    mockTxCtx.transactions = [makeTx(saved.name), makeTx(txOnly)];
+    mockTxCtx.loading = false;
   });
 
   it('"Save to list" on a transaction-only vendor calls onSave with that vendor appended', async () => {

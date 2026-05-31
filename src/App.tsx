@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
 import { PreferenceProvider } from './context/PreferenceContext';
 import { TransactionProvider } from './context/TransactionContext';
+import { PlannerProvider } from './context/PlannerContext';
 import { SyncStatusProvider } from './context/SyncStatusContext';
 import { ThemeProvider } from './context/ThemeProvider';
 import { LayoutProvider } from './context/LayoutProvider';
@@ -93,11 +94,13 @@ export default function App() {
       <SyncStatusProvider>
         <PreferenceProvider>
           <TransactionProvider>
+            <PlannerProvider>
             <ThemeProvider>
               <LayoutProvider>
                 <RouterProvider router={router} />
               </LayoutProvider>
             </ThemeProvider>
+            </PlannerProvider>
           </TransactionProvider>
         </PreferenceProvider>
       </SyncStatusProvider>

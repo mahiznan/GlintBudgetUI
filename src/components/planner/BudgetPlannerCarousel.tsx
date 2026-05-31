@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
-import { usePlanners } from '../../hooks/usePlanners';
+import { usePlannerContext } from '../../context/PlannerContext';
 import { useTransactionContext } from '../../context/TransactionContext';
 import { PlannerCard } from './PlannerCard';
 import { PlannerDetailDrawer } from './PlannerDetailDrawer';
@@ -11,9 +10,7 @@ import type { BudgetPlanner } from '../../firestore/types';
 // PlannerDetailDrawer is added. For now, the onCardClick stores selection
 // but nothing renders.
 export function BudgetPlannerCarousel() {
-  const auth = useAuth();
-  const uid = auth.status === 'authenticated' ? auth.user.uid : '';
-  const { planners, loading } = usePlanners(uid);
+  const { planners, loading } = usePlannerContext();
   const { transactions } = useTransactionContext();
 
   const [selected, setSelected] = useState<{

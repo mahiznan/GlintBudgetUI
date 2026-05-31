@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 
-vi.mock('../../hooks/usePlanners', () => ({
-  usePlanners: vi.fn(() => ({ planners: [], loading: false, error: null, hasPendingWrites: false })),
+vi.mock('../../context/PlannerContext', () => ({
+  usePlannerContext: vi.fn(() => ({ planners: [], loading: false, error: null, hasPendingWrites: false })),
 }));
 
 vi.mock('../../context/LayoutContext', () => ({
@@ -35,7 +35,7 @@ vi.mock('../../context/SyncStatusContext', () => ({
   SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-import { usePlanners } from '../../hooks/usePlanners';
+import { usePlannerContext } from '../../context/PlannerContext';
 import { useArchivePlanner, useDeletePlanner } from '../../hooks/useMutatePlanner';
 import PlannerSettings from './PlannerSettings';
 import type { BudgetPlanner } from '../../firestore/types';
@@ -71,7 +71,7 @@ describe('PlannerSettings', () => {
   });
 
   it('renders active planners', () => {
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [makePlanner()],
       loading: false,
       error: null,
@@ -90,7 +90,7 @@ describe('PlannerSettings', () => {
   it('calls archive when Archive button clicked', () => {
     const archiveMutate = vi.fn();
     vi.mocked(useArchivePlanner).mockReturnValue({ mutate: archiveMutate });
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [makePlanner()],
       loading: false,
       error: null,
@@ -104,7 +104,7 @@ describe('PlannerSettings', () => {
   it('calls delete when Delete button clicked', () => {
     const deleteMutate = vi.fn();
     vi.mocked(useDeletePlanner).mockReturnValue({ mutate: deleteMutate });
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [makePlanner()],
       loading: false,
       error: null,
@@ -116,7 +116,7 @@ describe('PlannerSettings', () => {
   });
 
   it('shows archived section with archived planners', () => {
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [makePlanner({ id: 'p2', name: 'Old Plan', archived: true, active: false })],
       loading: false,
       error: null,

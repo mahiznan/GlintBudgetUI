@@ -3,12 +3,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 
-vi.mock('../../auth/AuthContext', () => ({
-  useAuth: vi.fn(() => ({ status: 'authenticated', user: { uid: 'u1' } })),
-}));
-
-vi.mock('../../hooks/usePlanners', () => ({
-  usePlanners: vi.fn(() => ({
+vi.mock('../../context/PlannerContext', () => ({
+  usePlannerContext: vi.fn(() => ({
     planners: [],
     loading: false,
     error: null,
@@ -40,7 +36,7 @@ vi.mock('../../context/SyncStatusContext', () => ({
   SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-import { usePlanners } from '../../hooks/usePlanners';
+import { usePlannerContext } from '../../context/PlannerContext';
 import { BudgetPlannerCarousel } from './BudgetPlannerCarousel';
 import type { BudgetPlanner } from '../../firestore/types';
 
@@ -74,7 +70,7 @@ describe('BudgetPlannerCarousel', () => {
   });
 
   it('renders a card for each active planner', () => {
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [makePlanner('p1', 'Monthly SGD'), makePlanner('p2', 'Weekly Cash')],
       loading: false,
       error: null,
@@ -86,7 +82,7 @@ describe('BudgetPlannerCarousel', () => {
   });
 
   it('shows loading state', () => {
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [],
       loading: true,
       error: null,
@@ -97,7 +93,7 @@ describe('BudgetPlannerCarousel', () => {
   });
 
   it('excludes inactive and archived planners', () => {
-    vi.mocked(usePlanners).mockReturnValue({
+    vi.mocked(usePlannerContext).mockReturnValue({
       planners: [
         makePlanner('p1', 'Active'),
         { ...makePlanner('p2', 'Inactive'), active: false },

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { BudgetData } from '../../firestore/types';
 import { useBulkRenameVendor } from '../../hooks/useBulkRenameVendor';
-import { useAllTransactionVendors } from '../../hooks/useAllTransactionVendors';
+import { useTransactionContext } from '../../context/TransactionContext';
 
 interface VendorsTabProps {
   vendors: BudgetData[];
@@ -18,7 +18,15 @@ function isDuplicate(name: string, allNames: Set<string>, excludeName?: string):
 
 export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   const { mutate: bulkRenameVendor } = useBulkRenameVendor();
-  const { vendorNames, loading: txLoading } = useAllTransactionVendors(uid);
+  const { transactions, loading: txLoading } = useTransactionContext();
+  const vendorNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const t of transactions) {
+      const v = t.vendor?.trim() ?? '';
+      if (v) names.add(v);
+    }
+    return names;
+  }, [transactions]);
 
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editName, setEditName] = useState('');

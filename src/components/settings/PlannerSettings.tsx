@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePlanners } from '../../hooks/usePlanners';
+import { usePlannerContext } from '../../context/PlannerContext';
 import { useArchivePlanner, useDeletePlanner, useUpdatePlanner } from '../../hooks/useMutatePlanner';
 import { PlannerForm } from '../planner/PlannerForm';
 import type { BudgetPlanner } from '../../firestore/types';
@@ -107,7 +107,7 @@ interface Props {
 }
 
 export default function PlannerSettings({ uid }: Props) {
-  const { planners, loading } = usePlanners(uid);
+  const { planners, loading } = usePlannerContext();
   const { mutate: archivePlanner } = useArchivePlanner();
   const { mutate: deletePlanner } = useDeletePlanner();
   const { mutate: updatePlanner } = useUpdatePlanner();
