@@ -108,9 +108,9 @@ describe('DailyTransactions — transaction list', () => {
 
   it('formats amount with currency symbol', () => {
     renderDT([makeTx('tx1', 'Zepto', -500, todayAt())]);
-    // Symbol and number are in separate spans; check via the full transaction row
+    // Currency code appears in brackets next to sub-category; verify it's in the row
     const row = screen.getByText('Zepto').closest('div')!.parentElement!;
-    expect(row.textContent).toMatch(/₹/);
+    expect(row.textContent).toMatch(/\[INR\]/);
     expect(row.textContent).toMatch(/500/);
   });
 
@@ -197,7 +197,7 @@ describe('DailyTransactions — expense sum', () => {
   it("shows correct expense sum for today's transactions", () => {
     renderDT([makeTx('t1', 'Swiggy', -450, todayAt(12)), makeTx('t2', 'Ola', -280, todayAt(9))]);
     // Sum: 450 + 280 = 730 — look for the amount in the expense sum row
-    expect(screen.getByText(/−.*730/)).toBeInTheDocument();
+    expect(screen.getByText(/730/)).toBeInTheDocument();
   });
 
   it('excludes income transactions from the sum', () => {
@@ -206,7 +206,7 @@ describe('DailyTransactions — expense sum', () => {
       makeTx('t2', 'Coffee', -200, todayAt(11)),
     ]);
     // The expense sum row should show 200 (not 50,200)
-    const sumElements = screen.getAllByText(/−.*200/);
+    const sumElements = screen.getAllByText(/200/);
     expect(sumElements.length).toBeGreaterThan(0);
     // None of the matching elements should show the income (50,000) included
     sumElements.forEach((el) => {

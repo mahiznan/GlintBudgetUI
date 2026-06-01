@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, type TransitionEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
-import { CURRENCIES } from '../../lib/currencies';
 import {
   getMondayOf,
   getWeekDays,
@@ -14,10 +13,6 @@ import {
 } from '../../lib/dateUtils';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import MiniCalendar from '../form/MiniCalendar';
-
-const SYMBOL: Record<string, string> = Object.fromEntries(
-  CURRENCIES.map((c) => [c.code, c.symbol]),
-);
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
@@ -57,7 +52,6 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
         <div className="flex flex-col divide-y divide-border">
           {dayTxns.map((tx) => {
             const isExpense = tx.amount < 0;
-            const txSymbol = SYMBOL[tx.currency] ?? tx.currency;
             return (
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
@@ -73,8 +67,6 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                   <span
                     className={`text-right text-sm font-semibold tabnum truncate ${isExpense ? 'text-red-600' : 'text-green-600'}`}
                   >
-                    {isExpense ? '−' : '+'}
-                    <span className="text-[10px] mr-0.5">{txSymbol}</span>
                     {Math.abs(tx.amount).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -105,7 +97,6 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
       {expenseTotals.size > 0 && (
         <div className="border-t border-border pt-2 flex flex-col gap-1">
           {Array.from(expenseTotals.entries()).map(([currency, total], i) => {
-            const sym = SYMBOL[currency] ?? currency;
             return (
               <div key={currency} className="flex items-center gap-3">
                 <span className="w-8 flex-shrink-0" aria-hidden="true" />
@@ -114,7 +105,6 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 w-36">
                   <span className="flex-1 text-right text-sm font-bold tabnum text-red-600">
-                    −<span className="text-[10px] mr-0.5">{sym}</span>
                     {total.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
