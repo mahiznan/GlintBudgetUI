@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { usePlannerAggregation } from '../../hooks/usePlannerAggregation';
 import { filterTransactionsForPlanner, formatCurrency } from '../../lib/plannerUtils';
+import { useLayout } from '../../context/LayoutContext';
 import { PlannerCategoryBar } from './PlannerCategoryBar';
 import { PlannerCategoryRadial } from './PlannerCategoryRadial';
 import { useUpdatePlanner } from '../../hooks/useMutatePlanner';
@@ -136,6 +137,7 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [chartView, setChartView] = useState<BudgetPlanner['chartView']>(planner.chartView);
+  const { layoutWidth } = useLayout();
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -200,9 +202,12 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
         aria-modal="true"
         aria-label={planner.name}
         className={[
-          'fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-2xl shadow-xl',
+          'fixed bottom-0 z-50 bg-surface rounded-t-2xl shadow-xl',
           'flex flex-col transition-transform duration-200 ease-out',
           'max-h-[90dvh]',
+          layoutWidth === 'fixed'
+            ? 'max-w-5xl mx-auto w-full'
+            : 'left-0 right-0',
           visible ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >
