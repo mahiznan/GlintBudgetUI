@@ -36,7 +36,7 @@ export default function MiniBudgetWidget({
   return (
     <button
       onClick={onWidgetClick}
-      className="flex-1 mx-4 bg-white/10 border border-white/20 rounded-xl p-4 text-white cursor-pointer hover:bg-white/15 transition-colors"
+      className="flex-1 mx-4 my-3 bg-white/10 border border-white/20 rounded-xl p-4 text-white cursor-pointer hover:bg-white/15 transition-colors"
     >
       <div className="flex flex-col gap-3">
         {/* Header: Planner Name • Period Label - Top Left */}
