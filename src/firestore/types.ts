@@ -1,3 +1,5 @@
+import type { Period } from '../lib/dateUtils';
+
 // Mirrors iOS Transaction.CodingKeys. Field names are camelCase here;
 // Firestore document uses snake_case for sub_category, date (Timestamp).
 export interface Transaction {
@@ -44,6 +46,7 @@ export interface Preference {
   defaultEntries: Record<string, string> | null;
   theme?: string; // theme ID: "lime" | "forest" | "ocean" | "amber"
   spendingChartType?: 'bar' | 'line';
+  defaultPeriod?: Period;
   layoutWidth?: 'fixed' | 'full';
 }
 
