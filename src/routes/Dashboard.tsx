@@ -157,12 +157,20 @@ export default function Dashboard() {
 
   async function handleChartTypeChange(type: 'bar' | 'line') {
     setChartType(type);
-    await updatePreference({ spendingChartType: type });
+    try {
+      await updatePreference({ spendingChartType: type });
+    } catch (error) {
+      console.error('Failed to sync chart type preference:', error);
+    }
   }
 
   async function handlePeriodChange(p: Period) {
     setPeriod(p);
-    await updatePreference({ defaultPeriod: p });
+    try {
+      await updatePreference({ defaultPeriod: p });
+    } catch (error) {
+      console.error('Failed to sync period preference:', error);
+    }
   }
 
   const categoryItems = useMemo(() => {
