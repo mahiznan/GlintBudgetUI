@@ -89,6 +89,18 @@ export default function Dashboard() {
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
   const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDrillState((prev) => {
+      // When account filter changes, reset to category grouping since other groupings don't respect the account filter
+      if (prev.groupBy !== 'category') {
+        return { groupBy: 'category', path: [] };
+      }
+      // For category grouping, just clear the drill path
+      return { ...prev, path: [] };
+    });
+  }, [defaultAccount]);
+
   // Get first active (non-archived) planner
   const activePlanner = useMemo(
     () => planners.find((p) => p.active && !p.archived) ?? null,
@@ -180,22 +192,29 @@ export default function Dashboard() {
         ? txns.filter((t) => t.amount < 0)
         : txns.filter((t) => t.amount > 0);
 
-    const toItems = (txns: typeof filtered, keyFn: (t: (typeof filtered)[number]) => string) => {
-      const totals = txns.reduce<Record<string, { total: number; icon: string }>>((acc, t) => {
-        const k = keyFn(t);
-        if (!acc[k]) acc[k] = { total: 0, icon: t.icon };
-        acc[k]!.total += Math.abs(t.amount);
+    const toItems = (txns: typeof filtered, keyFn: (t: (typeof filtered)[number]) => string, includeCurrency = true) => {
+      const totals = txns.reduce<Record<string, { total: number; icon: string; currency: string }>>((acc, t) => {
+        const fieldValue = keyFn(t);
+        const composite = includeCurrency ? `${fieldValue}|${t.currency}` : fieldValue;
+        if (!acc[composite]) acc[composite] = { total: 0, icon: t.icon, currency: t.currency };
+        acc[composite]!.total += Math.abs(t.amount);
         return acc;
       }, {});
       const sum = Object.values(totals).reduce((s, { total }) => s + total, 0);
       return Object.entries(totals)
         .sort(([, a], [, b]) => b.total - a.total)
-        .map(([name, { total, icon }]) => ({
-          name,
-          icon,
-          total,
-          pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
-        }));
+        .map(([composite, { total, icon, currency }]) => {
+          const fieldValue = includeCurrency ? composite.split('|')[0]! : composite;
+          const sym = includeCurrency ? (currencySymbolMap[currency] ?? getCurrencySymbol(currency)) : undefined;
+          return {
+            name: sym ? `${fieldValue} • ${sym}` : fieldValue,
+            icon,
+            total,
+            pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
+            symbol: sym,
+            uniqueKey: composite,
+          };
+        });
     };
 
     if (groupBy === 'category') {
@@ -209,7 +228,16 @@ export default function Dashboard() {
         (t) => t.category === path[0] && t.subCategory === path[1],
       );
       const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
-      return [{ name: path[1]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
+      const currency = subcatTxns[0]?.currency ?? defaultCurrencyCode;
+      const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
+      return [{
+        name: path[1]!,
+        icon: subcatTxns[0]?.icon ?? '📦',
+        total,
+        pct: 100,
+        symbol: sym,
+        uniqueKey: `${path[1]}|${currency}`,
+      }];
     }
 
     // account | vendor: composite top level (groupItem|currency), then category → subCategory → transactions
@@ -230,12 +258,12 @@ export default function Dashboard() {
           .map(([composite, { total, groupName, currency }]) => {
             const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
             return {
-              name: groupName,
+              name: `${groupName} • ${sym}`,
               icon: sym,
               total,
               pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
               symbol: sym,
-              key: composite,
+              uniqueKey: composite,
             };
           });
       }
@@ -253,7 +281,15 @@ export default function Dashboard() {
         (t) => t.category === path[1] && t.subCategory === path[2],
       );
       const total4 = subcatTxns4.reduce((s, t) => s + Math.abs(t.amount), 0);
-      return [{ name: path[2]!, icon: subcatTxns4[0]?.icon ?? '📦', total: total4, pct: 100 }];
+      const sym4 = currencySymbolMap[currencyCode] ?? getCurrencySymbol(currencyCode);
+      return [{
+        name: path[2]!,
+        icon: subcatTxns4[0]?.icon ?? '📦',
+        total: total4,
+        pct: 100,
+        symbol: sym4,
+        uniqueKey: `${path[2]}|${currencyCode}`,
+      }];
     }
 
     // currency | payment: 3-level drill (groupItem → category → subCategory)
@@ -275,8 +311,17 @@ export default function Dashboard() {
         t.subCategory === path[2],
     );
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
-    return [{ name: path[2]!, icon: subcatTxns[0]?.icon ?? '📦', total, pct: 100 }];
-  }, [heroTxns, periodTxns, categoryMode, drillState, currencySymbolMap]);
+    const currency = subcatTxns[0]?.currency ?? defaultCurrencyCode;
+    const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
+    return [{
+      name: path[2]!,
+      icon: subcatTxns[0]?.icon ?? '📦',
+      total,
+      pct: 100,
+      symbol: sym,
+      uniqueKey: `${path[2]}|${currency}`,
+    }];
+  }, [heroTxns, periodTxns, categoryMode, drillState, currencySymbolMap, defaultCurrencyCode]);
 
   const drillTransactions = useMemo((): typeof heroTxns | undefined => {
     const { groupBy, path } = drillState;
