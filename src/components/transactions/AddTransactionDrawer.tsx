@@ -225,6 +225,7 @@ export default function AddTransactionDrawer({
     }
     setErrors({});
     const categoryObj = preference?.categories.find((c) => c.name === form.category);
+    const subcategoryObj = preference?.subCategories.find((sc) => sc.name === form.subCategory);
     const txData: Omit<Transaction, 'id'> = {
       user_id: uid,
       category: form.category,
@@ -239,7 +240,7 @@ export default function AddTransactionDrawer({
         form.type === 'expense'
           ? -Math.abs(parseFloat(form.amount))
           : Math.abs(parseFloat(form.amount)),
-      icon: categoryObj?.emoji ?? '',
+      icon: subcategoryObj?.emoji ?? categoryObj?.emoji ?? '',
     };
     if (editId) {
       updateTx(editId, txData);
