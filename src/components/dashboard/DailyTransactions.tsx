@@ -55,11 +55,11 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
         <p className="text-sm text-text-muted py-4 text-center">No transactions for this day</p>
       ) : (
         <div className="flex flex-col divide-y divide-border">
-          {dayTxns.map((tx) => {
+          {dayTxns.map((tx, idx) => {
             const isExpense = tx.amount < 0;
             const txSymbol = SYMBOL[tx.currency] ?? tx.currency;
             return (
-              <div key={tx.id} className="flex items-center gap-3 py-2.5">
+              <div key={tx.id} className={`flex items-center gap-3 py-2.5 ${idx % 2 === 1 ? 'bg-surface-alt' : ''}`}>
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text truncate">{tx.subCategory}</p>
