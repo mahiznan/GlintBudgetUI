@@ -19,7 +19,6 @@ import DailyTransactions from '../components/dashboard/DailyTransactions';
 import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
-import { BudgetPlannerCarousel } from '../components/planner/BudgetPlannerCarousel';
 import { PlannerDetailDrawer } from '../components/planner/PlannerDetailDrawer';
 
 interface DrillState {
@@ -389,7 +388,6 @@ export default function Dashboard() {
             onTransactionAdded={() => {}}
             onDateChange={setFabDate}
           />
-          <BudgetPlannerCarousel />
         </div>
 
         {/* Right column — 1/3 width on desktop, full width on mobile */}
