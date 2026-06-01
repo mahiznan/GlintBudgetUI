@@ -149,6 +149,8 @@ export default function CategoryBreakdown({
         <div className="flex flex-col gap-3">
           {categories.map(({ name, icon, total, pct, symbol, uniqueKey }, i) => {
             const reactKey = uniqueKey ? `${uniqueKey}-${i}` : `${name}-${symbol || 'nosym'}-${Math.round(total)}-${i}`;
+            const baseNameForClick = name.includes(' • ') ? name.split(' • ')[0]! : name;
+            const clickValue = uniqueKey || `${baseNameForClick}${symbol ? `|${symbol}` : ''}`;
             const barContent = (
               <>
                 <span className="text-lg w-6 text-center">{icon || '📦'}</span>
@@ -177,7 +179,7 @@ export default function CategoryBreakdown({
               <button
                 key={reactKey}
                 type="button"
-                onClick={() => onItemClick(uniqueKey ?? name)}
+                onClick={() => onItemClick(clickValue)}
                 className="w-full flex items-center gap-3 cursor-pointer rounded-xl px-1 py-0.5 hover:bg-surface-alt transition-colors text-left"
               >
                 {barContent}

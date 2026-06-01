@@ -219,24 +219,26 @@ export default function Dashboard() {
 
     if (groupBy === 'category') {
       if (path.length === 0) return toItems(filtered, (t) => t.category);
+      const categoryName = path[0]!.includes('|') ? path[0]!.split('|')[0]! : path[0]!;
       if (path.length === 1)
         return toItems(
-          filtered.filter((t) => t.category === path[0]),
+          filtered.filter((t) => t.category === categoryName),
           (t) => t.subCategory,
         );
+      const subcategoryName = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
       const subcatTxns = filtered.filter(
-        (t) => t.category === path[0] && t.subCategory === path[1],
+        (t) => t.category === categoryName && t.subCategory === subcategoryName,
       );
       const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
       const currency = subcatTxns[0]?.currency ?? defaultCurrencyCode;
       const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
       return [{
-        name: path[1]!,
+        name: subcategoryName,
         icon: subcatTxns[0]?.icon ?? '📦',
         total,
         pct: 100,
         symbol: sym,
-        uniqueKey: `${path[1]}|${currency}`,
+        uniqueKey: `${subcategoryName}|${currency}`,
       }];
     }
 
@@ -272,54 +274,59 @@ export default function Dashboard() {
         (t) => getGroupField(t, groupBy) === groupName && t.currency === currencyCode,
       );
       if (path.length === 1) return toItems(byGroupAndCurrency, (t) => t.category);
+      const categoryName = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
       if (path.length === 2)
         return toItems(
-          byGroupAndCurrency.filter((t) => t.category === path[1]),
+          byGroupAndCurrency.filter((t) => t.category === categoryName),
           (t) => t.subCategory,
         );
+      const subcategoryName = path[2]!.includes('|') ? path[2]!.split('|')[0]! : path[2]!;
       const subcatTxns4 = byGroupAndCurrency.filter(
-        (t) => t.category === path[1] && t.subCategory === path[2],
+        (t) => t.category === categoryName && t.subCategory === subcategoryName,
       );
       const total4 = subcatTxns4.reduce((s, t) => s + Math.abs(t.amount), 0);
       const sym4 = currencySymbolMap[currencyCode] ?? getCurrencySymbol(currencyCode);
       return [{
-        name: path[2]!,
+        name: subcategoryName,
         icon: subcatTxns4[0]?.icon ?? '📦',
         total: total4,
         pct: 100,
         symbol: sym4,
-        uniqueKey: `${path[2]}|${currencyCode}`,
+        uniqueKey: `${subcategoryName}|${currencyCode}`,
       }];
     }
 
     // currency | payment: 3-level drill (groupItem → category → subCategory)
     if (path.length === 0) return toItems(filtered, (t) => getGroupField(t, groupBy));
+    const fieldValue = path[0]!.includes('|') ? path[0]!.split('|')[0]! : path[0]!;
     if (path.length === 1)
       return toItems(
-        filtered.filter((t) => getGroupField(t, groupBy) === path[0]),
+        filtered.filter((t) => getGroupField(t, groupBy) === fieldValue),
         (t) => t.category,
       );
+    const categoryName2 = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
     if (path.length === 2)
       return toItems(
-        filtered.filter((t) => getGroupField(t, groupBy) === path[0] && t.category === path[1]),
+        filtered.filter((t) => getGroupField(t, groupBy) === fieldValue && t.category === categoryName2),
         (t) => t.subCategory,
       );
+    const subcategoryName2 = path[2]!.includes('|') ? path[2]!.split('|')[0]! : path[2]!;
     const subcatTxns = filtered.filter(
       (t) =>
-        getGroupField(t, groupBy) === path[0] &&
-        t.category === path[1] &&
-        t.subCategory === path[2],
+        getGroupField(t, groupBy) === fieldValue &&
+        t.category === categoryName2 &&
+        t.subCategory === subcategoryName2,
     );
     const total = subcatTxns.reduce((s, t) => s + Math.abs(t.amount), 0);
     const currency = subcatTxns[0]?.currency ?? defaultCurrencyCode;
     const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
     return [{
-      name: path[2]!,
+      name: subcategoryName2,
       icon: subcatTxns[0]?.icon ?? '📦',
       total,
       pct: 100,
       symbol: sym,
-      uniqueKey: `${path[2]}|${currency}`,
+      uniqueKey: `${subcategoryName2}|${currency}`,
     }];
   }, [heroTxns, periodTxns, categoryMode, drillState, currencySymbolMap, defaultCurrencyCode]);
 
@@ -335,30 +342,37 @@ export default function Dashboard() {
         : txns.filter((t) => t.amount > 0);
 
     if (groupBy === 'category') {
+      const catName = path[0]!.includes('|') ? path[0]!.split('|')[0]! : path[0]!;
+      const subCatName = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
       return filtered
-        .filter((t) => t.category === path[0] && t.subCategory === path[1])
+        .filter((t) => t.category === catName && t.subCategory === subCatName)
         .sort((a, b) => b.date.getTime() - a.date.getTime());
     }
 
     if (groupBy === 'account' || groupBy === 'vendor') {
       const [groupName, currencyCode] = path[0]!.split('|') as [string, string];
+      const catName2 = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
+      const subCatName2 = path[2]!.includes('|') ? path[2]!.split('|')[0]! : path[2]!;
       return filtered
         .filter(
           (t) =>
             getGroupField(t, groupBy) === groupName &&
             t.currency === currencyCode &&
-            t.category === path[1] &&
-            t.subCategory === path[2],
+            t.category === catName2 &&
+            t.subCategory === subCatName2,
         )
         .sort((a, b) => b.date.getTime() - a.date.getTime());
     }
 
+    const fieldValue2 = path[0]!.includes('|') ? path[0]!.split('|')[0]! : path[0]!;
+    const catName3 = path[1]!.includes('|') ? path[1]!.split('|')[0]! : path[1]!;
+    const subCatName3 = path[2]!.includes('|') ? path[2]!.split('|')[0]! : path[2]!;
     return filtered
       .filter(
         (t) =>
-          getGroupField(t, groupBy) === path[0] &&
-          t.category === path[1] &&
-          t.subCategory === path[2],
+          getGroupField(t, groupBy) === fieldValue2 &&
+          t.category === catName3 &&
+          t.subCategory === subCatName3,
       )
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [heroTxns, periodTxns, categoryMode, drillState]);
