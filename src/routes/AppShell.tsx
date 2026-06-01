@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { Period } from '../lib/dateUtils';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactionContext } from '../context/TransactionContext';
 import { useLayout } from '../context/LayoutContext';
+import { usePreferenceContext } from '../context/PreferenceContext';
 import Sidebar from '../components/layout/Sidebar';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 
@@ -18,6 +19,7 @@ export default function AppShell() {
   const auth = useAuth();
   const { transactions } = useTransactionContext();
   const { layoutWidth } = useLayout();
+  const { preference } = usePreferenceContext();
   const [period, setPeriod] = useState<Period>('month');
   const [fabOpen, setFabOpen] = useState(false);
   const [fabDate, setFabDate] = useState<Date>(() => {
@@ -25,6 +27,12 @@ export default function AppShell() {
     d.setHours(0, 0, 0, 0);
     return d;
   });
+
+  useEffect(() => {
+    if (preference?.defaultPeriod) {
+      setPeriod(preference.defaultPeriod);
+    }
+  }, [preference?.defaultPeriod]);
 
   if (auth.status !== 'authenticated') return null;
 
