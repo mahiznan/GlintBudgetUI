@@ -80,6 +80,13 @@ function makeEmpty(selectedDate?: Date, defaultEntries?: Record<string, string>,
   };
 }
 
+function moveDefaultToFirst(options: BudgetData[], selectedValue: string): BudgetData[] {
+  if (!selectedValue) return options;
+  const defaultIdx = options.findIndex((o) => o.name === selectedValue);
+  if (defaultIdx <= 0) return options;
+  return [options[defaultIdx]!, ...options.slice(0, defaultIdx), ...options.slice(defaultIdx + 1)];
+}
+
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
   if (!form.amount || parseFloat(form.amount) <= 0)
@@ -338,7 +345,7 @@ export default function AddTransactionDrawer({
           <SearchPicker
             label="Currency"
             value={form.currency}
-            options={currencyOptions}
+            options={moveDefaultToFirst(currencyOptions, form.currency)}
             onSelect={(v) => {
               set('currency')(v);
               setActiveField('vendor');
@@ -361,7 +368,7 @@ export default function AddTransactionDrawer({
               label="Vendor"
               value={form.vendor}
               onChange={set('vendor')}
-              options={vendorOptions}
+              options={moveDefaultToFirst(vendorOptions, form.vendor)}
               iconBg="#eff6ff"
               icon="🏪"
               isOpen={activeField === 'vendor'}
@@ -378,7 +385,7 @@ export default function AddTransactionDrawer({
               label="Category"
               value={form.category}
               onChange={set('category')}
-              options={preference?.categories ?? []}
+              options={moveDefaultToFirst(preference?.categories ?? [], form.category)}
               iconBg="#fdf4ff"
               icon="📂"
               isOpen={activeField === 'category'}
@@ -397,7 +404,7 @@ export default function AddTransactionDrawer({
               label="Sub-category"
               value={form.subCategory}
               onChange={set('subCategory')}
-              options={filteredSubCats}
+              options={moveDefaultToFirst(filteredSubCats, form.subCategory)}
               iconBg="#fdf4ff"
               icon="🏷️"
               isOpen={activeField === 'subCategory'}
@@ -463,7 +470,7 @@ export default function AddTransactionDrawer({
               <SearchPicker
                 label="Account"
                 value={form.account}
-                options={preference?.accounts ?? []}
+                options={moveDefaultToFirst(preference?.accounts ?? [], form.account)}
                 onSelect={(v) => {
                   set('account')(v);
                   setActiveField('payment');
@@ -499,7 +506,7 @@ export default function AddTransactionDrawer({
               <SearchPicker
                 label="Payment"
                 value={form.payment}
-                options={preference?.payments ?? []}
+                options={moveDefaultToFirst(preference?.payments ?? [], form.payment)}
                 onSelect={(v) => {
                   set('payment')(v);
                   setActiveField('notes');
