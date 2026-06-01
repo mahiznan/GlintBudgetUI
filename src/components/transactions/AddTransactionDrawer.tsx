@@ -65,16 +65,16 @@ function formatPickerDate(dateStr: string): string {
   });
 }
 
-function makeEmpty(selectedDate?: Date): FormState {
+function makeEmpty(selectedDate?: Date, defaultEntries?: Record<string, string>, defaultCurrency?: string): FormState {
   return {
     type: 'expense',
     amount: '',
-    currency: '',
-    category: '',
-    subCategory: '',
-    vendor: '',
-    account: '',
-    payment: '',
+    currency: defaultCurrency ?? '',
+    category: defaultEntries?.['category'] ?? '',
+    subCategory: defaultEntries?.['sub_category'] ?? '',
+    vendor: defaultEntries?.['vendor'] ?? '',
+    account: defaultEntries?.['account'] ?? '',
+    payment: defaultEntries?.['payment'] ?? '',
     date: toLocalDateStr(selectedDate ?? new Date()),
     notes: '',
   };
@@ -116,7 +116,7 @@ export default function AddTransactionDrawer({
   const { mutate: addTx } = useAddTransaction();
   const { mutate: updateTx } = useUpdateTransaction();
 
-  const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate));
+  const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate, preference?.defaultEntries ?? undefined, preference?.defaultCurrency?.code));
   const [errors, setErrors] = useState<FormErrors>({});
   const [visible, setVisible] = useState(false);
   const [activeField, setActiveField] = useState<ActiveField>(null);
@@ -129,7 +129,7 @@ export default function AddTransactionDrawer({
       setVisible(false);
       return;
     }
-    setForm(makeEmpty(selectedDate));
+    setForm(makeEmpty(selectedDate, preference?.defaultEntries ?? undefined, preference?.defaultCurrency?.code));
     setErrors({});
     setActiveField(null);
     requestAnimationFrame(() =>
