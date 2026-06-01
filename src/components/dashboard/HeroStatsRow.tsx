@@ -49,7 +49,7 @@ export default function HeroStatsRow({
         <div className="flex items-center gap-4 sm:gap-6 md:gap-12">
           <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
           <div className="w-px h-8 sm:h-12 bg-white/20" aria-hidden="true" />
-          <div className="pr-0 sm:pr-6">
+          <div className="pr-0 sm:pr-6 md:pr-8">
             <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
           </div>
         </div>
