@@ -35,23 +35,23 @@ export default function HeroStatsRow({
 }: HeroStatsRowProps) {
   return (
     <div className="hero-gradient w-full rounded-2xl p-3 sm:p-4 md:p-6">
-      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 md:gap-12">
         {activePlanner && (
           <>
-            <div className="hidden sm:block">
-              <MiniBudgetWidget
-                planner={activePlanner}
-                transactions={transactions}
-                onWidgetClick={onPlannerClick}
-              />
-            </div>
+            <MiniBudgetWidget
+              planner={activePlanner}
+              transactions={transactions}
+              onWidgetClick={onPlannerClick}
+            />
             <div className="hidden sm:block w-px h-12 bg-white/20" aria-hidden="true" />
           </>
         )}
-        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
-        <div className="w-px h-8 sm:h-12 bg-white/20" aria-hidden="true" />
-        <div className="pr-0 sm:pr-6">
-          <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
+        <div className="flex items-center gap-4 sm:gap-6 md:gap-12">
+          <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
+          <div className="w-px h-8 sm:h-12 bg-white/20" aria-hidden="true" />
+          <div className="pr-0 sm:pr-6">
+            <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
+          </div>
         </div>
         <div className="hidden sm:flex flex-1" />
       </div>
