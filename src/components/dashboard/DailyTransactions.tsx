@@ -303,11 +303,11 @@ export default function DailyTransactions({
       </div>
 
       {/* Week navigation */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={goToPrevWeek}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-sm font-bold flex-shrink-0"
+          className="w-6 h-6 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-xs font-bold flex-shrink-0"
           aria-label="Previous week"
         >
           ‹
@@ -347,7 +347,7 @@ export default function DailyTransactions({
                   {dayName}
                 </span>
                 <span
-                  className={`text-lg font-bold leading-tight mt-0.5 ${
+                  className={`text-2xl font-bold leading-tight mt-0.5 ${
                     isSelected ? 'text-white' : 'text-text'
                   }`}
                 >
@@ -368,7 +368,7 @@ export default function DailyTransactions({
         <button
           type="button"
           onClick={goToNextWeek}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-sm font-bold flex-shrink-0"
+          className="w-6 h-6 flex items-center justify-center rounded-lg border border-border bg-surface-alt text-text-muted hover:bg-border text-xs font-bold flex-shrink-0"
           aria-label="Next week"
         >
           ›
