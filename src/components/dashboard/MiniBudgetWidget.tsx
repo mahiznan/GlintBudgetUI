@@ -39,8 +39,8 @@ export default function MiniBudgetWidget({
       className="flex-1 bg-white/10 border border-white/20 rounded-xl p-4 text-white cursor-pointer hover:bg-white/15 transition-colors"
     >
       <div className="flex flex-col gap-3">
-        {/* Header: Planner Name • Period Label */}
-        <div className="text-sm font-semibold text-white/80">
+        {/* Header: Planner Name • Period Label - Top Left */}
+        <div className="text-sm font-semibold text-white/80 text-left">
           {planner.name} • {agg.periodLabel}
         </div>
 
