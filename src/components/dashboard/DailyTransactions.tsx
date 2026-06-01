@@ -62,15 +62,13 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text truncate">
-                    {tx.subCategory} <span className="text-xs text-text-muted">[{tx.currency}]</span>
-                  </p>
+                  <p className="text-sm font-medium text-text truncate">{tx.subCategory}</p>
                   <p className="text-xs text-text-muted truncate">
                     {tx.category} · {tx.vendor}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className={`text-sm font-semibold flex-shrink-0 ${isExpense ? 'text-red-600' : 'text-green-600'}`}>
+                  <span className={`text-xs font-semibold flex-shrink-0 ${isExpense ? 'text-red-600' : 'text-green-600'}`}>
                     {txSymbol}
                   </span>
                   <span
@@ -114,7 +112,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                   {i === 0 && <p className="text-sm font-semibold text-text-muted">Day total</p>}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-sm font-bold text-red-600 flex-shrink-0">
+                  <span className="text-xs font-bold text-red-600 flex-shrink-0">
                     {sym}
                   </span>
                   <span className="text-right text-sm font-bold tabnum w-20 text-red-600">

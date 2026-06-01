@@ -108,9 +108,9 @@ describe('DailyTransactions — transaction list', () => {
 
   it('formats amount with currency symbol', () => {
     renderDT([makeTx('tx1', 'Zepto', -500, todayAt())]);
-    // Currency code appears in brackets next to sub-category; verify it's in the row
+    // Currency symbol appears on the right side of amount
     const row = screen.getByText('Zepto').closest('div')!.parentElement!;
-    expect(row.textContent).toMatch(/\[INR\]/);
+    expect(row.textContent).toMatch(/₹/);
     expect(row.textContent).toMatch(/500/);
   });
 
