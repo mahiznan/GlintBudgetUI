@@ -43,7 +43,7 @@ export default function HeroStatsRow({
               transactions={transactions}
               onWidgetClick={onPlannerClick}
             />
-            <div className="hidden sm:block w-px h-12 bg-white/20" aria-hidden="true" />
+            <div className="hidden sm:block w-px h-8 sm:h-10 bg-white/20" aria-hidden="true" />
           </>
         )}
         <div className="flex items-center gap-4 sm:gap-6 md:gap-12 flex-1 min-w-0">
