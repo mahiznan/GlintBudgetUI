@@ -46,14 +46,13 @@ export default function HeroStatsRow({
             <div className="hidden sm:block w-px h-12 bg-white/20" aria-hidden="true" />
           </>
         )}
-        <div className="flex items-center gap-4 sm:gap-6 md:gap-12">
+        <div className="flex items-center gap-4 sm:gap-6 md:gap-12 flex-1 min-w-0">
           <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
           <div className="w-px h-8 sm:h-12 bg-white/20" aria-hidden="true" />
-          <div className="pr-0 sm:pr-6 md:pr-8">
+          <div className="pr-0 sm:pr-6">
             <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
           </div>
         </div>
-        <div className="hidden sm:flex flex-1" />
       </div>
     </div>
   );
