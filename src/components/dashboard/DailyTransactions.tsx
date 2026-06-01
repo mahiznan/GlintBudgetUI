@@ -109,7 +109,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
               <div key={currency} className="flex items-center gap-3">
                 <span className="w-8 flex-shrink-0" aria-hidden="true" />
                 <div className="flex-1 min-w-0">
-                  {i === 0 && <p className="text-sm font-semibold text-text-muted">Day total</p>}
+                  {i === 0 && <p className="text-sm font-semibold text-text-muted">Total</p>}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <span className="text-xs font-bold text-red-600 flex-shrink-0">
