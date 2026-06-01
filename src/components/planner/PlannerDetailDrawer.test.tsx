@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../hooks/usePlannerAggregation', () => ({
@@ -165,21 +165,60 @@ describe('PlannerDetailDrawer', () => {
     expect(radialButton).toBeTruthy();
 
     // Bar view should be active initially (has bg-surface class)
-    expect(barButton.className).toContain('bg-surface');
-    expect(radialButton.className).not.toContain('bg-surface');
+    expect(barButton).toHaveClass('bg-surface');
+    expect(radialButton).not.toHaveClass('bg-surface');
 
     // Click radial view button
     fireEvent.click(radialButton);
 
-    // Radial view should now be active
-    expect(radialButton.className).toContain('bg-surface');
-    expect(barButton.className).not.toContain('bg-surface');
+    // Radial view should now be active (wait for async state update)
+    await waitFor(() => {
+      expect(radialButton).toHaveClass('bg-surface');
+      expect(barButton).not.toHaveClass('bg-surface');
+    });
 
     // Click back to bar view
     fireEvent.click(barButton);
 
-    // Bar view should be active again
-    expect(barButton.className).toContain('bg-surface');
-    expect(radialButton.className).not.toContain('bg-surface');
+    // Bar view should be active again (wait for async state update)
+    await waitFor(() => {
+      expect(barButton).toHaveClass('bg-surface');
+      expect(radialButton).not.toHaveClass('bg-surface');
+    });
+  });
+
+  it('handles clicking the same button twice without error', async () => {
+    const plannerWithBarView: BudgetPlanner = {
+      ...planner,
+      chartView: 'bar',
+    };
+
+    render(
+      <PlannerDetailDrawer
+        planner={plannerWithBarView}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const barButton = screen.getByRole('button', { name: /bar view/i });
+
+    // Bar view is active
+    expect(barButton).toHaveClass('bg-surface');
+
+    // Click bar button twice
+    fireEvent.click(barButton);
+
+    await waitFor(() => {
+      expect(barButton).toHaveClass('bg-surface');
+    });
+
+    fireEvent.click(barButton);
+
+    // Should still be active (no error, state remains stable)
+    await waitFor(() => {
+      expect(barButton).toHaveClass('bg-surface');
+    });
   });
 });
