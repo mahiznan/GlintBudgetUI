@@ -14,12 +14,12 @@ import { describe, expect, it, vi } from 'vitest';
 import DailyTransactions from './DailyTransactions';
 import type { Transaction } from '../../firestore/types';
 
-function makeTx(id: string, vendor: string, amount: number, date: Date): Transaction {
+function makeTx(id: string, vendor: string, amount: number, date: Date, subCategory?: string): Transaction {
   return {
     id,
     user_id: 'u1',
     category: 'Food',
-    subCategory: vendor,
+    subCategory: subCategory || 'Groceries',
     date,
     account: 'HDFC',
     vendor,

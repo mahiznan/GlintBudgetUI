@@ -63,9 +63,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text truncate">{tx.subCategory}</p>
-                  <p className="text-xs text-text-muted truncate">
-                    {tx.category} · {tx.vendor}
-                  </p>
+                  <p className="text-xs text-text-muted truncate">{tx.vendor}</p>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <span className={`text-xs font-semibold flex-shrink-0 ${isExpense ? 'text-red-600' : 'text-green-600'}`}>
