@@ -34,7 +34,7 @@ export default function HeroStatsRow({
   onPlannerClick = () => {},
 }: HeroStatsRowProps) {
   return (
-    <div className="hero-gradient w-full px-6 py-8 sm:px-10 sm:py-10 rounded-2xl">
+    <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
       <div className="flex items-center gap-12">
         {activePlanner && (
           <>
@@ -48,7 +48,9 @@ export default function HeroStatsRow({
         )}
         <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
         <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
+        <div className="pr-6">
+          <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
+        </div>
       </div>
     </div>
   );
