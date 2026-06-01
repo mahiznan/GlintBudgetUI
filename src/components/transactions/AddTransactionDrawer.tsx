@@ -214,7 +214,15 @@ export default function AddTransactionDrawer({
     return (value: string) =>
       setForm((prev) => {
         const next = { ...prev, [field]: value };
-        if (field === 'category') next.subCategory = '';
+        if (field === 'category') {
+          // Check if default sub_category exists for the new category
+          const defaultSubCat = preference?.defaultEntries?.['sub_category'];
+          if (defaultSubCat && (preference?.subCategories ?? []).some((s) => s.name === defaultSubCat && s.parent === value)) {
+            next.subCategory = defaultSubCat;
+          } else {
+            next.subCategory = '';
+          }
+        }
         return next;
       });
   }
