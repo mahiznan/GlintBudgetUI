@@ -46,13 +46,6 @@ vi.mock('../../hooks/useMutatePlanner', () => ({
   })),
 }));
 
-vi.mock('../../context/LayoutContext', () => ({
-  useLayout: vi.fn(() => ({
-    layoutWidth: 'full',
-    setLayoutWidth: vi.fn(),
-  })),
-}));
-
 import { PlannerDetailDrawer } from './PlannerDetailDrawer';
 import type { BudgetPlanner } from '../../firestore/types';
 
