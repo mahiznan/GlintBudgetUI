@@ -372,22 +372,26 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4 md:flex-row">
         {/* Left column — 2/3 width on desktop, full width on mobile */}
         <div className="flex flex-col gap-4 md:flex-[2] min-w-0">
-          <SpendingChart
-            transactions={chartTxns}
-            period={period}
-            onPeriodChange={handlePeriodChange}
-            currencySymbol={currencySymbol}
-            chartType={chartType}
-            onChartTypeChange={handleChartTypeChange}
-            offset={periodOffset}
-            onOffsetChange={(delta) => setPeriodOffset((o) => Math.min(0, o + delta))}
-          />
-          <DailyTransactions
-            transactions={allTxns}
-            onDelete={(id) => setDeletingId(id)}
-            onTransactionAdded={() => {}}
-            onDateChange={setFabDate}
-          />
+          <div className="order-2 md:order-1">
+            <SpendingChart
+              transactions={chartTxns}
+              period={period}
+              onPeriodChange={handlePeriodChange}
+              currencySymbol={currencySymbol}
+              chartType={chartType}
+              onChartTypeChange={handleChartTypeChange}
+              offset={periodOffset}
+              onOffsetChange={(delta) => setPeriodOffset((o) => Math.min(0, o + delta))}
+            />
+          </div>
+          <div className="order-1 md:order-2">
+            <DailyTransactions
+              transactions={allTxns}
+              onDelete={(id) => setDeletingId(id)}
+              onTransactionAdded={() => {}}
+              onDateChange={setFabDate}
+            />
+          </div>
         </div>
 
         {/* Right column — 1/3 width on desktop, full width on mobile */}
