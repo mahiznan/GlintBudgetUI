@@ -206,7 +206,7 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
           'flex flex-col transition-transform duration-200 ease-out',
           'max-h-[90dvh]',
           layoutWidth === 'fixed'
-            ? 'max-w-5xl mx-auto w-full'
+            ? 'left-1/2 -translate-x-1/2 max-w-5xl'
             : 'left-0 right-0',
           visible ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
