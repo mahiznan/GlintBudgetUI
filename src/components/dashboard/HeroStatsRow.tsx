@@ -34,22 +34,19 @@ export default function HeroStatsRow({
   onPlannerClick = () => {},
 }: HeroStatsRowProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
-        <div className="flex items-center gap-12 flex-wrap">
-          <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
-          <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-          <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
-        </div>
+    <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
+      <div className="flex items-center gap-12 flex-wrap">
+        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
+        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
+        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
+        {activePlanner && (
+          <MiniBudgetWidget
+            planner={activePlanner}
+            transactions={transactions}
+            onWidgetClick={onPlannerClick}
+          />
+        )}
       </div>
-
-      {activePlanner && (
-        <MiniBudgetWidget
-          planner={activePlanner}
-          transactions={transactions}
-          onWidgetClick={onPlannerClick}
-        />
-      )}
     </div>
   );
 }
