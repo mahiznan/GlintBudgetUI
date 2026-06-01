@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import { useTransactionContext } from '../context/TransactionContext';
+import { usePlannerContext } from '../context/usePlannerContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import { useUpdatePreference } from '../hooks/useUpdatePreference';
 import { filterByPeriod, getPeriodRange, shiftPeriodDate } from '../lib/dateUtils';
@@ -19,6 +20,7 @@ import QuickStats from '../components/dashboard/QuickStats';
 import DeleteConfirmDialog from '../components/transactions/DeleteConfirmDialog';
 import AddTransactionDrawer from '../components/transactions/AddTransactionDrawer';
 import { BudgetPlannerCarousel } from '../components/planner/BudgetPlannerCarousel';
+import { PlannerDetailDrawer } from '../components/planner/PlannerDetailDrawer';
 
 interface DrillState {
   groupBy: GroupBy;
@@ -58,11 +60,14 @@ export default function Dashboard() {
   const { period, setPeriod, setFabDate } = useOutletContext<AppShellOutletContext>();
   const { preference } = usePreferenceContext();
   const { transactions: allTxns, loading, error } = useTransactionContext();
+  const { planners } = usePlannerContext();
   const { mutate: deleteTx } = useDeleteTransaction();
   const { mutate: updatePreference } = useUpdatePreference(uid);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedPlannerForDetail, setSelectedPlannerForDetail] = useState<string | null>(null);
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const [plannerDetailOffset, setPlannerDetailOffset] = useState<number>(0);
   const chartTypeSynced = useRef(false);
 
   useEffect(() => {
@@ -84,6 +89,12 @@ export default function Dashboard() {
   const currencySymbol = preference?.defaultCurrency.symbol ?? '₹';
   const defaultCurrencyCode = preference?.defaultCurrency.code ?? '';
   const defaultAccount = preference?.defaultEntries?.['account'] ?? '';
+
+  // Get first active (non-archived) planner
+  const activePlanner = useMemo(
+    () => planners.find((p) => p.active && !p.archived) ?? null,
+    [planners],
+  );
 
   // Build code→symbol from preference so e.g. SGD → "$" instead of Intl's "SGD"
   const currencySymbolMap = useMemo((): Record<string, string> => {
@@ -337,6 +348,13 @@ export default function Dashboard() {
         totalExpenses={totalExpenses}
         totalIncome={totalIncome}
         currencySymbol={currencySymbol}
+        activePlanner={activePlanner}
+        transactions={allTxns}
+        onPlannerClick={() => {
+          if (activePlanner) {
+            setSelectedPlannerForDetail(activePlanner.id);
+          }
+        }}
       />
 
       <div className="flex flex-col gap-4 md:flex-row">
@@ -421,6 +439,17 @@ export default function Dashboard() {
         onClose={() => setEditingId(null)}
         transactions={periodTxns}
       />
+      {selectedPlannerForDetail && activePlanner && (
+        <PlannerDetailDrawer
+          planner={activePlanner}
+          transactions={allTxns}
+          initialOffset={plannerDetailOffset}
+          onClose={() => {
+            setSelectedPlannerForDetail(null);
+            setPlannerDetailOffset(0);
+          }}
+        />
+      )}
     </div>
   );
 }
