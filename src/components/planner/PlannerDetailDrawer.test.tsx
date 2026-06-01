@@ -141,4 +141,45 @@ describe('PlannerDetailDrawer', () => {
     );
     expect(screen.getByRole('button', { name: /previous period/i })).toBeTruthy();
   });
+
+  it('toggles between bar and radial chart views', async () => {
+    const plannerWithBarView: BudgetPlanner = {
+      ...planner,
+      chartView: 'bar',
+    };
+
+    render(
+      <PlannerDetailDrawer
+        planner={plannerWithBarView}
+        transactions={[]}
+        initialOffset={0}
+        onClose={vi.fn()}
+      />,
+    );
+
+    // Initially both buttons should exist
+    const barButton = screen.getByRole('button', { name: /bar view/i });
+    const radialButton = screen.getByRole('button', { name: /radial view/i });
+
+    expect(barButton).toBeTruthy();
+    expect(radialButton).toBeTruthy();
+
+    // Bar view should be active initially (has bg-surface class)
+    expect(barButton.className).toContain('bg-surface');
+    expect(radialButton.className).not.toContain('bg-surface');
+
+    // Click radial view button
+    fireEvent.click(radialButton);
+
+    // Radial view should now be active
+    expect(radialButton.className).toContain('bg-surface');
+    expect(barButton.className).not.toContain('bg-surface');
+
+    // Click back to bar view
+    fireEvent.click(barButton);
+
+    // Bar view should be active again
+    expect(barButton.className).toContain('bg-surface');
+    expect(radialButton.className).not.toContain('bg-surface');
+  });
 });
