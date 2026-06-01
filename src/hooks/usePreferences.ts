@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import type { BudgetData, Preference } from '../firestore/types';
+import type { Period } from '../lib/dateUtils';
 import {
   DEFAULT_ACCOUNTS,
   DEFAULT_CATEGORIES,
@@ -55,6 +56,7 @@ function docToPreference(id: string, raw: Record<string, unknown>): Preference {
     defaultEntries: (raw['default_entries'] as Record<string, string> | undefined) ?? DEFAULT_ENTRIES,
     theme: raw['theme'] as string | undefined,
     spendingChartType: raw['spendingChartType'] as 'bar' | 'line' | undefined,
+    defaultPeriod: raw['defaultPeriod'] as Period | undefined,
     layoutWidth: raw['layoutWidth'] as 'fixed' | 'full' | undefined,
   };
 }
