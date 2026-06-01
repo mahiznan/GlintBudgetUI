@@ -25,10 +25,10 @@ describe('useUpdatePreference', () => {
     expect(vi.mocked(setDoc)).toHaveBeenCalledWith('pref-ref', { accounts: [] }, { merge: true });
   });
 
-  it('encodes default_entries as alternating flat array', () => {
+  it('saves default_entries as key-value object', () => {
     const { result } = renderHook(() => useUpdatePreference('u1'), { wrapper });
     result.current.mutate({ default_entries: { account: 'HDFC', category: 'Food' } });
     const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(callArgs['default_entries']).toEqual(['account', 'HDFC', 'category', 'Food']);
+    expect(callArgs['default_entries']).toEqual({ account: 'HDFC', category: 'Food' });
   });
 });

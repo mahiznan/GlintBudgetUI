@@ -18,20 +18,12 @@ export interface FirestorePreferencePartial {
   layoutWidth?: 'fixed' | 'full';
 }
 
-function encodeDefaultEntries(entries: Record<string, string>): string[] {
-  return Object.entries(entries).flatMap(([k, v]) => [k, v]);
-}
-
 export function useUpdatePreference(uid: string) {
   const { notifyWrite } = useSyncStatus();
 
   function mutate(partial: FirestorePreferencePartial): void {
-    const firestoreData: Record<string, unknown> = { ...partial };
-    if (partial.default_entries !== undefined) {
-      firestoreData['default_entries'] = encodeDefaultEntries(partial.default_entries);
-    }
     notifyWrite();
-    void setDoc(doc(db, 'preference', uid), firestoreData, { merge: true });
+    void setDoc(doc(db, 'preference', uid), partial, { merge: true });
   }
 
   return { mutate };
