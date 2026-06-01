@@ -261,8 +261,8 @@ export default function SpendingChart({
             <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={theme.chartColor} stopOpacity={0.85} />
-                  <stop offset="100%" stopColor={theme.chartColor} stopOpacity={0.3} />
+                  <stop offset="0%" stopColor="rgb(150, 191, 13)" stopOpacity={0.85} />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity={0.3} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
@@ -279,8 +279,8 @@ export default function SpendingChart({
             <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
               <defs>
                 <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={theme.chartColor} stopOpacity={0.15} />
-                  <stop offset="100%" stopColor={theme.chartColor} stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="rgb(150, 191, 13)" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
