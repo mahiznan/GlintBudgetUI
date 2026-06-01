@@ -34,7 +34,7 @@ export default function HeroStatsRow({
   onPlannerClick = () => {},
 }: HeroStatsRowProps) {
   return (
-    <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
+    <div className="hero-gradient w-full px-6 py-8 sm:px-10 sm:py-10 rounded-2xl">
       <div className="flex items-center gap-12">
         {activePlanner && (
           <>
