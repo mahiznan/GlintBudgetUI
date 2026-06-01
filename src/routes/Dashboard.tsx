@@ -6,7 +6,7 @@ import { useTransactionContext } from '../context/TransactionContext';
 import { usePlannerContext } from '../context/usePlannerContext';
 import { useDeleteTransaction } from '../hooks/useMutateTransaction';
 import { useUpdatePreference } from '../hooks/useUpdatePreference';
-import { filterByPeriod, getPeriodRange, shiftPeriodDate } from '../lib/dateUtils';
+import { filterByPeriod, getPeriodRange, shiftPeriodDate, type Period } from '../lib/dateUtils';
 import type { AppShellOutletContext } from './AppShell';
 import HeroStatsRow from '../components/dashboard/HeroStatsRow';
 import SpendingChart from '../components/dashboard/SpendingChart';
@@ -158,6 +158,11 @@ export default function Dashboard() {
   async function handleChartTypeChange(type: 'bar' | 'line') {
     setChartType(type);
     await updatePreference({ spendingChartType: type });
+  }
+
+  async function handlePeriodChange(p: Period) {
+    setPeriod(p);
+    await updatePreference({ defaultPeriod: p });
   }
 
   const categoryItems = useMemo(() => {
@@ -363,7 +368,7 @@ export default function Dashboard() {
           <SpendingChart
             transactions={chartTxns}
             period={period}
-            onPeriodChange={setPeriod}
+            onPeriodChange={handlePeriodChange}
             currencySymbol={currencySymbol}
             chartType={chartType}
             onChartTypeChange={handleChartTypeChange}

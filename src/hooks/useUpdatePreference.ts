@@ -2,6 +2,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import { useSyncStatus } from '../context/SyncStatusContext';
 import type { BudgetData, Currency } from '../firestore/types';
+import type { Period } from '../lib/dateUtils';
 
 export interface FirestorePreferencePartial {
   accounts?: BudgetData[];
@@ -15,6 +16,7 @@ export interface FirestorePreferencePartial {
   default_entries?: Record<string, string>;
   theme?: string;
   spendingChartType?: 'bar' | 'line';
+  defaultPeriod?: Period;
   layoutWidth?: 'fixed' | 'full';
 }
 
