@@ -261,7 +261,7 @@ export default function Dashboard() {
             const sym = currencySymbolMap[currency] ?? getCurrencySymbol(currency);
             return {
               name: `${groupName} • ${sym}`,
-              icon: sym,
+              icon: '💳',
               total,
               pct: sum > 0 ? Math.round((total / sum) * 100) : 0,
               symbol: sym,
