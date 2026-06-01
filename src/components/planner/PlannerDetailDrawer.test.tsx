@@ -40,6 +40,12 @@ vi.mock('../../lib/plannerUtils', async () => {
   };
 });
 
+vi.mock('../../hooks/useMutatePlanner', () => ({
+  useUpdatePlanner: vi.fn(() => ({
+    mutate: vi.fn(),
+  })),
+}));
+
 import { PlannerDetailDrawer } from './PlannerDetailDrawer';
 import type { BudgetPlanner } from '../../firestore/types';
 

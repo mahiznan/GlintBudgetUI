@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { usePlannerAggregation } from '../../hooks/usePlannerAggregation';
 import { filterTransactionsForPlanner, formatCurrency } from '../../lib/plannerUtils';
 import { PlannerCategoryBar } from './PlannerCategoryBar';
+import { PlannerCategoryRadial } from './PlannerCategoryRadial';
+import { useUpdatePlanner } from '../../hooks/useMutatePlanner';
 import type { BudgetPlanner, CategoryResult, Transaction } from '../../firestore/types';
 
 interface Props {
@@ -133,11 +135,17 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
   const [periodOffset, setPeriodOffset] = useState(initialOffset);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [chartView, setChartView] = useState<BudgetPlanner['chartView']>(planner.chartView);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setChartView(planner.chartView);
+  }, [planner.chartView]);
 
   function startClose() {
     setVisible(false);
@@ -165,6 +173,13 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
 
   function toggleCategory(category: string) {
     setExpandedCategory((prev) => (prev === category ? null : category));
+  }
+
+  const { mutate: updatePlanner } = useUpdatePlanner();
+
+  function handleChartViewToggle(view: BudgetPlanner['chartView']) {
+    setChartView(view);
+    updatePlanner(planner.id, { chartView: view });
   }
 
   return createPortal(
@@ -197,12 +212,49 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
         </div>
 
         {/* Header */}
-        <div className="flex items-start justify-between px-5 pt-2 pb-3 border-b border-border shrink-0">
-          <div>
+        <div className="flex items-start justify-between px-5 pt-2 pb-3 border-b border-border shrink-0 gap-3">
+          <div className="flex-1">
             <h2 className="font-semibold text-base text-text">{planner.name}</h2>
             <p className="text-xs text-text-muted mt-0.5">
               {agg.periodLabel} · {planner.currency}
             </p>
+          </div>
+          {/* Bar / Radial toggle */}
+          <div className="flex gap-0.5 bg-surface-alt border border-border rounded-md p-0.5 shrink-0">
+            <button
+              type="button"
+              aria-label="Bar view"
+              onClick={() => handleChartViewToggle('bar')}
+              className={`rounded p-1 transition-all ${
+                chartView === 'bar' ? 'bg-surface shadow-sm' : ''
+              }`}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <rect x="1" y="3" width="12" height="2.2" rx="1" fill={chartView === 'bar' ? 'var(--color-brand)' : '#94a3b8'} />
+                <rect x="1" y="6.4" width="8" height="2.2" rx="1" fill={chartView === 'bar' ? 'var(--color-brand)' : '#94a3b8'} />
+                <rect x="1" y="9.8" width="10" height="2.2" rx="1" fill={chartView === 'bar' ? 'var(--color-brand)' : '#94a3b8'} />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Radial view"
+              onClick={() => handleChartViewToggle('radial')}
+              className={`rounded p-1 transition-all ${
+                chartView === 'radial' ? 'bg-surface shadow-sm' : ''
+              }`}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="5.5" stroke="#e2e8f0" strokeWidth="2" />
+                <circle
+                  cx="7" cy="7" r="5.5"
+                  stroke={chartView === 'radial' ? 'var(--color-brand)' : '#94a3b8'}
+                  strokeWidth="2"
+                  strokeDasharray="21.5 13"
+                  strokeLinecap="round"
+                  transform="rotate(-90 7 7)"
+                />
+              </svg>
+            </button>
           </div>
           <button
             type="button"
@@ -286,17 +338,31 @@ export function PlannerDetailDrawer({ planner, transactions, initialOffset, onCl
               No transactions match this planner for the selected period.
             </p>
           )}
-          {allCategories.map((result, idx) => (
-            <CategoryRow
-              key={result.category}
-              result={result}
-              currency={planner.currency}
-              isFirstUnplanned={idx === firstUnplannedIndex}
-              expanded={expandedCategory === result.category}
-              onToggle={() => toggleCategory(result.category)}
-              periodFiltered={periodFiltered}
-            />
-          ))}
+          {chartView === 'bar' ? (
+            <>
+              {allCategories.map((result, idx) => (
+                <CategoryRow
+                  key={result.category}
+                  result={result}
+                  currency={planner.currency}
+                  isFirstUnplanned={idx === firstUnplannedIndex}
+                  expanded={expandedCategory === result.category}
+                  onToggle={() => toggleCategory(result.category)}
+                  periodFiltered={periodFiltered}
+                />
+              ))}
+            </>
+          ) : (
+            <div className="grid grid-cols-4 gap-1 py-1">
+              {allCategories.map((result) => (
+                <PlannerCategoryRadial
+                  key={result.category}
+                  result={result}
+                  currency={planner.currency}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>,
