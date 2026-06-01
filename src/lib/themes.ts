@@ -14,7 +14,7 @@ export const THEMES: readonly Theme[] = [
     id: 'lime',
     name: 'Lime',
     emoji: '🍋',
-    swatchGradient: 'linear-gradient(135deg, #4d6800, rgb(150,191,13), #bef264)',
+    swatchGradient: 'linear-gradient(135deg, rgb(150, 191, 13), #22c55e)',
     chartColor: 'rgb(150,191,13)',
     categoryColors: ['rgb(150,191,13)', '#22c55e', '#16a34a', '#059669', '#0d9488'],
   },

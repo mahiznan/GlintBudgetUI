@@ -21,12 +21,7 @@
 /* These are gradient strings that @theme cannot host; overridden by       */
 /* [data-theme] blocks below when the user switches themes.                */
 :root {
-  --sidebar-gradient: linear-gradient(
-    180deg,
-    rgb(80, 120, 0) 0%,
-    rgb(150, 191, 13) 60%,
-    #22c55e 100%
-  );
+  --sidebar-gradient: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
   --hero-gradient: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
   --hero-text-gradient: linear-gradient(135deg, #ffffff 0%, #ecfccb 60%, rgb(150, 191, 13) 100%);
   --brand-gradient: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
