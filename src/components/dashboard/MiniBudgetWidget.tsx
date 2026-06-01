@@ -36,43 +36,43 @@ export default function MiniBudgetWidget({
   return (
     <button
       onClick={onWidgetClick}
-      className="ml-4 my-3 bg-white/10 border border-white/20 rounded-xl p-4 text-white cursor-pointer hover:bg-white/15 transition-colors"
+      className="ml-0 sm:ml-4 my-3 bg-white/10 border border-white/20 rounded-xl p-3 sm:p-4 text-white cursor-pointer hover:bg-white/15 transition-colors w-full sm:w-auto"
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:gap-3">
         {/* Header: Planner Name • Period Label - Top Left */}
-        <div className="text-sm font-semibold text-white/80 text-left">
+        <div className="text-xs sm:text-sm font-semibold text-white/80 text-left truncate">
           {planner.name} • {agg.periodLabel}
         </div>
 
         {/* Amounts Row: Budget | Spent | Remaining */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white/60 truncate">
               Budget
             </span>
-            <span className="text-2xl font-bold text-white">
+            <span className="text-lg sm:text-2xl font-bold text-white truncate">
               {formatCurrency(totalPlanned, planner.currency)}
             </span>
           </div>
 
-          <div className="w-px h-12 bg-white/20" aria-hidden="true" />
+          <div className="w-px h-8 sm:h-12 bg-white/20 shrink-0" aria-hidden="true" />
 
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white/60 truncate">
               Spent
             </span>
-            <span className="text-2xl font-bold text-white">
+            <span className="text-lg sm:text-2xl font-bold text-white truncate">
               {formatCurrency(totalSpent, planner.currency)}
             </span>
           </div>
 
-          <div className="w-px h-12 bg-white/20" aria-hidden="true" />
+          <div className="w-px h-8 sm:h-12 bg-white/20 shrink-0" aria-hidden="true" />
 
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white/60 truncate">
               Remaining
             </span>
-            <span className="text-2xl font-bold text-white">
+            <span className="text-lg sm:text-2xl font-bold text-white truncate">
               {formatCurrency(Math.max(0, totalRemaining), planner.currency)}
             </span>
           </div>

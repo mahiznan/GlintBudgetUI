@@ -20,7 +20,7 @@ function StatCard({ label, value }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs font-semibold uppercase tracking-widest text-white/60">{label}</span>
-      <span className="text-3xl font-bold leading-none text-white">{value}</span>
+      <span className="text-xl sm:text-2xl md:text-3xl font-bold leading-none text-white">{value}</span>
     </div>
   );
 }
@@ -34,24 +34,26 @@ export default function HeroStatsRow({
   onPlannerClick = () => {},
 }: HeroStatsRowProps) {
   return (
-    <div className="hero-gradient w-full rounded-2xl">
-      <div className="flex items-center gap-12">
+    <div className="hero-gradient w-full rounded-2xl p-3 sm:p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-12">
         {activePlanner && (
           <>
-            <MiniBudgetWidget
-              planner={activePlanner}
-              transactions={transactions}
-              onWidgetClick={onPlannerClick}
-            />
-            <div className="w-px h-12 bg-white/20" aria-hidden="true" />
+            <div className="hidden sm:block">
+              <MiniBudgetWidget
+                planner={activePlanner}
+                transactions={transactions}
+                onWidgetClick={onPlannerClick}
+              />
+            </div>
+            <div className="hidden sm:block w-px h-12 bg-white/20" aria-hidden="true" />
           </>
         )}
         <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
-        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <div className="pr-6">
+        <div className="w-px h-8 sm:h-12 bg-white/20" aria-hidden="true" />
+        <div className="pr-0 sm:pr-6">
           <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
         </div>
-        <div className="flex-1" />
+        <div className="hidden sm:flex flex-1" />
       </div>
     </div>
   );
