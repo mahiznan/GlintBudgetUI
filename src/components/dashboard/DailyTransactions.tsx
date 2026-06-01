@@ -67,9 +67,9 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                     {tx.category} · {tx.vendor}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0 w-36">
+                <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
                   <span
-                    className={`flex-1 text-right text-sm font-semibold tabnum ${isExpense ? 'text-red-600' : 'text-green-600'}`}
+                    className={`text-right text-sm font-semibold tabnum truncate ${isExpense ? 'text-red-600' : 'text-green-600'}`}
                   >
                     {isExpense ? '−' : '+'}
                     <span className="text-[10px] mr-0.5">{txSymbol}</span>
