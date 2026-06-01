@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type TransitionEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Transaction } from '../../firestore/types';
+import { CURRENCIES } from '../../lib/currencies';
 import {
   getMondayOf,
   getWeekDays,
@@ -13,6 +14,10 @@ import {
 } from '../../lib/dateUtils';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import MiniCalendar from '../form/MiniCalendar';
+
+const SYMBOL: Record<string, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.symbol]),
+);
 
 interface DailyTransactionsProps {
   transactions: Transaction[];
@@ -52,6 +57,7 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
         <div className="flex flex-col divide-y divide-border">
           {dayTxns.map((tx) => {
             const isExpense = tx.amount < 0;
+            const txSymbol = SYMBOL[tx.currency] ?? tx.currency;
             return (
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
@@ -63,9 +69,12 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
                     {tx.category} · {tx.vendor}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className={`text-sm font-semibold flex-shrink-0 ${isExpense ? 'text-red-600' : 'text-green-600'}`}>
+                    {txSymbol}
+                  </span>
                   <span
-                    className={`text-right text-sm font-semibold tabnum truncate ${isExpense ? 'text-red-600' : 'text-green-600'}`}
+                    className={`text-right text-sm font-semibold tabnum w-20 ${isExpense ? 'text-red-600' : 'text-green-600'}`}
                   >
                     {Math.abs(tx.amount).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -97,14 +106,18 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
       {expenseTotals.size > 0 && (
         <div className="border-t border-border pt-2 flex flex-col gap-1">
           {Array.from(expenseTotals.entries()).map(([currency, total], i) => {
+            const sym = SYMBOL[currency] ?? currency;
             return (
               <div key={currency} className="flex items-center gap-3">
                 <span className="w-8 flex-shrink-0" aria-hidden="true" />
                 <div className="flex-1 min-w-0">
                   {i === 0 && <p className="text-sm font-semibold text-text-muted">Day total</p>}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0 w-36">
-                  <span className="flex-1 text-right text-sm font-bold tabnum text-red-600">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className="text-sm font-bold text-red-600 flex-shrink-0">
+                    {sym}
+                  </span>
+                  <span className="text-right text-sm font-bold tabnum w-20 text-red-600">
                     {total.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
