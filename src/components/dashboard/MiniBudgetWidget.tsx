@@ -39,13 +39,13 @@ export default function MiniBudgetWidget({
       className="flex-1 bg-white/10 border border-white/20 rounded-xl p-4 text-white cursor-pointer hover:bg-white/15 transition-colors"
     >
       <div className="flex flex-col gap-3">
-        {/* Header: Planner Name • Period Label */}
-        <div className="text-sm font-semibold text-white/80">
+        {/* Header: Planner Name • Period Label - Top Left */}
+        <div className="text-xs font-bold uppercase tracking-widest text-white/85">
           {planner.name} • {agg.periodLabel}
         </div>
 
         {/* Amounts Row: Budget | Spent | Remaining */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline gap-4">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
               Budget
