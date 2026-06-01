@@ -51,6 +51,7 @@ export default function HeroStatsRow({
         <div className="pr-6">
           <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
         </div>
+        <div className="flex-1" />
       </div>
     </div>
   );
