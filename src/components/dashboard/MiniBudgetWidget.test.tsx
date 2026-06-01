@@ -232,7 +232,7 @@ describe('MiniBudgetWidget', () => {
     );
 
     // Should have planner name and a bullet separator
-    const header = container.querySelector('[class*="font-bold"][class*="text-white/85"]');
+    const header = container.querySelector('[class*="font-semibold"][class*="text-white/80"]');
     expect(header?.textContent).toMatch(/groceries/i);
     expect(header?.textContent).toMatch(/•/);
   });
