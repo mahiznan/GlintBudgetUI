@@ -62,7 +62,9 @@ function DayPanel({ date, transactions, onDelete, onEdit }: DayPanelProps) {
               <div key={tx.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-xl w-8 text-center flex-shrink-0">{tx.icon || '💸'}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text truncate">{tx.subCategory}</p>
+                  <p className="text-sm font-medium text-text truncate">
+                    {tx.subCategory} <span className="text-xs text-text-muted">[{tx.currency}]</span>
+                  </p>
                   <p className="text-xs text-text-muted truncate">
                     {tx.category} · {tx.vendor}
                   </p>
