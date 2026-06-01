@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { Period } from '../lib/dateUtils';
 import { useAuth } from '../auth/AuthContext';
@@ -27,10 +27,14 @@ export default function AppShell() {
     d.setHours(0, 0, 0, 0);
     return d;
   });
+  const periodSynced = useRef(false);
 
   useEffect(() => {
-    setPeriod(preference?.defaultPeriod ?? 'week');
-  }, [preference?.defaultPeriod]);
+    if (!periodSynced.current && preference) {
+      setPeriod(preference.defaultPeriod ?? 'week');
+      periodSynced.current = true;
+    }
+  }, [preference]);
 
   if (auth.status !== 'authenticated') return null;
 
