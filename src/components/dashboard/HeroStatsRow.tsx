@@ -36,19 +36,19 @@ export default function HeroStatsRow({
   return (
     <div className="hero-gradient w-full px-5 py-6 sm:px-8 sm:py-8 rounded-2xl">
       <div className="flex items-center gap-12">
-        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
-        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
-        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
         {activePlanner && (
           <>
-            <div className="w-px h-12 bg-white/20" aria-hidden="true" />
             <MiniBudgetWidget
               planner={activePlanner}
               transactions={transactions}
               onWidgetClick={onPlannerClick}
             />
+            <div className="w-px h-12 bg-white/20" aria-hidden="true" />
           </>
         )}
+        <StatCard label="Income" value={formatCurrency(totalIncome, currencySymbol)} />
+        <div className="w-px h-12 bg-white/20" aria-hidden="true" />
+        <StatCard label="Expenses" value={formatCurrency(totalExpenses, currencySymbol)} />
       </div>
     </div>
   );
