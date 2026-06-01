@@ -27,6 +27,14 @@ vi.mock('../context/LayoutContext', () => ({
   })),
 }));
 
+vi.mock('../context/PreferenceContext', () => ({
+  usePreferenceContext: vi.fn(() => ({
+    preference: null,
+    loading: false,
+    error: null,
+  })),
+}));
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';

@@ -20,7 +20,7 @@ export default function AppShell() {
   const { transactions } = useTransactionContext();
   const { layoutWidth } = useLayout();
   const { preference } = usePreferenceContext();
-  const [period, setPeriod] = useState<Period>('month');
+  const [period, setPeriod] = useState<Period>('week');
   const [fabOpen, setFabOpen] = useState(false);
   const [fabDate, setFabDate] = useState<Date>(() => {
     const d = new Date();
@@ -29,9 +29,7 @@ export default function AppShell() {
   });
 
   useEffect(() => {
-    if (preference?.defaultPeriod) {
-      setPeriod(preference.defaultPeriod);
-    }
+    setPeriod(preference?.defaultPeriod ?? 'week');
   }, [preference?.defaultPeriod]);
 
   if (auth.status !== 'authenticated') return null;
