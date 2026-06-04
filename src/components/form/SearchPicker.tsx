@@ -54,18 +54,23 @@ export default function SearchPicker({
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      e.stopPropagation();
       setHlIdx((i) => Math.min(i + 1, filtered.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      e.stopPropagation();
       setHlIdx((i) => Math.max(i - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       if (filtered[hlIdx]) {
         select(filtered[hlIdx]!.name);
       } else if (allowFreeText && query.trim()) {
         select(query.trim());
       }
     } else if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
       onClose();
     }
   }
