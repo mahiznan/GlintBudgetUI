@@ -66,7 +66,7 @@ export function useAddTransaction(
   const { notifyWrite } = useSyncStatus();
   // @ts-expect-error - preference will be used in Task 4
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { preference } = usePreferenceContext() ?? { preference: null };
+  const { preference } = usePreferenceContext();
 
   function mutate(tx: TxInput): string {
     const id = crypto.randomUUID();
@@ -86,7 +86,7 @@ export function useUpdateTransaction(
   const { notifyWrite } = useSyncStatus();
   // @ts-expect-error - preference will be used in Task 4
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { preference } = usePreferenceContext() ?? { preference: null };
+  const { preference } = usePreferenceContext();
 
   function mutate(id: string, patch: TxPatch): void {
     notifyWrite();
