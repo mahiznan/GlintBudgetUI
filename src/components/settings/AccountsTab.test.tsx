@@ -48,14 +48,15 @@ describe('AccountsTab — active accounts rendering', () => {
     expect(screen.queryByLabelText('Delete Monthly Budget')).not.toBeInTheDocument();
   });
 
-  it('edit modal for default shows name as plain text (not editable) and emoji as input', async () => {
+  it('edit modal for default shows both name and emoji as editable with note about deletion', async () => {
     renderTab();
     await userEvent.click(screen.getByLabelText('Edit Monthly Budget'));
     expect(screen.getByRole('dialog', { name: /edit account/i })).toBeInTheDocument();
-    // Emoji is editable
+    // Both emoji and name are editable
     expect(screen.getByLabelText('Emoji')).toBeInTheDocument();
-    // Name input should not exist for default accounts
-    expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Name')).toBeInTheDocument();
+    // Shows note that it's a default account and can't be deleted
+    expect(screen.getByText(/default account/i)).toBeInTheDocument();
   });
 
   it('saving a default emoji change calls onSaveActive with the default (updated emoji) + user items', async () => {

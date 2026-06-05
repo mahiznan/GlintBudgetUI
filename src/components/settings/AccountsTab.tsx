@@ -66,21 +66,10 @@ export default function AccountsTab({
   function handleSaveEdit() {
     if (!editModal) return;
 
-    const def = isDefault(editModal.item);
-
-    if (def) {
-      // Default accounts: name is read-only; only emoji can change.
-      const defaultItem = accounts.find((i) => i.name.toLowerCase() === editModal.item.name.toLowerCase())!;
-      onSaveActive([
-        { ...defaultItem, emoji: editModal.newEmoji.slice(0, 2) || defaultItem.emoji },
-        ...userItems,
-      ]);
-      setEditModal(null);
-      return;
-    }
-
     const name = editModal.newName.trim();
     if (!name) return;
+
+    const def = isDefault(editModal.item);
 
     // Check if new name already exists in active accounts (not archived)
     const nameExistsInActive = accounts.some(
@@ -94,6 +83,19 @@ export default function AccountsTab({
       return;
     }
 
+    if (def) {
+      // Default accounts: can change both name and emoji
+      const defaultItem = accounts.find((i) => i.name.toLowerCase() === editModal.item.name.toLowerCase())!;
+      const updatedDefault = { ...defaultItem, name, emoji: editModal.newEmoji.slice(0, 2) || defaultItem.emoji };
+      onSaveActive([updatedDefault, ...userItems]);
+      if (name !== editModal.item.name) {
+        setRenameModal({ oldName: editModal.item.name, newName: name, shouldUpdateTransactions: false });
+      }
+      setEditModal(null);
+      return;
+    }
+
+    // User accounts: can change both name and emoji
     const updated = userItems.map((item) =>
       item.name === editModal.item.name
         ? { ...item, name, emoji: editModal.newEmoji.slice(0, 2) || item.emoji }
@@ -321,17 +323,20 @@ export default function AccountsTab({
                   maxLength={2}
                 />
               </div>
-              {!isDefault(editModal.item) && (
-                <div>
-                  <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Name</label>
-                  <input
-                    type="text"
-                    value={editModal.newName}
-                    onChange={(e) => setEditModal({ ...editModal, newName: e.target.value, error: '' })}
-                    className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
-                    aria-label="Name"
-                  />
-                </div>
+              <div>
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Name</label>
+                <input
+                  type="text"
+                  value={editModal.newName}
+                  onChange={(e) => setEditModal({ ...editModal, newName: e.target.value, error: '' })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  aria-label="Name"
+                />
+              </div>
+              {isDefault(editModal.item) && (
+                <p className="text-xs text-text-muted italic">
+                  ⭐ This is a default account. It cannot be deleted, but you can rename it.
+                </p>
               )}
               {editModal.error && <p className="text-xs text-red-600">{editModal.error}</p>}
             </div>
