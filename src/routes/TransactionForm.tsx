@@ -79,8 +79,8 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
 
-  const { mutate: addTx } = useAddTransaction();
-  const { mutate: updateTx } = useUpdateTransaction();
+  const { mutate: addTx } = useAddTransaction(uid);
+  const { mutate: updateTx } = useUpdateTransaction(uid);
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});

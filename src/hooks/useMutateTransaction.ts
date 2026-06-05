@@ -1,7 +1,6 @@
 import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import { useSyncStatus } from '../context/SyncStatusContext';
-import { usePreferenceContext } from '../context/PreferenceContext';
 import type { Transaction } from '../firestore/types';
 
 type TxInput = Omit<Transaction, 'id'>;
@@ -58,9 +57,9 @@ function encodePatch(patch: TxPatch): Record<string, unknown> {
   return out;
 }
 
-export function useAddTransaction(uid: string) {
+export function useAddTransaction(_uid: string) {
   const { notifyWrite } = useSyncStatus();
-  const { preference } = usePreferenceContext() ?? { preference: null };
+  // TODO: use preference in Task 4 for automatic currency selection
 
   function mutate(tx: TxInput): string {
     const id = crypto.randomUUID();
@@ -72,9 +71,9 @@ export function useAddTransaction(uid: string) {
   return { mutate };
 }
 
-export function useUpdateTransaction(uid: string) {
+export function useUpdateTransaction(_uid: string) {
   const { notifyWrite } = useSyncStatus();
-  const { preference } = usePreferenceContext() ?? { preference: null };
+  // TODO: use preference in Task 4 for automatic currency selection
 
   function mutate(id: string, patch: TxPatch): void {
     notifyWrite();

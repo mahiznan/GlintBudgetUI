@@ -120,8 +120,8 @@ export default function AddTransactionDrawer({
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
-  const { mutate: addTx } = useAddTransaction();
-  const { mutate: updateTx } = useUpdateTransaction();
+  const { mutate: addTx } = useAddTransaction(uid);
+  const { mutate: updateTx } = useUpdateTransaction(uid);
 
   const [form, setForm] = useState<FormState>(() => makeEmpty(selectedDate, preference?.defaultEntries ?? undefined, preference?.defaultCurrency?.code));
   const [errors, setErrors] = useState<FormErrors>({});
