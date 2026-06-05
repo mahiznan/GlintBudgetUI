@@ -8,6 +8,14 @@ vi.mock('../../hooks/useBulkRenameAccount', () => ({
   useBulkRenameAccount: () => ({ mutate: mockBulkRename }),
 }));
 
+const mockAuthState = vi.hoisted(() => ({
+  status: 'authenticated' as const,
+  user: { uid: 'u1', name: 'Test', email: 'test@example.com', photoUrl: null, user_isPremium: false },
+}));
+vi.mock('../../auth/AuthContext', () => ({
+  useAuth: () => mockAuthState,
+}));
+
 import AccountsTab from './AccountsTab';
 
 const defaultItem: BudgetData = { name: 'Monthly Budget', emoji: '💼', type: 'account', parent: null };
@@ -40,15 +48,14 @@ describe('AccountsTab — active accounts rendering', () => {
     expect(screen.queryByLabelText('Delete Monthly Budget')).not.toBeInTheDocument();
   });
 
-  it('edit form for default shows name as plain text (not editable) and emoji as input', async () => {
+  it('edit modal for default shows name as plain text (not editable) and emoji as input', async () => {
     renderTab();
     await userEvent.click(screen.getByLabelText('Edit Monthly Budget'));
-    // Name shown as text, not an input
-    expect(screen.queryByDisplayValue('Monthly Budget')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Name')).toBeInTheDocument(); // the span with aria-label
-    // Emoji is still editable
+    expect(screen.getByRole('dialog', { name: /edit account/i })).toBeInTheDocument();
+    // Emoji is editable
     expect(screen.getByLabelText('Emoji')).toBeInTheDocument();
-    // No rename modal appears after save (name unchanged)
+    // Name input should not exist for default accounts
+    expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
   });
 
   it('saving a default emoji change calls onSaveActive with the default (updated emoji) + user items', async () => {
@@ -166,7 +173,7 @@ describe('AccountsTab — rename modal', () => {
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'HDFC Savings');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    expect(screen.getByRole('dialog', { name: /update transactions/i })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /update account name/i })).toBeInTheDocument();
   });
 
   it('does NOT show rename modal when only emoji changes', async () => {
@@ -179,27 +186,41 @@ describe('AccountsTab — rename modal', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('calls bulkRename with correct args on "Yes, update all"', async () => {
-    renderTab({ accounts: [defaultItem, userItemA], onSaveActive: vi.fn(), uid: 'u1' });
-    await userEvent.click(screen.getByLabelText('Edit HDFC'));
-    const nameInput = screen.getByDisplayValue('HDFC');
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'HDFC Savings');
-    await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    await userEvent.click(screen.getByRole('button', { name: /yes, update all/i }));
-    expect(mockBulkRename).toHaveBeenCalledWith('u1', 'HDFC', 'HDFC Savings');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('does NOT call bulkRename on "No, keep as-is" and closes modal', async () => {
+  it('shows premium promotion when user is non-premium', async () => {
     renderTab({ accounts: [defaultItem, userItemA], onSaveActive: vi.fn() });
     await userEvent.click(screen.getByLabelText('Edit HDFC'));
     const nameInput = screen.getByDisplayValue('HDFC');
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'HDFC Savings');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    await userEvent.click(screen.getByRole('button', { name: /no, keep/i }));
+    expect(screen.getByText(/premium feature/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Update all existing transactions')).toBeDisabled();
+  });
+
+  it('calls bulkRename when checkbox is checked and button clicked', async () => {
+    mockAuthState.user!.user_isPremium = true;
+    renderTab({ accounts: [defaultItem, userItemA], onSaveActive: vi.fn(), uid: 'u1' });
+    await userEvent.click(screen.getByLabelText('Edit HDFC'));
+    const nameInput = screen.getByDisplayValue('HDFC');
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'HDFC Savings');
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
+    const checkbox = screen.getByLabelText('Update all existing transactions') as HTMLInputElement;
+    await userEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: /update all & save/i }));
+    expect(mockBulkRename).toHaveBeenCalledWith('u1', 'HDFC', 'HDFC Savings');
+  });
+
+  it('does NOT call bulkRename when checkbox is unchecked', async () => {
+    mockAuthState.user!.user_isPremium = true;
+    renderTab({ accounts: [defaultItem, userItemA], onSaveActive: vi.fn() });
+    await userEvent.click(screen.getByLabelText('Edit HDFC'));
+    const nameInput = screen.getByDisplayValue('HDFC');
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'HDFC Savings');
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
+    await userEvent.click(screen.getByRole('button', { name: /save without updating/i }));
     expect(mockBulkRename).not.toHaveBeenCalled();
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

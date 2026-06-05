@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { BudgetData } from '../../firestore/types';
 import { useBulkRenameAccount } from '../../hooks/useBulkRenameAccount';
+import { useAuth } from '../../auth/AuthContext';
 
 interface AccountsTabProps {
   accounts: BudgetData[];
@@ -27,15 +28,14 @@ export default function AccountsTab({
   uid,
 }: AccountsTabProps) {
   const { mutate: bulkRename } = useBulkRenameAccount();
+  const auth = useAuth();
+  const isPremium = auth.status === 'authenticated' && (auth.user?.user_isPremium ?? false);
 
-  const [editingName, setEditingName] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editEmoji, setEditEmoji] = useState('');
-  const [editError, setEditError] = useState('');
   const [addName, setAddName] = useState('');
   const [addEmoji, setAddEmoji] = useState('');
   const [addError, setAddError] = useState('');
-  const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string } | null>(null);
+  const [editModal, setEditModal] = useState<{ item: BudgetData; newName: string; newEmoji: string; error: string } | null>(null);
+  const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string; shouldUpdateTransactions: boolean } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     name: string;
     source: 'active' | 'archived';
@@ -50,51 +50,50 @@ export default function AccountsTab({
   const userItems = accounts.filter((item) => !isDefault(item));
 
   function startEdit(item: BudgetData) {
-    setEditingName(item.name);
-    setEditName(item.name);
-    setEditEmoji(item.emoji ?? '');
-    setEditError('');
+    setEditModal({
+      item,
+      newName: item.name,
+      newEmoji: item.emoji ?? '',
+      error: '',
+    });
   }
 
   function cancelEdit() {
-    setEditingName(null);
-    setEditError('');
+    setEditModal(null);
   }
 
   function handleSaveEdit() {
-    const oldName = editingName!;
-    const def = isDefault({ name: oldName } as BudgetData);
+    if (!editModal) return;
+
+    const def = isDefault(editModal.item);
 
     if (def) {
       // Default accounts: name is read-only; only emoji can change.
-      // Write the default with its new emoji alongside user items so
-      // mergeWithDefaults will pick up the Firestore version.
-      const defaultItem = accounts.find((i) => i.name.toLowerCase() === oldName.toLowerCase())!;
+      const defaultItem = accounts.find((i) => i.name.toLowerCase() === editModal.item.name.toLowerCase())!;
       onSaveActive([
-        { ...defaultItem, emoji: editEmoji.slice(0, 2) || defaultItem.emoji },
+        { ...defaultItem, emoji: editModal.newEmoji.slice(0, 2) || defaultItem.emoji },
         ...userItems,
       ]);
-      setEditingName(null);
+      setEditModal(null);
       return;
     }
 
-    const name = editName.trim();
+    const name = editModal.newName.trim();
     if (!name) return;
-    if (isDuplicate(name, accounts, oldName)) {
-      setEditError(`"${name}" already exists.`);
+    if (isDuplicate(name, accounts, editModal.item.name)) {
+      setEditModal({ ...editModal, error: `"${name}" already exists.` });
       return;
     }
     const updated = userItems.map((item) =>
-      item.name === oldName
-        ? { ...item, name, emoji: editEmoji.slice(0, 2) || item.emoji }
+      item.name === editModal.item.name
+        ? { ...item, name, emoji: editModal.newEmoji.slice(0, 2) || item.emoji }
         : item,
     );
     onSaveActive(updated);
-    if (name !== oldName) {
-      setRenameModal({ oldName, newName: name });
+    if (name !== editModal.item.name) {
+      setRenameModal({ oldName: editModal.item.name, newName: name, shouldUpdateTransactions: false });
     }
-    setEditingName(null);
-    setEditError('');
+    setEditModal(null);
   }
 
   function handleAdd() {
@@ -161,91 +160,41 @@ export default function AccountsTab({
             {accounts.map((item) => {
               const def = isDefault(item);
               return (
-                <div key={item.name} className="px-5 py-3">
-                  {editingName === item.name ? (
+                <div key={item.name} className="flex items-center gap-3 px-5 py-3">
+                  <span className="w-6 text-center text-sm">{item.emoji ?? ''}</span>
+                  <span className="flex-1 text-sm text-text">{item.name}</span>
+                  {def && (
+                    <span aria-label="Default account" title="Default">
+                      ⭐
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => startEdit(item)}
+                    className="text-text-muted hover:text-brand p-1"
+                    aria-label={`Edit ${item.name}`}
+                  >
+                    ✏️
+                  </button>
+                  {!def && (
                     <>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={editEmoji}
-                          onChange={(e) => setEditEmoji(e.target.value.slice(0, 2))}
-                          className="w-10 text-center border border-border rounded-lg p-1.5 text-sm"
-                          placeholder="😀"
-                          aria-label="Emoji"
-                          maxLength={2}
-                        />
-                        {isDefault({ name: editingName! } as BudgetData) ? (
-                          <span className="flex-1 text-sm text-text px-3 py-1.5" aria-label="Name">
-                            {editName}
-                          </span>
-                        ) : (
-                          <input
-                            type="text"
-                            value={editName}
-                            onChange={(e) => {
-                              setEditName(e.target.value);
-                              setEditError('');
-                            }}
-                            className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
-                            aria-label="Name"
-                          />
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleSaveEdit}
-                          className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-                          style={{ background: 'var(--brand-gradient)' }}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          onClick={cancelEdit}
-                          className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border text-text-muted hover:text-text"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      {editError && <p className="text-xs text-red-600 mt-1">{editError}</p>}
-                    </>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 text-center text-sm">{item.emoji ?? ''}</span>
-                      <span className="flex-1 text-sm text-text">{item.name}</span>
-                      {def && (
-                        <span aria-label="Default account" title="Default">
-                          ⭐
-                        </span>
-                      )}
                       <button
                         type="button"
-                        onClick={() => startEdit(item)}
+                        onClick={() => handleArchive(item)}
                         className="text-text-muted hover:text-brand p-1"
-                        aria-label={`Edit ${item.name}`}
+                        aria-label={`Archive ${item.name}`}
                       >
-                        ✏️
+                        📦
                       </button>
-                      {!def && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => handleArchive(item)}
-                            className="text-text-muted hover:text-brand p-1"
-                            aria-label={`Archive ${item.name}`}
-                          >
-                            📦
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteClick(item.name, 'active')}
-                            className="text-text-muted hover:text-red-600 p-1"
-                            aria-label={`Delete ${item.name}`}
-                          >
-                            🗑
-                          </button>
-                        </>
-                      )}
-                    </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteClick(item.name, 'active')}
+                        className="text-text-muted hover:text-red-600 p-1"
+                        aria-label={`Delete ${item.name}`}
+                      >
+                        🗑
+                      </button>
+                    </>
                   )}
                 </div>
               );
@@ -337,7 +286,67 @@ export default function AccountsTab({
         </div>
       )}
 
-      {/* Rename modal */}
+      {/* Edit account modal */}
+      {editModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-modal-title"
+        >
+          <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <h2 id="edit-modal-title" className="text-base font-semibold text-text">
+              Edit account
+            </h2>
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Emoji</label>
+                <input
+                  type="text"
+                  value={editModal.newEmoji}
+                  onChange={(e) => setEditModal({ ...editModal, newEmoji: e.target.value.slice(0, 2) })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  placeholder="😀"
+                  aria-label="Emoji"
+                  maxLength={2}
+                />
+              </div>
+              {!isDefault(editModal.item) && (
+                <div>
+                  <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Name</label>
+                  <input
+                    type="text"
+                    value={editModal.newName}
+                    onChange={(e) => setEditModal({ ...editModal, newName: e.target.value, error: '' })}
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                    aria-label="Name"
+                  />
+                </div>
+              )}
+              {editModal.error && <p className="text-xs text-red-600">{editModal.error}</p>}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                className="text-xs font-semibold px-4 py-2 rounded-lg text-white"
+                style={{ background: 'var(--brand-gradient)' }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename modal with update transactions option */}
       {renameModal && (
         <div
           className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
@@ -347,34 +356,62 @@ export default function AccountsTab({
         >
           <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
             <h2 id="rename-modal-title" className="text-base font-semibold text-text">
-              Update transactions?
+              Update account name
             </h2>
             <p className="text-sm text-text-muted leading-relaxed">
-              Do you want to update all existing transactions from{' '}
-              <strong>"{renameModal.oldName}"</strong> to{' '}
-              <strong>"{renameModal.newName}"</strong>?
+              Account "<strong>{renameModal.oldName}</strong>" will be renamed to "<strong>{renameModal.newName}</strong>".
             </p>
-            <p className="text-xs text-text-muted italic">
-              Choosing No will keep old transactions linked to "{renameModal.oldName}".
-            </p>
+
+            {/* Update transactions checkbox section */}
+            <div className="border-t border-border pt-4">
+              <div className={`flex items-start gap-3 ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <input
+                  type="checkbox"
+                  id="update-transactions"
+                  checked={renameModal.shouldUpdateTransactions}
+                  onChange={(e) => setRenameModal({ ...renameModal, shouldUpdateTransactions: e.target.checked })}
+                  disabled={!isPremium}
+                  className="mt-1 cursor-pointer disabled:cursor-not-allowed"
+                  aria-label="Update all existing transactions"
+                />
+                <div className="flex-1">
+                  <label htmlFor="update-transactions" className={`text-sm font-medium text-text ${!isPremium ? 'cursor-not-allowed' : ''}`}>
+                    Update all existing transactions
+                  </label>
+                  <p className="text-xs text-text-muted mt-1">
+                    All past transactions with account "{renameModal.oldName}" will be updated to "{renameModal.newName}".
+                  </p>
+                  {!isPremium && (
+                    <div className="mt-2 p-2 bg-amber-50 rounded-lg">
+                      <p className="text-xs text-amber-900">
+                        💎 <strong>Premium feature:</strong> Upgrade to premium to update all past transactions. Non-premium users can only update future transactions.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setRenameModal(null)}
                 className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
               >
-                No, keep as-is
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  bulkRename(uid, renameModal.oldName, renameModal.newName);
+                  if (renameModal.shouldUpdateTransactions) {
+                    bulkRename(uid, renameModal.oldName, renameModal.newName);
+                  }
                   setRenameModal(null);
                 }}
                 className="text-xs font-semibold px-4 py-2 rounded-lg text-white"
                 style={{ background: 'var(--brand-gradient)' }}
               >
-                Yes, update all
+                {renameModal.shouldUpdateTransactions ? 'Update all & save' : 'Save without updating'}
               </button>
             </div>
           </div>
