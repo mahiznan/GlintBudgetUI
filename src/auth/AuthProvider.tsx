@@ -20,7 +20,7 @@ async function toBudgetUser(user: User): Promise<BudgetUser> {
     if (userDoc.exists()) {
       budgetUser.user_isPremium = userDoc.data()?.user_isPremium ?? false;
     }
-  } catch (error) {
+  } catch {
     // If fetch fails, default to non-premium
     budgetUser.user_isPremium = false;
   }
