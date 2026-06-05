@@ -144,7 +144,6 @@ export default function TransactionList() {
           open={true}
           editId={editingId}
           onClose={() => setEditingId(null)}
-          transactions={transactions}
         />
       )}
     </div>

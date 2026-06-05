@@ -417,7 +417,6 @@ export default function DailyTransactions({
           onTransactionAdded?.();
         }}
         selectedDate={editingId ? undefined : selectedDate}
-        transactions={transactions}
         editId={editingId ?? undefined}
       />
     </div>

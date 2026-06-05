@@ -105,7 +105,6 @@ export interface AddTransactionDrawerProps {
   onClose: () => void;
   onSaved?: () => void;
   selectedDate?: Date;
-  transactions?: Transaction[];
   editId?: string;
 }
 
@@ -114,7 +113,6 @@ export default function AddTransactionDrawer({
   onClose,
   onSaved,
   selectedDate,
-  transactions,
   editId,
 }: AddTransactionDrawerProps) {
   const auth = useAuth();
@@ -266,17 +264,11 @@ export default function AddTransactionDrawer({
     startClose();
   }
 
-  // Mirror iOS SuggestionToolbarView: show vendors from past transactions in addition to
-  // the stored preference vendors, so the picker reflects real usage history.
+  // Show vendors from preference list only. New vendors are auto-added to preferences
+  // when transactions are saved, so the preference list is always up-to-date.
   const vendorOptions = useMemo((): BudgetData[] => {
-    const fromPref = preference?.vendors ?? [];
-    const seen = new Set(fromPref.map((v) => v.name));
-    const fromTxns = (transactions ?? [])
-      .map((t) => t.vendor)
-      .filter((name, idx, arr) => Boolean(name) && arr.indexOf(name) === idx && !seen.has(name))
-      .map((name): BudgetData => ({ name, emoji: null, type: 'vendor', parent: null }));
-    return [...fromPref, ...fromTxns];
-  }, [preference, transactions]);
+    return preference?.vendors ?? [];
+  }, [preference]);
 
   const filteredSubCats: BudgetData[] =
     preference?.subCategories.filter((s) => s.parent === form.category) ?? [];

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { Period } from '../lib/dateUtils';
 import { useAuth } from '../auth/AuthContext';
-import { useTransactionContext } from '../context/TransactionContext';
 import { useLayout } from '../context/LayoutContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
 import Sidebar from '../components/layout/Sidebar';
@@ -17,7 +16,6 @@ export interface AppShellOutletContext {
 
 export default function AppShell() {
   const auth = useAuth();
-  const { transactions } = useTransactionContext();
   const { layoutWidth } = useLayout();
   const { preference } = usePreferenceContext();
   const [period, setPeriod] = useState<Period>('week');
@@ -62,7 +60,6 @@ export default function AppShell() {
       <AddTransactionDrawer
         open={fabOpen}
         onClose={() => setFabOpen(false)}
-        transactions={transactions}
         selectedDate={fabDate}
       />
     </div>

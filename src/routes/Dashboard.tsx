@@ -511,7 +511,6 @@ export default function Dashboard() {
         open={editingId !== null}
         editId={editingId ?? undefined}
         onClose={() => setEditingId(null)}
-        transactions={periodTxns}
       />
       {selectedPlannerForDetail && activePlanner && (
         <PlannerDetailDrawer
