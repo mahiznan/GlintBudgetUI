@@ -21,6 +21,8 @@ import {
   vendorExists,
 } from './useMutateTransaction';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
+import { PreferenceProvider } from '../context/PreferenceContext';
+import { AuthProvider } from '../auth/AuthProvider';
 import type { Transaction } from '../firestore/types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -79,7 +81,11 @@ describe('vendorExists', () => {
 });
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SyncStatusProvider>{children}</SyncStatusProvider>
+  <AuthProvider>
+    <SyncStatusProvider>
+      <PreferenceProvider>{children}</PreferenceProvider>
+    </SyncStatusProvider>
+  </AuthProvider>
 );
 
 const baseTx: Omit<Transaction, 'id'> = {
@@ -100,7 +106,7 @@ describe('useAddTransaction', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it('calls setDoc with snake_case sub_category and returns uuid synchronously', () => {
-    const { result } = renderHook(() => useAddTransaction(), { wrapper });
+    const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
     const id = result.current.mutate(baseTx);
     expect(id).toMatch(UUID_RE);
     expect(setDoc).toHaveBeenCalledTimes(1);
@@ -111,7 +117,7 @@ describe('useAddTransaction', () => {
   });
 
   it('mutate returns the same id that was passed to setDoc', () => {
-    const { result } = renderHook(() => useAddTransaction(), { wrapper });
+    const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
     const id = result.current.mutate(baseTx);
     const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
     expect(id).toBe(callArgs['id']);
@@ -122,7 +128,7 @@ describe('useUpdateTransaction', () => {
   beforeEach(() => vi.resetAllMocks());
 
   it('calls updateDoc with snake_case fields synchronously', () => {
-    const { result } = renderHook(() => useUpdateTransaction(), { wrapper });
+    const { result } = renderHook(() => useUpdateTransaction('u1'), { wrapper });
     result.current.mutate('tx-1', { amount: 999, subCategory: 'Dining' });
     expect(updateDoc).toHaveBeenCalledTimes(1);
     const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;

@@ -1,6 +1,7 @@
 import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import { useSyncStatus } from '../context/SyncStatusContext';
+import { usePreferenceContext } from '../context/PreferenceContext';
 import type { Transaction } from '../firestore/types';
 
 type TxInput = Omit<Transaction, 'id'>;
@@ -57,8 +58,9 @@ function encodePatch(patch: TxPatch): Record<string, unknown> {
   return out;
 }
 
-export function useAddTransaction() {
+export function useAddTransaction(uid: string) {
   const { notifyWrite } = useSyncStatus();
+  const { preference } = usePreferenceContext() ?? { preference: null };
 
   function mutate(tx: TxInput): string {
     const id = crypto.randomUUID();
@@ -70,8 +72,9 @@ export function useAddTransaction() {
   return { mutate };
 }
 
-export function useUpdateTransaction() {
+export function useUpdateTransaction(uid: string) {
   const { notifyWrite } = useSyncStatus();
+  const { preference } = usePreferenceContext() ?? { preference: null };
 
   function mutate(id: string, patch: TxPatch): void {
     notifyWrite();
