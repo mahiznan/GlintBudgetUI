@@ -71,7 +71,7 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
     if (!editModal) return;
     const name = editModal.newName.trim();
     if (!name) return;
-    if (isDuplicate(name, allVendorNames, editModal.item.name)) {
+    if (isDuplicate(name, new Set(vendors.map((v) => v.name)), editModal.item.name)) {
       setEditModal({ ...editModal, error: `"${name}" already exists.` });
       return;
     }
@@ -90,7 +90,7 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   function handleAdd() {
     const name = addName.trim();
     if (!name) return;
-    if (isDuplicate(name, allVendorNames)) {
+    if (isDuplicate(name, new Set(vendors.map((v) => v.name)))) {
       setAddError(`"${name}" already exists.`);
       return;
     }
@@ -110,7 +110,7 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   }
 
   function handleTxRename(oldName: string, newName: string): string | null {
-    if (isDuplicate(newName, allVendorNames, oldName)) {
+    if (isDuplicate(newName, new Set(vendors.map((v) => v.name)), oldName)) {
       return `"${newName}" already exists.`;
     }
     setRenameModal({ oldName, newName, shouldUpdateTransactions: false });
