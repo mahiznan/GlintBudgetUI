@@ -9,16 +9,21 @@
  * Uses Firebase Admin SDK for safe Firestore access.
  *
  * Usage:
- *   node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id>
+ *   node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id> [--test-tx <transaction-id>]
  *
- * Example:
+ * Examples:
+ *   # Show preview of all transactions to migrate
  *   node scripts/migrate-user-transactions.js "old-user-123" "new-user-456"
+ *
+ *   # Test with a specific transaction first
+ *   node scripts/migrate-user-transactions.js "old-user-123" "new-user-456" --test-tx "tx-abc123"
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import admin from 'firebase-admin';
+import readline from 'readline';
 
 // Load environment variables from .env.local
 const __filename = fileURLToPath(import.meta.url);
@@ -41,7 +46,52 @@ const loadEnv = () => {
 
 const envVars = loadEnv();
 
-async function migrateUserTransactions(sourceUserId, destinationUserId) {
+// Interactive prompt helper
+function askQuestion(question) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.toLowerCase());
+    });
+  });
+}
+
+// Format transaction for display
+function formatTransaction(tx, txId) {
+  return {
+    id: txId,
+    amount: tx.amount,
+    category: tx.category,
+    subCategory: tx.sub_category,
+    vendor: tx.vendor,
+    account: tx.account,
+    currency: tx.currency,
+    date: tx.date?.toDate?.() ?? 'N/A',
+    user_id: tx.user_id,
+  };
+}
+
+// Display transaction details
+function displayTransaction(tx, txId, sourceUserId, destinationUserId) {
+  const formatted = formatTransaction(tx, txId);
+  console.log('\n📋 Transaction Details:');
+  console.log(`   ID:            ${formatted.id}`);
+  console.log(`   Amount:        ${formatted.currency} ${formatted.amount}`);
+  console.log(`   Category:      ${formatted.category} → ${formatted.subCategory}`);
+  console.log(`   Vendor:        ${formatted.vendor}`);
+  console.log(`   Account:       ${formatted.account}`);
+  console.log(`   Date:          ${formatted.date}`);
+  console.log(`   Current user:  ${formatted.user_id}`);
+  console.log(`   New user:      ${destinationUserId}`);
+  console.log();
+}
+
+async function migrateUserTransactions(sourceUserId, destinationUserId, testTxId) {
   // Check for service account file
   const serviceAccountPath = path.join(__dirname, 'serviceAccount.json');
 
@@ -63,8 +113,12 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
   }
 
   console.log(`\n📦 User Transaction Migration Script`);
-  console.log(`Source User ID: ${sourceUserId}`);
-  console.log(`Destination User ID: ${destinationUserId}\n`);
+  console.log(`Source User ID:      ${sourceUserId}`);
+  console.log(`Destination User ID: ${destinationUserId}`);
+  if (testTxId) {
+    console.log(`Test Transaction ID: ${testTxId}`);
+  }
+  console.log();
 
   // Safety check
   if (sourceUserId === destinationUserId) {
@@ -93,8 +147,45 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
   const db = admin.firestore();
 
   try {
-    // 1. Fetch all transactions for source user
-    console.log('📝 Fetching transactions for source user...');
+    // 1. Test single transaction if specified
+    if (testTxId) {
+      console.log('🧪 Testing with single transaction...');
+      const txDoc = await db.collection('transactions').doc(testTxId).get();
+
+      if (!txDoc.exists) {
+        console.error(`❌ Transaction not found: ${testTxId}`);
+        process.exit(1);
+      }
+
+      const txData = txDoc.data();
+
+      // Verify transaction belongs to source user
+      if (txData.user_id !== sourceUserId) {
+        console.error(
+          `❌ Transaction belongs to different user: ${txData.user_id} (expected: ${sourceUserId})`,
+        );
+        process.exit(1);
+      }
+
+      displayTransaction(txData, testTxId, sourceUserId, destinationUserId);
+
+      // Ask for confirmation to proceed
+      console.log('✅ Transaction validation passed!');
+      console.log();
+      const confirm = await askQuestion(
+        '🤔 Proceed with migrating ALL transactions? (yes/no): ',
+      );
+
+      if (confirm !== 'yes' && confirm !== 'y') {
+        console.log('❌ Migration cancelled by user');
+        process.exit(0);
+      }
+
+      console.log();
+    }
+
+    // 2. Fetch all transactions for source user
+    console.log('📝 Fetching all transactions for source user...');
     const txSnapshot = await db
       .collection('transactions')
       .where('user_id', '==', sourceUserId)
@@ -113,9 +204,9 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
       transactionIds.push(doc.id);
     });
 
-    console.log(`✅ Found ${transactions.length} transactions\n`);
+    console.log(`✅ Found ${transactions.length} total transactions\n`);
 
-    // 2. Verify destination user exists
+    // 3. Verify destination user exists
     console.log('🔍 Verifying destination user exists...');
     const destUserDoc = await db.collection('users').doc(destinationUserId).get();
 
@@ -126,27 +217,41 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
       console.log(`✅ Destination user exists\n`);
     }
 
-    // 3. Display preview
+    // 4. Display preview
     console.log('📋 Preview of transactions to migrate:');
-    console.log(`   Total: ${transactions.length}`);
+    console.log(`   Total transactions: ${transactions.length}`);
     if (transactions.length > 0) {
-      console.log(`\n   Sample transaction:`);
+      console.log(`\n   First transaction sample:`);
       const sample = transactions[0];
-      console.log(`     - ID: ${transactionIds[0]}`);
-      console.log(`     - Amount: ${sample.amount}`);
-      console.log(`     - Category: ${sample.category}`);
-      console.log(`     - Date: ${sample.date?.toDate?.() ?? 'N/A'}`);
-      console.log(`     - Current user_id: ${sample.user_id}`);
-      console.log(`     - New user_id: ${destinationUserId}`);
+      const firstId = transactionIds[0];
+      const formatted = formatTransaction(sample, firstId);
+      console.log(`     - ID:       ${formatted.id}`);
+      console.log(`     - Amount:   ${formatted.currency} ${formatted.amount}`);
+      console.log(`     - Category: ${formatted.category}`);
+      console.log(`     - Date:     ${formatted.date}`);
+      console.log(`     - Vendor:   ${formatted.vendor}`);
     }
     console.log();
 
-    // 4. Ask for confirmation (in automated mode, just proceed with warning)
-    console.log('⚠️  WARNING: This operation will update all transactions');
-    console.log(`   Moving ${transactions.length} transactions from ${sourceUserId} to ${destinationUserId}`);
-    console.log('   This action cannot be easily undone!\n');
+    // 5. Final confirmation if not already tested
+    if (!testTxId) {
+      console.log('⚠️  WARNING: This operation will update all transactions');
+      console.log(`   Moving ${transactions.length} transactions from ${sourceUserId} to ${destinationUserId}`);
+      console.log('   This action cannot be easily undone!\n');
 
-    // 5. Update all transactions
+      const confirm = await askQuestion(
+        '🤔 Are you sure? Type "yes" to proceed: ',
+      );
+
+      if (confirm !== 'yes') {
+        console.log('❌ Migration cancelled by user');
+        process.exit(0);
+      }
+
+      console.log();
+    }
+
+    // 6. Update all transactions
     console.log('💾 Updating transaction documents...');
 
     const batch = db.batch();
@@ -164,7 +269,7 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
 
     console.log(`✅ Successfully updated ${updated} transactions\n`);
 
-    // 6. Verify update
+    // 7. Verify update
     console.log('🔍 Verifying migration...');
     const verifySnapshot = await db
       .collection('transactions')
@@ -179,7 +284,7 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
       console.warn(`⚠️  ${remaining} transactions still have source user_id\n`);
     }
 
-    // 7. Summary
+    // 8. Summary
     console.log('📊 Migration Summary:');
     console.log(`   Transactions migrated: ${updated}`);
     console.log(`   Remaining for source user: ${remaining}`);
@@ -202,15 +307,27 @@ async function migrateUserTransactions(sourceUserId, destinationUserId) {
   }
 }
 
-// Get user IDs from command line arguments
+// Parse command line arguments
 const sourceUserId = process.argv[2];
 const destinationUserId = process.argv[3];
 
+// Check for --test-tx flag
+let testTxId = null;
+const testTxIndex = process.argv.indexOf('--test-tx');
+if (testTxIndex !== -1 && process.argv[testTxIndex + 1]) {
+  testTxId = process.argv[testTxIndex + 1];
+}
+
 if (!sourceUserId || !destinationUserId) {
   console.error('❌ Both source and destination user IDs are required');
-  console.error('\nUsage: node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id>');
-  console.error('Example: node scripts/migrate-user-transactions.js "old-user-123" "new-user-456"\n');
+  console.error('\nUsage:');
+  console.error('  node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id> [--test-tx <transaction-id>]');
+  console.error('\nExamples:');
+  console.error('  # Show preview of all transactions');
+  console.error('  node scripts/migrate-user-transactions.js "old-user-123" "new-user-456"');
+  console.error('\n  # Test with a specific transaction first');
+  console.error('  node scripts/migrate-user-transactions.js "old-user-123" "new-user-456" --test-tx "tx-abc123"\n');
   process.exit(1);
 }
 
-migrateUserTransactions(sourceUserId, destinationUserId);
+migrateUserTransactions(sourceUserId, destinationUserId, testTxId);

@@ -26,7 +26,7 @@ Migrate all transactions from one user to another by updating the user_id field.
 
 ## Usage
 
-### Basic Command
+### Basic Command (Preview Only)
 
 ```bash
 # Using npm script
@@ -36,49 +36,131 @@ npm run migrate:user-transactions <source-user-id> <destination-user-id>
 node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id>
 ```
 
-### Example
+This shows a preview of transactions to migrate and asks for confirmation.
+
+### With Test Transaction (Recommended)
 
 ```bash
+# Using npm script
+npm run migrate:user-transactions <source-user-id> <destination-user-id> --test-tx <transaction-id>
+
+# Or with node directly
+node scripts/migrate-user-transactions.js <source-user-id> <destination-user-id> --test-tx <transaction-id>
+```
+
+This tests the migration with a single transaction first, then asks for confirmation to migrate all.
+
+### Examples
+
+```bash
+# Preview all transactions (no test)
 npm run migrate:user-transactions "abc123def456" "xyz789uvw012"
+
+# Test with a specific transaction first
+npm run migrate:user-transactions "abc123def456" "xyz789uvw012" --test-tx "tx-doc-id-123"
+
+# Using node directly with test
+node scripts/migrate-user-transactions.js "old-user" "new-user" --test-tx "transaction-id"
 ```
 
 ## What It Does
 
+### Without --test-tx flag:
 1. ✅ Connects to Firestore using Admin SDK
 2. ✅ Finds all transactions for source user
-3. ✅ Shows preview of transactions to be migrated
+3. ✅ Shows preview of first transaction as sample
 4. ✅ Verifies destination user exists
-5. ✅ Updates user_id in all transaction documents
+5. ✅ Asks for confirmation
+6. ✅ Updates user_id in all transaction documents
+7. ✅ Verifies migration completed successfully
+8. ✅ Displays summary
+
+### With --test-tx flag:
+1. ✅ Fetches specific transaction by ID
+2. ✅ Verifies it belongs to source user
+3. ✅ Displays full transaction details
+4. ✅ Asks for confirmation before proceeding
+5. ✅ **Only then** fetches and migrates all transactions
 6. ✅ Verifies migration completed successfully
 7. ✅ Displays summary
 
-## Example Output
+This two-step approach lets you validate on a real transaction before migrating all.
+
+## Test Mode (--test-tx)
+
+Test with a single transaction before migrating all:
+
+```bash
+npm run migrate:user-transactions "old-user" "new-user" --test-tx "tx-123"
+```
+
+The script will:
+1. Fetch the specific transaction by ID
+2. Verify it belongs to the source user
+3. Display full transaction details
+4. Ask for confirmation
+5. Proceed to migrate all transactions
+
+### Test Mode Output Example
+
+```
+📦 User Transaction Migration Script
+Source User ID: old-user-123
+Destination User ID: new-user-456
+Test Transaction ID: tx-abc123
+
+🧪 Testing with single transaction...
+
+📋 Transaction Details:
+   ID:            tx-abc123
+   Amount:        USD 50.00
+   Category:      Food → Groceries
+   Vendor:        Whole Foods
+   Account:       Checking
+   Date:          Wed Jun 05 2026
+   Current user:  old-user-123
+   New user:      new-user-456
+
+✅ Transaction validation passed!
+
+🤔 Proceed with migrating ALL transactions? (yes/no): yes
+
+📝 Fetching all transactions for source user...
+✅ Found 42 total transactions
+
+[... continues with full migration ...]
+
+✨ Migration complete!
+```
+
+## Example Output (Without Test Mode)
 
 ```
 📦 User Transaction Migration Script
 Source User ID: old-user-123
 Destination User ID: new-user-456
 
-📝 Fetching transactions for source user...
-✅ Found 42 transactions
+📝 Fetching all transactions for source user...
+✅ Found 42 total transactions
 
 🔍 Verifying destination user exists...
 ✅ Destination user exists
 
 📋 Preview of transactions to migrate:
-   Total: 42
+   Total transactions: 42
 
-   Sample transaction:
-     - ID: tx-abc123
-     - Amount: 50.00
+   First transaction sample:
+     - ID:       tx-abc123
+     - Amount:   USD 50.00
      - Category: Food
-     - Date: Wed Jun 05 2026
-     - Current user_id: old-user-123
-     - New user_id: new-user-456
+     - Date:     Wed Jun 05 2026
+     - Vendor:   Whole Foods
 
 ⚠️  WARNING: This operation will update all transactions
    Moving 42 transactions from old-user-123 to new-user-456
    This action cannot be easily undone!
+
+🤔 Are you sure? Type "yes" to proceed: yes
 
 💾 Updating transaction documents...
 ✅ Successfully updated 42 transactions
@@ -96,10 +178,12 @@ Destination User ID: new-user-456
 
 ## Safety Features
 
+✅ **Test mode**: Validate with a single transaction before migrating all  
 ✅ **Preview mode**: Shows sample before updating  
 ✅ **Verification**: Checks that all transactions were updated  
 ✅ **Source validation**: Finds all transactions for source user  
 ✅ **Destination validation**: Checks destination user exists  
+✅ **Interactive confirmation**: Ask before proceeding  
 ✅ **Error handling**: Clear error messages if something fails  
 ✅ **Batch operations**: Updates all at once (atomic-like)  
 
