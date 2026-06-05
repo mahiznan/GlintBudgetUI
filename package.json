@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "migrate:vendors": "node scripts/migrate-vendors.js",
+    "migrate:accounts": "node scripts/migrate-accounts.js",
     "migrate:user-transactions": "node scripts/migrate-user-transactions.js"
   },
   "dependencies": {
