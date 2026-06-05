@@ -17,11 +17,66 @@ import {
   useAddTransaction,
   useUpdateTransaction,
   useDeleteTransaction,
+  toTitleCase,
+  vendorExists,
 } from './useMutateTransaction';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
 import type { Transaction } from '../firestore/types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+describe('toTitleCase', () => {
+  it('converts lowercase vendor name to title case', () => {
+    expect(toTitleCase('starbucks')).toBe('Starbucks');
+  });
+
+  it('converts multi-word vendor names to title case', () => {
+    expect(toTitleCase('whole foods')).toBe('Whole Foods');
+  });
+
+  it('handles uppercase vendor names', () => {
+    expect(toTitleCase("MCDONALD'S")).toBe("Mcdonald's");
+  });
+
+  it('trims whitespace from input', () => {
+    expect(toTitleCase('  starbucks  ')).toBe('Starbucks');
+  });
+
+  it('preserves hyphens in vendor names', () => {
+    expect(toTitleCase('target-express')).toBe('Target-express');
+  });
+
+  it('returns empty string for empty input', () => {
+    expect(toTitleCase('')).toBe('');
+  });
+});
+
+describe('vendorExists', () => {
+  it('returns true for case-insensitive vendor match', () => {
+    const vendors = [
+      { name: 'Starbucks', category: 'Cafe' },
+      { name: 'Whole Foods', category: 'Grocery' },
+    ];
+    expect(vendorExists('starbucks', vendors)).toBe(true);
+  });
+
+  it('returns false for vendor not in list', () => {
+    const vendors = [
+      { name: 'Starbucks', category: 'Cafe' },
+      { name: 'Whole Foods', category: 'Grocery' },
+    ];
+    expect(vendorExists('Target', vendors)).toBe(false);
+  });
+
+  it('handles empty vendor list', () => {
+    expect(vendorExists('Starbucks', [])).toBe(false);
+  });
+
+  it('matches vendors with different cases', () => {
+    const vendors = [{ name: 'STARBUCKS', category: 'Cafe' }];
+    expect(vendorExists('starbucks', vendors)).toBe(true);
+  });
+});
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <SyncStatusProvider>{children}</SyncStatusProvider>

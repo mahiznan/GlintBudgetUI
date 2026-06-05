@@ -6,6 +6,24 @@ import type { Transaction } from '../firestore/types';
 type TxInput = Omit<Transaction, 'id'>;
 type TxPatch = Partial<Omit<Transaction, 'id'>>;
 
+export function toTitleCase(str: string): string {
+  const trimmed = str.trim();
+  if (!trimmed) return '';
+
+  return trimmed
+    .split(' ')
+    .map((word) => {
+      if (!word) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
+export function vendorExists(name: string, vendors: Array<{ name: string; [key: string]: unknown }>): boolean {
+  const lowerName = name.toLowerCase();
+  return vendors.some((vendor) => vendor.name.toLowerCase() === lowerName);
+}
+
 function encodeTransaction(id: string, tx: TxInput): Record<string, unknown> {
   return {
     id,
