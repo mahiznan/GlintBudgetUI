@@ -2,7 +2,8 @@ import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'fireba
 import { db } from '../firebase/db';
 import { useSyncStatus } from '../context/SyncStatusContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
-import type { Transaction } from '../firestore/types';
+import { useUpdatePreference } from './useUpdatePreference';
+import type { Transaction, BudgetData } from '../firestore/types';
 
 type TxInput = Omit<Transaction, 'id'>;
 type TxPatch = Partial<Omit<Transaction, 'id'>>;
@@ -58,20 +59,40 @@ function encodePatch(patch: TxPatch): Record<string, unknown> {
   return out;
 }
 
-export function useAddTransaction(
-  // @ts-expect-error - uid will be used in Task 4
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  uid: string,
-) {
+export function useAddTransaction(uid: string) {
   const { notifyWrite } = useSyncStatus();
-  // @ts-expect-error - preference will be used in Task 4
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { preference } = usePreferenceContext();
+  const { mutate: updatePreference } = useUpdatePreference(uid);
 
   function mutate(tx: TxInput): string {
     const id = crypto.randomUUID();
     notifyWrite();
-    void setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, tx));
+
+    // Normalize vendor name to title case
+    const normalizedVendor = toTitleCase(tx.vendor);
+
+    // Check if vendor exists in preferences (case-insensitive)
+    if (
+      preference &&
+      !vendorExists(
+        normalizedVendor,
+        (preference.vendors ?? []) as unknown as Array<{ name: string; [key: string]: unknown }>,
+      )
+    ) {
+      // Auto-add vendor to preferences
+      const newVendor: BudgetData = {
+        name: normalizedVendor,
+        emoji: '🏪',
+        type: 'vendor',
+        parent: null,
+      };
+      const updatedVendors = [...(preference.vendors ?? []), newVendor];
+      updatePreference({ vendors: updatedVendors });
+    }
+
+    // Save transaction with normalized vendor
+    const normalizedTx = { ...tx, vendor: normalizedVendor };
+    void setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, normalizedTx));
     return id;
   }
 

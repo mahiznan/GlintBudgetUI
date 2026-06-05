@@ -122,6 +122,15 @@ describe('useAddTransaction', () => {
     const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
     expect(id).toBe(callArgs['id']);
   });
+
+  it('normalizes vendor name to title case before saving', () => {
+    const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
+    const txWithLowerVendor = { ...baseTx, vendor: 'zepto' };
+    result.current.mutate(txWithLowerVendor);
+
+    const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
+    expect(callArgs['vendor']).toBe('Zepto');
+  });
 });
 
 describe('useUpdateTransaction', () => {
