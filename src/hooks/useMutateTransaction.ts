@@ -1,6 +1,7 @@
 import { collection, doc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import { useSyncStatus } from '../context/SyncStatusContext';
+import { usePreferenceContext } from '../context/PreferenceContext';
 import type { Transaction } from '../firestore/types';
 
 type TxInput = Omit<Transaction, 'id'>;
@@ -57,9 +58,15 @@ function encodePatch(patch: TxPatch): Record<string, unknown> {
   return out;
 }
 
-export function useAddTransaction(_uid: string) {
+export function useAddTransaction(
+  // @ts-expect-error - uid will be used in Task 4
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  uid: string,
+) {
   const { notifyWrite } = useSyncStatus();
-  // TODO: use preference in Task 4 for automatic currency selection
+  // @ts-expect-error - preference will be used in Task 4
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { preference } = usePreferenceContext() ?? { preference: null };
 
   function mutate(tx: TxInput): string {
     const id = crypto.randomUUID();
@@ -71,9 +78,15 @@ export function useAddTransaction(_uid: string) {
   return { mutate };
 }
 
-export function useUpdateTransaction(_uid: string) {
+export function useUpdateTransaction(
+  // @ts-expect-error - uid will be used in Task 4
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  uid: string,
+) {
   const { notifyWrite } = useSyncStatus();
-  // TODO: use preference in Task 4 for automatic currency selection
+  // @ts-expect-error - preference will be used in Task 4
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { preference } = usePreferenceContext() ?? { preference: null };
 
   function mutate(id: string, patch: TxPatch): void {
     notifyWrite();
