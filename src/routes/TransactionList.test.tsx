@@ -81,4 +81,20 @@ describe('TransactionList', () => {
     expect(screen.getByText('Big Basket')).toBeInTheDocument();
     expect(screen.queryByText('Swiggy')).not.toBeInTheDocument();
   });
+
+  it('filters transactions by account name', async () => {
+    const txWithDifferentAccount: Transaction = {
+      ...nonMatchingTx,
+      account: 'ICICI',
+    };
+    renderList({
+      transactions: [matchingTx, txWithDifferentAccount],
+      loading: false,
+      error: null,
+      hasPendingWrites: false,
+    });
+    await userEvent.type(screen.getByPlaceholderText(/search transactions/i), 'HDFC');
+    expect(screen.getByText('Big Basket')).toBeInTheDocument();
+    expect(screen.queryByText('Swiggy')).not.toBeInTheDocument();
+  });
 });

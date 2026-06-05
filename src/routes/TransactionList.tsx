@@ -44,6 +44,7 @@ export default function TransactionList() {
               tx.subCategory.toLowerCase().includes(q) ||
               tx.vendor.toLowerCase().includes(q) ||
               tx.category.toLowerCase().includes(q) ||
+              tx.account.toLowerCase().includes(q) ||
               tx.payment.toLowerCase().includes(q) ||
               tx.notes.toLowerCase().includes(q),
           );
