@@ -37,6 +37,7 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   const [addError, setAddError] = useState('');
   const [editModal, setEditModal] = useState<{ item: BudgetData; newName: string; newEmoji: string; error: string } | null>(null);
   const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string; shouldUpdateTransactions: boolean } | null>(null);
+  const [mergeConfirmModal, setMergeConfirmModal] = useState<{ oldName: string; newName: string } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
   const [fromTxOpen, setFromTxOpen] = useState(false);
   const [txSearch, setTxSearch] = useState('');
@@ -71,10 +72,19 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
     if (!editModal) return;
     const name = editModal.newName.trim();
     if (!name) return;
-    if (isDuplicate(name, new Set(vendors.map((v) => v.name)), editModal.item.name)) {
-      setEditModal({ ...editModal, error: `"${name}" already exists.` });
+
+    // Check if new name already exists in preferences (not transaction history)
+    const nameExistsInPreferences = vendors.some(
+      (v) => v.name.toLowerCase() === name.toLowerCase() && v.name !== editModal.item.name
+    );
+
+    if (nameExistsInPreferences) {
+      // Show merge confirmation dialog instead of error
+      setMergeConfirmModal({ oldName: editModal.item.name, newName: name });
+      setEditModal(null);
       return;
     }
+
     const updated = vendors.map((item) =>
       item.name === editModal.item.name
         ? { ...item, name, emoji: editModal.newEmoji.slice(0, 2) || item.emoji }
@@ -361,6 +371,59 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
                 style={{ background: 'var(--brand-gradient)' }}
               >
                 {renameModal.shouldUpdateTransactions ? 'Update all & save' : 'Save without updating'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Merge confirmation modal */}
+      {mergeConfirmModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="merge-modal-title"
+        >
+          <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <h2 id="merge-modal-title" className="text-base font-semibold text-text">
+              Merge vendors?
+            </h2>
+            <div className="space-y-3">
+              <p className="text-sm text-text-muted leading-relaxed">
+                Vendor "<strong>{mergeConfirmModal.oldName}</strong>" will be merged into the existing vendor "<strong>{mergeConfirmModal.newName}</strong>".
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-900">
+                  <strong>⚠️ Warning:</strong> This action will move all transactions from "{mergeConfirmModal.oldName}" to "{mergeConfirmModal.newName}". This action <strong>cannot be reversed</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setMergeConfirmModal(null)}
+                className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Delete the old vendor
+                  const updated = vendors.filter((v) => v.name !== mergeConfirmModal.oldName);
+                  onSave(updated);
+                  // Open rename modal to handle transaction updates
+                  setRenameModal({
+                    oldName: mergeConfirmModal.oldName,
+                    newName: mergeConfirmModal.newName,
+                    shouldUpdateTransactions: false
+                  });
+                  setMergeConfirmModal(null);
+                }}
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Merge vendors
               </button>
             </div>
           </div>

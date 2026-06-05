@@ -36,6 +36,7 @@ export default function AccountsTab({
   const [addError, setAddError] = useState('');
   const [editModal, setEditModal] = useState<{ item: BudgetData; newName: string; newEmoji: string; error: string } | null>(null);
   const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string; shouldUpdateTransactions: boolean } | null>(null);
+  const [mergeConfirmModal, setMergeConfirmModal] = useState<{ oldName: string; newName: string } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     name: string;
     source: 'active' | 'archived';
@@ -80,10 +81,19 @@ export default function AccountsTab({
 
     const name = editModal.newName.trim();
     if (!name) return;
-    if (isDuplicate(name, accounts, editModal.item.name)) {
-      setEditModal({ ...editModal, error: `"${name}" already exists.` });
+
+    // Check if new name already exists in active accounts (not archived)
+    const nameExistsInActive = accounts.some(
+      (a) => a.name.toLowerCase() === name.toLowerCase() && a.name !== editModal.item.name
+    );
+
+    if (nameExistsInActive) {
+      // Show merge confirmation dialog instead of error
+      setMergeConfirmModal({ oldName: editModal.item.name, newName: name });
+      setEditModal(null);
       return;
     }
+
     const updated = userItems.map((item) =>
       item.name === editModal.item.name
         ? { ...item, name, emoji: editModal.newEmoji.slice(0, 2) || item.emoji }
@@ -412,6 +422,58 @@ export default function AccountsTab({
                 style={{ background: 'var(--brand-gradient)' }}
               >
                 {renameModal.shouldUpdateTransactions ? 'Update all & save' : 'Save without updating'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Merge confirmation modal */}
+      {mergeConfirmModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="merge-modal-title"
+        >
+          <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <h2 id="merge-modal-title" className="text-base font-semibold text-text">
+              Merge accounts?
+            </h2>
+            <div className="space-y-3">
+              <p className="text-sm text-text-muted leading-relaxed">
+                Account "<strong>{mergeConfirmModal.oldName}</strong>" will be merged into the existing account "<strong>{mergeConfirmModal.newName}</strong>".
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-900">
+                  <strong>⚠️ Warning:</strong> This action will move all transactions from "{mergeConfirmModal.oldName}" to "{mergeConfirmModal.newName}". This action <strong>cannot be reversed</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setMergeConfirmModal(null)}
+                className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Delete the old account
+                  onSaveActive(userItems.filter((a) => a.name !== mergeConfirmModal.oldName));
+                  // Open rename modal to handle transaction updates
+                  setRenameModal({
+                    oldName: mergeConfirmModal.oldName,
+                    newName: mergeConfirmModal.newName,
+                    shouldUpdateTransactions: false
+                  });
+                  setMergeConfirmModal(null);
+                }}
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Merge accounts
               </button>
             </div>
           </div>
