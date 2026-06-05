@@ -20,6 +20,12 @@ vi.mock('./SyncStatusContext', () => ({
   SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
+vi.mock('./PreferenceContext', () => ({
+  usePreferenceContext: vi.fn(() => ({ preference: null })),
+  PreferenceProvider: ({ children }: { children: React.ReactNode }) => children,
+  PreferenceContext: {},
+}));
+
 import { AuthContext } from '../auth/AuthContext';
 import { TransactionProvider } from './TransactionProvider';
 
@@ -34,14 +40,16 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe('TransactionProvider', () => {
-  it('passes a start date filter to useTransactions', () => {
+  it('passes a start date filter to useTransactions for non-premium users', () => {
+    mockUseTransactions.mockClear();
     render(<div />, { wrapper });
     expect(mockUseTransactions).toHaveBeenCalledWith(
       expect.objectContaining({ start: expect.any(Date) }),
     );
   });
 
-  it('start date is January 1st of the current year', () => {
+  it('start date is January 1st of the current year for non-premium users', () => {
+    mockUseTransactions.mockClear();
     render(<div />, { wrapper });
     const call = mockUseTransactions.mock.calls[0] as [{ start: Date }] | undefined;
     const { start } = (call?.[0] ?? {}) as { start: Date };
