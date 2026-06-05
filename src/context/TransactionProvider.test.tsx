@@ -20,12 +20,6 @@ vi.mock('./SyncStatusContext', () => ({
   SyncStatusProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-vi.mock('./PreferenceContext', () => ({
-  usePreferenceContext: vi.fn(() => ({ preference: null })),
-  PreferenceProvider: ({ children }: { children: React.ReactNode }) => children,
-  PreferenceContext: {},
-}));
-
 import { AuthContext } from '../auth/AuthContext';
 import { TransactionProvider } from './TransactionProvider';
 

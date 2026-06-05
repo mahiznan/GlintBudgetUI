@@ -48,7 +48,6 @@ export interface Preference {
   spendingChartType?: 'bar' | 'line';
   defaultPeriod?: Period;
   layoutWidth?: 'fixed' | 'full';
-  premium?: boolean; // true = load all transactions; false/undefined = load last 1 year only
 }
 
 export type PlannerPeriod = 'weekly' | 'monthly' | 'yearly' | 'custom';

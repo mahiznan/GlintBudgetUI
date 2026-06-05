@@ -17,6 +17,16 @@ vi.mock('firebase/auth', () => {
 
 vi.mock('../firebase/client', () => ({
   auth: { kind: 'mock-auth' },
+  app: { name: 'mock-app' },
+}));
+
+vi.mock('../firebase/db', () => ({
+  db: { kind: 'mock-db' },
+}));
+
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(),
+  getDoc: vi.fn(async () => ({ exists: () => false })),
 }));
 
 import { AuthProvider } from './AuthProvider';
@@ -50,10 +60,10 @@ describe('AuthProvider', () => {
     expect(screen.getByTestId('status')).toHaveTextContent('loading');
   });
 
-  it('flips to anonymous when callback fires with null user', () => {
-    let cb: (u: User | null) => void = () => {};
+  it('flips to anonymous when callback fires with null user', async () => {
+    let cb: (u: User | null) => Promise<void> = async () => {};
     onAuthStateChanged.mockImplementation((_, fn) => {
-      cb = fn as (u: User | null) => void;
+      cb = fn as (u: User | null) => Promise<void>;
       return () => {};
     });
 
@@ -62,14 +72,14 @@ describe('AuthProvider', () => {
         <Probe />
       </AuthProvider>,
     );
-    act(() => cb(null));
+    await act(async () => cb(null));
     expect(screen.getByTestId('status')).toHaveTextContent('anonymous');
   });
 
-  it('flips to authenticated and projects User into BudgetUser', () => {
-    let cb: (u: User | null) => void = () => {};
+  it('flips to authenticated and projects User into BudgetUser', async () => {
+    let cb: (u: User | null) => Promise<void> = async () => {};
     onAuthStateChanged.mockImplementation((_, fn) => {
-      cb = fn as (u: User | null) => void;
+      cb = fn as (u: User | null) => Promise<void>;
       return () => {};
     });
 
@@ -78,7 +88,7 @@ describe('AuthProvider', () => {
         <Probe />
       </AuthProvider>,
     );
-    act(() =>
+    await act(async () =>
       cb({
         uid: 'u-1',
         displayName: 'Rajesh M',

@@ -6,6 +6,7 @@ export interface BudgetUser {
   name: string | null;
   email: string | null;
   photoUrl: string | null;
+  user_isPremium?: boolean; // Premium status from users collection
 }
 
 export type AuthState =
