@@ -92,23 +92,26 @@ describe('vendor auto-add logic (integration via helpers)', () => {
     expect(vendorExists('amazon', vendors)).toBe(false);
   });
 
-  it('toTitleCase normalizes various vendor names correctly', () => {
-    expect(toTitleCase('WHOLE FOODS')).toBe('Whole Foods');
-    expect(toTitleCase("mcdonald's")).toBe("Mcdonald's");
-    expect(toTitleCase('  target  ')).toBe('Target');
+  it('vendor trimming preserves original casing', () => {
+    const trimmedLower = 'zepto'.trim();
+    const trimmedUpper = '  ZEPTO  '.trim();
+    const trimmedMixed = '  Zepto  '.trim();
+
+    expect(trimmedLower).toBe('zepto');
+    expect(trimmedUpper).toBe('ZEPTO');
+    expect(trimmedMixed).toBe('Zepto');
   });
 
-  it('combined: toTitleCase output can be checked with vendorExists', () => {
+  it('case-insensitive match works regardless of input casing', () => {
     const vendors = [
       { name: 'Zepto', emoji: '📱', type: 'vendor', parent: null },
       { name: 'Starbucks', emoji: '☕', type: 'vendor', parent: null },
     ];
 
-    const normalizedVendor = toTitleCase('ZEPTO');
-    expect(vendorExists(normalizedVendor, vendors)).toBe(true);
-
-    const newVendor = toTitleCase('amazon');
-    expect(vendorExists(newVendor, vendors)).toBe(false);
+    // Even though we trim and preserve case, case-insensitive check works
+    expect(vendorExists('zepto', vendors)).toBe(true);
+    expect(vendorExists('ZEPTO', vendors)).toBe(true);
+    expect(vendorExists('Zepto', vendors)).toBe(true);
   });
 });
 
@@ -155,13 +158,13 @@ describe('useAddTransaction', () => {
     expect(id).toBe(callArgs['id']);
   });
 
-  it('normalizes vendor name to title case before saving', () => {
+  it('trims vendor name and preserves original casing', () => {
     const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
-    const txWithLowerVendor = { ...baseTx, vendor: 'zepto' };
-    result.current.mutate(txWithLowerVendor);
+    const txWithSpacedVendor = { ...baseTx, vendor: '  zepto  ' };
+    result.current.mutate(txWithSpacedVendor);
 
     const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(callArgs['vendor']).toBe('Zepto');
+    expect(callArgs['vendor']).toBe('zepto');
   });
 });
 
@@ -177,13 +180,13 @@ describe('useUpdateTransaction', () => {
     expect(callArgs['sub_category']).toBe('Dining');
   });
 
-  it('normalizes vendor name to title case on update', () => {
+  it('trims vendor name and preserves original casing on update', () => {
     const { result } = renderHook(() => useUpdateTransaction('u1'), { wrapper });
-    result.current.mutate('tx-1', { vendor: 'ZEPTO' });
+    result.current.mutate('tx-1', { vendor: '  ZEPTO  ' });
 
     expect(updateDoc).toHaveBeenCalledTimes(1);
     const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
-    expect(callArgs['vendor']).toBe('Zepto');
+    expect(callArgs['vendor']).toBe('ZEPTO');
   });
 });
 

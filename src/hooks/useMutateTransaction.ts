@@ -68,20 +68,20 @@ export function useAddTransaction(uid: string) {
     const id = crypto.randomUUID();
     notifyWrite();
 
-    // Normalize vendor name to title case
-    const normalizedVendor = toTitleCase(tx.vendor);
+    // Trim vendor name (remove leading/trailing whitespace)
+    const trimmedVendor = tx.vendor.trim();
 
     // Check if vendor exists in preferences (case-insensitive)
     if (
       preference &&
       !vendorExists(
-        normalizedVendor,
+        trimmedVendor,
         (preference.vendors ?? []) as unknown as Array<{ name: string; [key: string]: unknown }>,
       )
     ) {
-      // Auto-add vendor to preferences
+      // Auto-add vendor to preferences with original casing
       const newVendor: BudgetData = {
-        name: normalizedVendor,
+        name: trimmedVendor,
         emoji: '🏪',
         type: 'vendor',
         parent: null,
@@ -90,9 +90,12 @@ export function useAddTransaction(uid: string) {
       updatePreference({ vendors: updatedVendors });
     }
 
-    // Save transaction with normalized vendor
-    const normalizedTx = { ...tx, vendor: normalizedVendor };
-    void setDoc(doc(collection(db, 'transactions'), id), encodeTransaction(id, normalizedTx));
+    // Save transaction with trimmed vendor (original casing)
+    const txWithTrimmedVendor = { ...tx, vendor: trimmedVendor };
+    void setDoc(
+      doc(collection(db, 'transactions'), id),
+      encodeTransaction(id, txWithTrimmedVendor),
+    );
     return id;
   }
 
@@ -107,21 +110,21 @@ export function useUpdateTransaction(uid: string) {
   function mutate(id: string, patch: TxPatch): void {
     notifyWrite();
 
-    // If patch includes vendor, normalize it
+    // If patch includes vendor, trim it
     if (patch.vendor !== undefined) {
-      const normalizedVendor = toTitleCase(patch.vendor);
+      const trimmedVendor = patch.vendor.trim();
 
       // Check if vendor exists in preferences (case-insensitive)
       if (
         preference &&
         !vendorExists(
-          normalizedVendor,
+          trimmedVendor,
           (preference.vendors ?? []) as unknown as Array<{ name: string; [key: string]: unknown }>,
         )
       ) {
-        // Auto-add vendor to preferences
+        // Auto-add vendor to preferences with original casing
         const newVendor: BudgetData = {
-          name: normalizedVendor,
+          name: trimmedVendor,
           emoji: '🏪',
           type: 'vendor',
           parent: null,
@@ -130,8 +133,8 @@ export function useUpdateTransaction(uid: string) {
         updatePreference({ vendors: updatedVendors });
       }
 
-      // Update patch with normalized vendor
-      patch = { ...patch, vendor: normalizedVendor };
+      // Update patch with trimmed vendor (original casing)
+      patch = { ...patch, vendor: trimmedVendor };
     }
 
     void updateDoc(doc(db, 'transactions', id), encodePatch(patch));
