@@ -7,6 +7,8 @@
  * normalizes them to title case, and adds them to the user's
  * preferences vendor list (avoiding duplicates).
  *
+ * Uses Firebase Admin SDK to bypass security rules.
+ *
  * Usage:
  *   node scripts/migrate-vendors.js <user-id>
  *
@@ -17,17 +19,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initializeApp } from 'firebase/app';
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import admin from 'firebase-admin';
 
 // Load environment variables from .env.local
 const __filename = fileURLToPath(import.meta.url);
@@ -75,17 +67,22 @@ function vendorExists(name, vendors) {
 }
 
 async function migrateVendors(userId) {
-  // Validate Firebase config
-  const firebaseConfig = {
-    apiKey: envVars.VITE_FIREBASE_API_KEY,
-    authDomain: envVars.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: envVars.VITE_FIREBASE_PROJECT_ID,
-    appId: envVars.VITE_FIREBASE_APP_ID,
-    messagingSenderId: envVars.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    storageBucket: envVars.VITE_FIREBASE_STORAGE_BUCKET,
-  };
+  // Check for service account file
+  const serviceAccountPath = path.join(__dirname, 'serviceAccount.json');
 
-  if (!firebaseConfig.projectId) {
+  if (!fs.existsSync(serviceAccountPath)) {
+    console.error('❌ Service account file not found at scripts/serviceAccount.json');
+    console.error('\n💡 To set up the migration script:');
+    console.error('   1. Go to Firebase Console → Project settings → Service accounts');
+    console.error('   2. Click "Generate new private key"');
+    console.error('   3. Save the JSON file as scripts/serviceAccount.json');
+    console.error('\n⚠️  Keep serviceAccount.json private and never commit it to git!\n');
+    process.exit(1);
+  }
+
+  // Validate Firebase config
+  const projectId = envVars.VITE_FIREBASE_PROJECT_ID;
+  if (!projectId) {
     console.error('❌ Firebase config not found. Please set environment variables in .env.local');
     process.exit(1);
   }
@@ -93,21 +90,40 @@ async function migrateVendors(userId) {
   console.log(`\n📦 Vendor Migration Script`);
   console.log(`User ID: ${userId}\n`);
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  // Initialize Firebase Admin SDK
+  try {
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
+
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: projectId,
+      });
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize Firebase Admin SDK');
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    process.exit(1);
+  }
+
+  const db = admin.firestore();
 
   try {
     // 1. Fetch all transactions for this user
     console.log('📝 Fetching transactions...');
-    const txQuery = query(collection(db, 'transactions'), where('user_id', '==', userId));
-    const txSnapshot = await getDocs(txQuery);
-    const transactions = txSnapshot.docs.map((doc) => doc.data());
+    const txSnapshot = await db.collection('transactions').where('user_id', '==', userId).get();
 
-    if (transactions.length === 0) {
+    if (txSnapshot.empty) {
       console.log('⚠️  No transactions found for this user.');
       process.exit(0);
     }
+
+    const transactions = [];
+    txSnapshot.forEach((doc) => {
+      transactions.push(doc.data());
+    });
 
     console.log(`✅ Found ${transactions.length} transactions\n`);
 
@@ -131,15 +147,14 @@ async function migrateVendors(userId) {
 
     // 3. Fetch user preferences
     console.log('📋 Fetching user preferences...');
-    const prefRef = doc(db, 'preference', userId);
-    const prefSnap = await getDoc(prefRef);
+    const prefDoc = await db.collection('preference').doc(userId).get();
 
-    if (!prefSnap.exists()) {
+    if (!prefDoc.exists) {
       console.error('❌ Preferences document not found for this user.');
       process.exit(1);
     }
 
-    const preference = prefSnap.data();
+    const preference = prefDoc.data();
     const existingVendors = preference.vendors ?? [];
     console.log(`✅ User has ${existingVendors.length} vendors already in preferences\n`);
 
@@ -192,7 +207,7 @@ async function migrateVendors(userId) {
       console.log('💾 Updating preferences document...');
       const updatedVendors = [...existingVendors, ...vendorsToAdd];
 
-      await updateDoc(prefRef, {
+      await db.collection('preference').doc(userId).update({
         vendors: updatedVendors,
       });
 
@@ -214,8 +229,9 @@ async function migrateVendors(userId) {
     console.error('❌ Migration failed:');
     if (error instanceof Error) {
       console.error(error.message);
-      if (error.message.includes('auth/invalid-api-key')) {
-        console.error('\n💡 Tip: Check that your Firebase credentials in .env.local are correct.');
+      if (error.message.includes('Missing or insufficient permissions')) {
+        console.error('\n💡 Tip: Make sure serviceAccount.json has the correct permissions.');
+        console.error('   Check Firebase Console → Firestore → Rules to ensure access is allowed.');
       }
     } else {
       console.error(error);

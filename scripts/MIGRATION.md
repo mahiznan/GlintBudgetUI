@@ -12,7 +12,14 @@ With the auto-add vendors feature, all new vendors are automatically added to pr
 
 ## Prerequisites
 
-1. **Environment variables set up** in `.env.local`:
+1. **Firebase Service Account Key**
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Select your project → Settings (⚙️) → Service accounts
+   - Click "Generate new private key"
+   - Save the JSON file as `scripts/serviceAccount.json`
+   - ⚠️ **IMPORTANT**: Add `serviceAccount.json` to `.gitignore` to keep it private!
+
+2. **Environment variables set up** in `.env.local`:
    ```
    VITE_FIREBASE_API_KEY=...
    VITE_FIREBASE_AUTH_DOMAIN=...
@@ -22,9 +29,9 @@ With the auto-add vendors feature, all new vendors are automatically added to pr
    VITE_FIREBASE_STORAGE_BUCKET=...
    ```
 
-2. **Node.js installed** (v16+)
+3. **Node.js installed** (v16+)
 
-3. **User ID** - The Firebase UID of the user to migrate
+4. **User ID** - The Firebase UID of the user to migrate
 
 ## Usage
 
@@ -114,7 +121,32 @@ User ID: user123
 - **Batch processing**: All updates in a single operation
 - **Non-destructive**: Only adds vendors, never deletes or modifies existing ones
 
+## Security
+
+The migration script uses **Firebase Admin SDK**, which:
+- Bypasses Firestore security rules (requires authentication)
+- Requires a service account key from your Firebase project
+- Has full read/write access to your database
+
+**Keep `scripts/serviceAccount.json` private!**
+- Never commit it to version control (already in `.gitignore`)
+- Never share it publicly
+- Treat it like a password
+
 ## Troubleshooting
+
+### "Service account file not found"
+You need to generate a service account key:
+1. Go to Firebase Console → Project settings → Service accounts
+2. Click "Generate new private key"
+3. Save the JSON file as `scripts/serviceAccount.json`
+4. The file is automatically ignored by git (see `.gitignore`)
+
+### "Missing or insufficient permissions"
+The service account doesn't have access. Check:
+1. Service account was generated from the correct Firebase project
+2. Firestore rules allow read access (usually they do for Admin SDK)
+3. Try regenerating the service account key
 
 ### "Firebase config not found"
 Make sure `.env.local` exists and has all required `VITE_FIREBASE_*` variables filled in.
