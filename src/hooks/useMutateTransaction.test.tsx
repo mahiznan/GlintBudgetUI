@@ -80,6 +80,38 @@ describe('vendorExists', () => {
   });
 });
 
+describe('vendor auto-add logic (integration via helpers)', () => {
+  it('vendorExists detects duplicates case-insensitively', () => {
+    const vendors = [
+      { name: 'Zepto', emoji: '📱', type: 'vendor', parent: null },
+      { name: 'Starbucks', emoji: '☕', type: 'vendor', parent: null },
+    ];
+
+    expect(vendorExists('zepto', vendors)).toBe(true);
+    expect(vendorExists('ZEPTO', vendors)).toBe(true);
+    expect(vendorExists('amazon', vendors)).toBe(false);
+  });
+
+  it('toTitleCase normalizes various vendor names correctly', () => {
+    expect(toTitleCase('WHOLE FOODS')).toBe('Whole Foods');
+    expect(toTitleCase("mcdonald's")).toBe("Mcdonald's");
+    expect(toTitleCase('  target  ')).toBe('Target');
+  });
+
+  it('combined: toTitleCase output can be checked with vendorExists', () => {
+    const vendors = [
+      { name: 'Zepto', emoji: '📱', type: 'vendor', parent: null },
+      { name: 'Starbucks', emoji: '☕', type: 'vendor', parent: null },
+    ];
+
+    const normalizedVendor = toTitleCase('ZEPTO');
+    expect(vendorExists(normalizedVendor, vendors)).toBe(true);
+
+    const newVendor = toTitleCase('amazon');
+    expect(vendorExists(newVendor, vendors)).toBe(false);
+  });
+});
+
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>
     <SyncStatusProvider>
