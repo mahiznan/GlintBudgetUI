@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { BudgetData } from '../../firestore/types';
 import { useBulkRenameAccount } from '../../hooks/useBulkRenameAccount';
 import { useAuth } from '../../auth/AuthContext';
@@ -44,8 +44,25 @@ export default function AccountsTab({
   const [archivedOpen, setArchivedOpen] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
 
+  // Track which accounts are defaults
+  // An account is default if it matches a default item by name, OR if it's in accounts but not in the user-created items
+  const defaultAccountIndices = useMemo(() => {
+    const indices = new Set<number>();
+    const defaultNameSet = new Set(defaultItems.map(d => d.name.toLowerCase()));
+
+    accounts.forEach((account, idx) => {
+      // It's a default if the name matches a default item name
+      if (defaultNameSet.has(account.name.toLowerCase())) {
+        indices.add(idx);
+      }
+    });
+
+    return indices;
+  }, [accounts, defaultItems]);
+
   function isDefault(item: BudgetData): boolean {
-    return defaultItems.some((d) => d.name.toLowerCase() === item.name.toLowerCase());
+    const index = accounts.findIndex(a => a.name === item.name && a.emoji === item.emoji);
+    return defaultAccountIndices.has(index);
   }
 
   const userItems = accounts.filter((item) => !isDefault(item));
