@@ -18,6 +18,14 @@ vi.mock('../../context/TransactionContext', () => ({
   }),
 }));
 
+const mockAuthState = vi.hoisted(() => ({
+  status: 'authenticated' as const,
+  user: { uid: 'u1', name: 'Test', email: 'test@example.com', photoUrl: null, user_isPremium: false },
+}));
+vi.mock('../../auth/AuthContext', () => ({
+  useAuth: () => mockAuthState,
+}));
+
 function makeTx(vendor: string): Transaction {
   return {
     id: vendor,
@@ -107,45 +115,66 @@ describe('VendorsTab — add', () => {
   });
 });
 
-describe('VendorsTab — rename modal', () => {
+describe('VendorsTab — edit and rename flow', () => {
   beforeEach(() => {
     mockBulkRenameVendor.mockReset();
     mockTxCtx.transactions = [makeTx(saved.name)];
     mockTxCtx.loading = false;
+    mockAuthState.user!.user_isPremium = false;
   });
 
-  it('opens rename modal when saved vendor name changes', async () => {
+  it('opens edit modal when edit button is clicked', async () => {
+    renderTab({ onSave: vi.fn() });
+    await userEvent.click(screen.getByLabelText('Edit Starbucks'));
+    expect(screen.getByRole('dialog', { name: /edit vendor/i })).toBeInTheDocument();
+  });
+
+  it('opens rename modal when vendor name changes in edit modal', async () => {
     renderTab({ onSave: vi.fn() });
     await userEvent.click(screen.getByLabelText('Edit Starbucks'));
     const nameInput = screen.getByDisplayValue('Starbucks');
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'Starbucks Coffee');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    expect(screen.getByRole('dialog', { name: /update transactions/i })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /update vendor name/i })).toBeInTheDocument();
   });
 
-  it('calls bulkRenameVendor with correct args on "Yes, update all"', async () => {
+  it('shows premium promotion when user is non-premium', async () => {
+    renderTab({ onSave: vi.fn() });
+    await userEvent.click(screen.getByLabelText('Edit Starbucks'));
+    const nameInput = screen.getByDisplayValue('Starbucks');
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'Starbucks Coffee');
+    await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
+    expect(screen.getByText(/premium feature/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Update all existing transactions')).toBeDisabled();
+  });
+
+  it('calls bulkRenameVendor when checkbox is checked and button clicked', async () => {
+    mockAuthState.user!.user_isPremium = true;
     renderTab({ onSave: vi.fn(), uid: 'u1' });
     await userEvent.click(screen.getByLabelText('Edit Starbucks'));
     const nameInput = screen.getByDisplayValue('Starbucks');
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'Starbucks Coffee');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    await userEvent.click(screen.getByRole('button', { name: /yes, update all/i }));
+    const checkbox = screen.getByLabelText('Update all existing transactions') as HTMLInputElement;
+    await userEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: /update all & save/i }));
     expect(mockBulkRenameVendor).toHaveBeenCalledWith('u1', 'Starbucks', 'Starbucks Coffee');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('does NOT call bulkRenameVendor on "No, keep as-is"', async () => {
+  it('does NOT call bulkRenameVendor when checkbox is unchecked', async () => {
+    mockAuthState.user!.user_isPremium = true;
     renderTab({ onSave: vi.fn() });
     await userEvent.click(screen.getByLabelText('Edit Starbucks'));
     const nameInput = screen.getByDisplayValue('Starbucks');
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, 'Starbucks Coffee');
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }));
-    await userEvent.click(screen.getByRole('button', { name: /no, keep/i }));
+    await userEvent.click(screen.getByRole('button', { name: /save without updating/i }));
     expect(mockBulkRenameVendor).not.toHaveBeenCalled();
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('does NOT open rename modal when only emoji changes', async () => {

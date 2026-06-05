@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { BudgetData } from '../../firestore/types';
 import { useBulkRenameVendor } from '../../hooks/useBulkRenameVendor';
 import { useTransactionContext } from '../../context/TransactionContext';
+import { useAuth } from '../../auth/AuthContext';
 
 interface VendorsTabProps {
   vendors: BudgetData[];
@@ -19,6 +20,9 @@ function isDuplicate(name: string, allNames: Set<string>, excludeName?: string):
 export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
   const { mutate: bulkRenameVendor } = useBulkRenameVendor();
   const { transactions, loading: txLoading } = useTransactionContext();
+  const auth = useAuth();
+  const isPremium = auth.status === 'authenticated' && (auth.user?.user_isPremium ?? false);
+
   const vendorNames = useMemo(() => {
     const names = new Set<string>();
     for (const t of transactions) {
@@ -28,14 +32,11 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
     return names;
   }, [transactions]);
 
-  const [editingName, setEditingName] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editEmoji, setEditEmoji] = useState('');
-  const [editError, setEditError] = useState('');
   const [addName, setAddName] = useState('');
   const [addEmoji, setAddEmoji] = useState('');
   const [addError, setAddError] = useState('');
-  const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string } | null>(null);
+  const [editModal, setEditModal] = useState<{ item: BudgetData; newName: string; newEmoji: string; error: string } | null>(null);
+  const [renameModal, setRenameModal] = useState<{ oldName: string; newName: string; shouldUpdateTransactions: boolean } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
   const [fromTxOpen, setFromTxOpen] = useState(false);
   const [txSearch, setTxSearch] = useState('');
@@ -54,36 +55,36 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
     : txOnlyVendors;
 
   function startEdit(item: BudgetData) {
-    setEditingName(item.name);
-    setEditName(item.name);
-    setEditEmoji(item.emoji ?? '');
-    setEditError('');
+    setEditModal({
+      item,
+      newName: item.name,
+      newEmoji: item.emoji ?? '',
+      error: '',
+    });
   }
 
   function cancelEdit() {
-    setEditingName(null);
-    setEditError('');
+    setEditModal(null);
   }
 
   function handleSaveEdit() {
-    const oldName = editingName!;
-    const name = editName.trim();
+    if (!editModal) return;
+    const name = editModal.newName.trim();
     if (!name) return;
-    if (isDuplicate(name, allVendorNames, oldName)) {
-      setEditError(`"${name}" already exists.`);
+    if (isDuplicate(name, allVendorNames, editModal.item.name)) {
+      setEditModal({ ...editModal, error: `"${name}" already exists.` });
       return;
     }
     const updated = vendors.map((item) =>
-      item.name === oldName
-        ? { ...item, name, emoji: editEmoji.slice(0, 2) || item.emoji }
+      item.name === editModal.item.name
+        ? { ...item, name, emoji: editModal.newEmoji.slice(0, 2) || item.emoji }
         : item,
     );
     onSave(updated);
-    if (name !== oldName) {
-      setRenameModal({ oldName, newName: name });
+    if (name !== editModal.item.name) {
+      setRenameModal({ oldName: editModal.item.name, newName: name, shouldUpdateTransactions: false });
     }
-    setEditingName(null);
-    setEditError('');
+    setEditModal(null);
   }
 
   function handleAdd() {
@@ -112,7 +113,7 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
     if (isDuplicate(newName, allVendorNames, oldName)) {
       return `"${newName}" already exists.`;
     }
-    setRenameModal({ oldName, newName });
+    setRenameModal({ oldName, newName, shouldUpdateTransactions: false });
     return null;
   }
 
@@ -129,66 +130,25 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
         {vendors.length > 0 && (
           <div className="divide-y divide-border">
             {vendors.map((item) => (
-              <div key={item.name} className="px-5 py-3">
-                {editingName === item.name ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={editEmoji}
-                        onChange={(e) => setEditEmoji(e.target.value.slice(0, 2))}
-                        className="w-10 text-center border border-border rounded-lg p-1.5 text-sm"
-                        placeholder="😀"
-                        aria-label="Emoji"
-                        maxLength={2}
-                      />
-                      <input
-                        type="text"
-                        value={editName}
-                        onChange={(e) => { setEditName(e.target.value); setEditError(''); }}
-                        className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm"
-                        aria-label="Name"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSaveEdit}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-                        style={{ background: 'var(--brand-gradient)' }}
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEdit}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border text-text-muted hover:text-text"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                    {editError && <p className="text-xs text-red-600 mt-1">{editError}</p>}
-                  </>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 text-center text-sm">{item.emoji ?? ''}</span>
-                    <span className="flex-1 text-sm text-text">{item.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => startEdit(item)}
-                      className="text-text-muted hover:text-brand p-1"
-                      aria-label={`Edit ${item.name}`}
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteDialog(item.name)}
-                      className="text-text-muted hover:text-red-600 p-1"
-                      aria-label={`Delete ${item.name}`}
-                    >
-                      🗑
-                    </button>
-                  </div>
-                )}
+              <div key={item.name} className="flex items-center gap-3 px-5 py-3">
+                <span className="w-6 text-center text-sm">{item.emoji ?? ''}</span>
+                <span className="flex-1 text-sm text-text">{item.name}</span>
+                <button
+                  type="button"
+                  onClick={() => startEdit(item)}
+                  className="text-text-muted hover:text-brand p-1"
+                  aria-label={`Edit ${item.name}`}
+                >
+                  ✏️
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteDialog(item.name)}
+                  className="text-text-muted hover:text-red-600 p-1"
+                  aria-label={`Delete ${item.name}`}
+                >
+                  🗑
+                </button>
               </div>
             ))}
           </div>
@@ -277,7 +237,65 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
         )}
       </div>
 
-      {/* Rename modal */}
+      {/* Edit vendor modal */}
+      {editModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-modal-title"
+        >
+          <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <h2 id="edit-modal-title" className="text-base font-semibold text-text">
+              Edit vendor
+            </h2>
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Emoji</label>
+                <input
+                  type="text"
+                  value={editModal.newEmoji}
+                  onChange={(e) => setEditModal({ ...editModal, newEmoji: e.target.value.slice(0, 2) })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  placeholder="😀"
+                  aria-label="Emoji"
+                  maxLength={2}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">Name</label>
+                <input
+                  type="text"
+                  value={editModal.newName}
+                  onChange={(e) => setEditModal({ ...editModal, newName: e.target.value, error: '' })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm mt-1"
+                  aria-label="Name"
+                />
+              </div>
+              {editModal.error && <p className="text-xs text-red-600">{editModal.error}</p>}
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                className="text-xs font-semibold px-4 py-2 rounded-lg text-white"
+                style={{ background: 'var(--brand-gradient)' }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename modal with update transactions option */}
       {renameModal && (
         <div
           className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
@@ -287,34 +305,62 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
         >
           <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm flex flex-col gap-4">
             <h2 id="rename-modal-title" className="text-base font-semibold text-text">
-              Update transactions?
+              Update vendor name
             </h2>
             <p className="text-sm text-text-muted leading-relaxed">
-              Do you want to update all existing transactions from{' '}
-              <strong>"{renameModal.oldName}"</strong> to{' '}
-              <strong>"{renameModal.newName}"</strong>?
+              Vendor "<strong>{renameModal.oldName}</strong>" will be renamed to "<strong>{renameModal.newName}</strong>".
             </p>
-            <p className="text-xs text-text-muted italic">
-              Choosing No will keep old transactions linked to "{renameModal.oldName}".
-            </p>
+
+            {/* Update transactions checkbox section */}
+            <div className="border-t border-border pt-4">
+              <div className={`flex items-start gap-3 ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <input
+                  type="checkbox"
+                  id="update-transactions"
+                  checked={renameModal.shouldUpdateTransactions}
+                  onChange={(e) => setRenameModal({ ...renameModal, shouldUpdateTransactions: e.target.checked })}
+                  disabled={!isPremium}
+                  className="mt-1 cursor-pointer disabled:cursor-not-allowed"
+                  aria-label="Update all existing transactions"
+                />
+                <div className="flex-1">
+                  <label htmlFor="update-transactions" className={`text-sm font-medium text-text ${!isPremium ? 'cursor-not-allowed' : ''}`}>
+                    Update all existing transactions
+                  </label>
+                  <p className="text-xs text-text-muted mt-1">
+                    All past transactions with vendor "{renameModal.oldName}" will be updated to "{renameModal.newName}".
+                  </p>
+                  {!isPremium && (
+                    <div className="mt-2 p-2 bg-amber-50 rounded-lg">
+                      <p className="text-xs text-amber-900">
+                        💎 <strong>Premium feature:</strong> Upgrade to premium to update all past transactions. Non-premium users can only update future transactions.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setRenameModal(null)}
                 className="text-xs font-semibold px-4 py-2 rounded-lg border border-border text-text-muted hover:text-text"
               >
-                No, keep as-is
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  bulkRenameVendor(uid, renameModal.oldName, renameModal.newName);
+                  if (renameModal.shouldUpdateTransactions) {
+                    bulkRenameVendor(uid, renameModal.oldName, renameModal.newName);
+                  }
                   setRenameModal(null);
                 }}
                 className="text-xs font-semibold px-4 py-2 rounded-lg text-white"
                 style={{ background: 'var(--brand-gradient)' }}
               >
-                Yes, update all
+                {renameModal.shouldUpdateTransactions ? 'Update all & save' : 'Save without updating'}
               </button>
             </div>
           </div>
