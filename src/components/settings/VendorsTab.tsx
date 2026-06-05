@@ -413,12 +413,8 @@ export default function VendorsTab({ vendors, uid, onSave }: VendorsTabProps) {
                   // Delete the old vendor
                   const updated = vendors.filter((v) => v.name !== mergeConfirmModal.oldName);
                   onSave(updated);
-                  // Open rename modal to handle transaction updates
-                  setRenameModal({
-                    oldName: mergeConfirmModal.oldName,
-                    newName: mergeConfirmModal.newName,
-                    shouldUpdateTransactions: false
-                  });
+                  // Update all transactions with the new vendor name
+                  bulkRenameVendor(uid, mergeConfirmModal.oldName, mergeConfirmModal.newName);
                   setMergeConfirmModal(null);
                 }}
                 className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"

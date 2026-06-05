@@ -463,12 +463,8 @@ export default function AccountsTab({
                 onClick={() => {
                   // Delete the old account
                   onSaveActive(userItems.filter((a) => a.name !== mergeConfirmModal.oldName));
-                  // Open rename modal to handle transaction updates
-                  setRenameModal({
-                    oldName: mergeConfirmModal.oldName,
-                    newName: mergeConfirmModal.newName,
-                    shouldUpdateTransactions: false
-                  });
+                  // Update all transactions with the new account name
+                  bulkRename(uid, mergeConfirmModal.oldName, mergeConfirmModal.newName);
                   setMergeConfirmModal(null);
                 }}
                 className="text-xs font-semibold px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
