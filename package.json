@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "migrate:vendors": "node scripts/migrate-vendors.js"
+    "migrate:vendors": "node scripts/migrate-vendors.js",
+    "migrate:user-transactions": "node scripts/migrate-user-transactions.js"
   },
   "dependencies": {
     "firebase": "^12.13.0",
