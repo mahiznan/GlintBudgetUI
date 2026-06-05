@@ -176,6 +176,15 @@ describe('useUpdateTransaction', () => {
     expect(callArgs['amount']).toBe(999);
     expect(callArgs['sub_category']).toBe('Dining');
   });
+
+  it('normalizes vendor name to title case on update', () => {
+    const { result } = renderHook(() => useUpdateTransaction('u1'), { wrapper });
+    result.current.mutate('tx-1', { vendor: 'ZEPTO' });
+
+    expect(updateDoc).toHaveBeenCalledTimes(1);
+    const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
+    expect(callArgs['vendor']).toBe('Zepto');
+  });
 });
 
 describe('useDeleteTransaction', () => {
