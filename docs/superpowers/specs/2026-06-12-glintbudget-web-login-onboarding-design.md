@@ -34,11 +34,19 @@ palette*, not its exact mobile layout — the web is free to use a desktop-first
 
 ### Palette decision (explicit)
 
-The web brand token `--color-brand` is amber `#f59e0b` and is used throughout `/app`. The owner
-chose the **app-true green/teal** look for the login screen. To avoid regressing the documented
-brand, the login palette is **scoped to the login screen only** (local CSS variables / Tailwind
-classes on the login subtree). **Do not change the global `@theme` amber tokens in
-`src/styles/index.css`.**
+The web brand is **already green** — `src/styles/index.css` sets `--color-brand: rgb(150, 191, 13)`
+(lime) with accent `#22c55e` (the default "Lime" theme, plus switchable forest/ocean/amber themes).
+So the app-true green/lime/teal login accent is on-brand and matches both the iOS app and the web's
+default theme.
+
+What *is* login-only is the **dark deep-ink theme** (`#0B0F0D` background, light text). The rest of
+the site/`/app` is light. To avoid leaking the dark theme, login colors live in **login-scoped CSS**
+(a clearly-commented block in `src/styles/index.css` using `--login-*` variables and `.login-*`
+classes) plus Tailwind utilities on the login subtree. **Do not change the global `@theme` tokens or
+the existing light `.glass` utility** — add new `.login-glass` rather than overloading `.glass`.
+
+Headlines use the existing app font **Figtree** (`--font-sans`) in heavy weights for the bold,
+friendly feel — no new font is added.
 
 ## 3. Layout
 
