@@ -18,6 +18,7 @@ function setupMocks(layoutWidth?: 'fixed' | 'full') {
     preference: { layoutWidth } as never,
     loading: false,
     error: null,
+    applyPreferenceUpdate: vi.fn(),
   });
   vi.mocked(useAuth).mockReturnValue({ status: 'authenticated', user: { uid: 'u1' } } as never);
   vi.mocked(useUpdatePreference).mockReturnValue({

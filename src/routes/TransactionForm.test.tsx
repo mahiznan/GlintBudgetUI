@@ -74,6 +74,7 @@ const prefCtx = {
   },
   loading: false,
   error: null,
+  applyPreferenceUpdate: vi.fn(),
 };
 
 function Wrapper({ children }: { children: React.ReactNode }) {

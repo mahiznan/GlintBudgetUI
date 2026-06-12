@@ -4,31 +4,43 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
-  doc: vi.fn(() => 'pref-ref'),
+  doc: vi.fn(() => 'doc-ref'),
   setDoc: vi.fn(() => Promise.resolve()),
 }));
+
+const mockApplyPreferenceUpdate = vi.fn();
+vi.mock('../context/PreferenceContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../context/PreferenceContext')>();
+  return {
+    ...actual,
+    usePreferenceContext: () => ({
+      preference: null,
+      loading: false,
+      error: null,
+      applyPreferenceUpdate: mockApplyPreferenceUpdate,
+    }),
+  };
+});
 
 import { setDoc } from 'firebase/firestore';
 import { useUpdatePreference } from './useUpdatePreference';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SyncStatusProvider>{children}</SyncStatusProvider>
-);
+const wrapper = ({ children }: { children: React.ReactNode }) =>
+  React.createElement(SyncStatusProvider, null, children);
 
 describe('useUpdatePreference', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls setDoc with merge:true synchronously', () => {
+  it('calls applyPreferenceUpdate immediately (optimistic)', () => {
     const { result } = renderHook(() => useUpdatePreference('u1'), { wrapper });
-    result.current.mutate({ accounts: [] });
-    expect(vi.mocked(setDoc)).toHaveBeenCalledWith('pref-ref', { accounts: [] }, { merge: true });
+    result.current.mutate({ theme: 'ocean' });
+    expect(mockApplyPreferenceUpdate).toHaveBeenCalledWith({ theme: 'ocean' });
   });
 
-  it('saves default_entries as key-value object', () => {
+  it('calls setDoc with merge:true', () => {
     const { result } = renderHook(() => useUpdatePreference('u1'), { wrapper });
-    result.current.mutate({ default_entries: { account: 'HDFC', category: 'Food' } });
-    const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(callArgs['default_entries']).toEqual({ account: 'HDFC', category: 'Food' });
+    result.current.mutate({ theme: 'ocean' });
+    expect(setDoc).toHaveBeenCalledWith('doc-ref', { theme: 'ocean' }, { merge: true });
   });
 });

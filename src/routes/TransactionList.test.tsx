@@ -16,7 +16,7 @@ vi.mock('firebase/firestore', () => ({
 
 import TransactionList from './TransactionList';
 
-const prefCtx = { preference: null, loading: false, error: null };
+const prefCtx = { preference: null, loading: false, error: null, applyPreferenceUpdate: vi.fn() };
 const emptyTxCtx = { transactions: [], loading: false, error: null, hasPendingWrites: false };
 
 const today = new Date();
