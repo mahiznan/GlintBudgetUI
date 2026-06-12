@@ -15,6 +15,7 @@ export interface FirestorePreferencePartial {
   frequent_currencies?: string[];
   default_entries?: Record<string, string>;
   theme?: string;
+  colorMode?: 'system' | 'light' | 'dark';
   spendingChartType?: 'bar' | 'line';
   defaultPeriod?: Period;
   layoutWidth?: 'fixed' | 'full';

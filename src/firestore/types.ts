@@ -45,6 +45,7 @@ export interface Preference {
   bookmarkedCurrencies: string[];
   defaultEntries: Record<string, string> | null;
   theme?: string; // theme ID: "lime" | "forest" | "ocean" | "amber"
+  colorMode?: 'system' | 'light' | 'dark'; // web-only appearance; default 'light'; iOS ignores
   spendingChartType?: 'bar' | 'line';
   defaultPeriod?: Period;
   layoutWidth?: 'fixed' | 'full';
