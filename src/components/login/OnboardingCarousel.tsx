@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { SLIDES } from './slides';
+import PhoneFrame from './PhoneFrame';
 
 const INTERVAL_MS = 4200;
 
@@ -33,9 +34,22 @@ export default function OnboardingCarousel() {
             className={`login-slide${i === index ? ' login-slide--on' : ''}`}
             aria-hidden={i !== index}
           >
-            <div className="login-slide-inner">
-              {slide.eyebrow && <div className="login-eyebrow">{slide.eyebrow}</div>}
-              {slide.render()}
+            <div
+              className={`login-slide-inner${slide.screenshot ? ' login-slide-inner--with-phone' : ''}`}
+            >
+              <div className="min-w-0 flex-1">
+                {slide.eyebrow && <div className="login-eyebrow">{slide.eyebrow}</div>}
+                {slide.render()}
+              </div>
+              {slide.screenshot && (
+                <PhoneFrame
+                  src={slide.screenshot.src}
+                  alt={slide.screenshot.alt}
+                  width={110}
+                  tilt={slide.screenshot.tilt}
+                  yOffset={slide.screenshot.yOffset}
+                />
+              )}
             </div>
           </section>
         ))}
