@@ -113,8 +113,8 @@ describe('TransactionProvider', () => {
     const { result } = renderHook(() => useTransactionContext(), { wrapper });
     await act(async () => { await result.current.loadYear(2025); });
     // Check that one of the calls matches our expectation
-    const yearCall = mockFetchFn.mock.calls.find(call => {
-      const arg = call[0] as any;
+    const yearCall = mockFetchFn.mock.calls.find((call) => {
+      const arg = (call as any)?.[0];
       return arg?.start?.getFullYear?.() === 2025;
     });
     expect(yearCall).toBeDefined();
