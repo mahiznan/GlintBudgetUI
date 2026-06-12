@@ -39,7 +39,7 @@ describe('OnboardingCarousel', () => {
 
   it('jumps to a slide when its dot is clicked', () => {
     render(<OnboardingCarousel />);
-    fireEvent.click(screen.getByRole('button', { name: /go to slide 4/i }));
+    fireEvent.click(screen.getByRole('button', { name: /go to slide 5/i }));
     expect(activeSlide().textContent).toContain('superpowers');
   });
 

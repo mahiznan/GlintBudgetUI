@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import BudgetPlannerSlide from './BudgetPlannerSlide';
 import CategoryBars from './CategoryBars';
 import CategoryDonut from './CategoryDonut';
 import TransactionChip from './TransactionChip';
@@ -17,7 +18,7 @@ const BENEFITS = [
   { icon: '📸', title: 'Snap a receipt, done' },
 ];
 
-/** The five onboarding slides, ported from the iOS app. */
+/** The six onboarding slides, ported from the iOS app. */
 export const SLIDES: Slide[] = [
   {
     id: 'hook',
@@ -84,6 +85,11 @@ export const SLIDES: Slide[] = [
         </div>
       </>
     ),
+  },
+  {
+    id: 'budget-planner',
+    eyebrow: 'Budget Planner',
+    render: () => <BudgetPlannerSlide />,
   },
   {
     id: 'superpowers',
