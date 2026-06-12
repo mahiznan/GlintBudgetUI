@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import AppStoreSlide from './AppStoreSlide';
 import BudgetPlannerSlide from './BudgetPlannerSlide';
 import CategoryBars from './CategoryBars';
 import CategoryDonut from './CategoryDonut';
@@ -8,6 +9,7 @@ import { LOGIN_CATEGORIES, LOGIN_TOTAL } from './demoData';
 export interface Slide {
   id: string;
   eyebrow?: string;
+  screenshot?: { src: string; alt: string; tilt?: number; yOffset?: number };
   render: () => ReactNode;
 }
 
@@ -23,6 +25,7 @@ export const SLIDES: Slide[] = [
   {
     id: 'hook',
     eyebrow: 'Welcome',
+    screenshot: { src: '/onboarding/dashboard-light.png', alt: 'GlintBudget dashboard', tilt: 8, yOffset: 6 },
     render: () => (
       <>
         <h1 className="login-h1">
@@ -42,6 +45,7 @@ export const SLIDES: Slide[] = [
   {
     id: 'intelligence',
     eyebrow: 'Intelligence',
+    screenshot: { src: '/onboarding/search-light.png', alt: 'GlintBudget search', tilt: -8, yOffset: 6 },
     render: () => (
       <>
         <h1 className="login-h1">Smart by default.</h1>
@@ -69,6 +73,7 @@ export const SLIDES: Slide[] = [
   {
     id: 'analytics',
     eyebrow: 'Analytics',
+    screenshot: { src: '/onboarding/report-light.png', alt: 'GlintBudget category report', tilt: 8, yOffset: 6 },
     render: () => (
       <>
         <h1 className="login-h1">
@@ -89,6 +94,7 @@ export const SLIDES: Slide[] = [
   {
     id: 'budget-planner',
     eyebrow: 'Budget Planner',
+    screenshot: { src: '/onboarding/add-light.png', alt: 'GlintBudget add transaction', tilt: -8, yOffset: 6 },
     render: () => <BudgetPlannerSlide />,
   },
   {
@@ -111,6 +117,10 @@ export const SLIDES: Slide[] = [
         </div>
       </>
     ),
+  },
+  {
+    id: 'app-store',
+    render: () => <AppStoreSlide />,
   },
   {
     id: 'launch',
