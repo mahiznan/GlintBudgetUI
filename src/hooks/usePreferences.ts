@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/db';
 import type { BudgetData, Preference } from '../firestore/types';
@@ -65,36 +64,3 @@ export async function fetchPreferences(uid: string): Promise<Preference> {
   return docToPreference(uid, {});
 }
 
-// ---------------------------------------------------------------------------
-// Compatibility shim — used by PreferenceProvider until Task 6 replaces it
-// with a stateful context-based approach.
-// ---------------------------------------------------------------------------
-interface UsePreferencesResult {
-  data: Preference | null;
-  loading: boolean;
-  error: Error | null;
-  hasPendingWrites: boolean;
-}
-
-export function usePreferences(uid: string | null): UsePreferencesResult {
-  const [data, setData] = useState<Preference | null>(null);
-  const [loadedUid, setLoadedUid] = useState<string | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    if (!uid) return;
-    fetchPreferences(uid)
-      .then((pref) => {
-        setData(pref);
-        setLoadedUid(uid);
-      })
-      .catch((err: Error) => {
-        setError(err);
-        setLoadedUid(uid);
-      });
-  }, [uid]);
-
-  const loading = uid !== null && loadedUid !== uid;
-
-  return { data, loading, error, hasPendingWrites: false };
-}
