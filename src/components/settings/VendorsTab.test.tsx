@@ -14,7 +14,10 @@ vi.mock('../../context/TransactionContext', () => ({
     transactions: mockTxCtx.transactions,
     loading: mockTxCtx.loading,
     error: null,
-    hasPendingWrites: false,
+    addTransaction: vi.fn(),
+    updateTransaction: vi.fn(),
+    deleteTransaction: vi.fn(),
+    loadYear: vi.fn(),
   }),
 }));
 

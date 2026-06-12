@@ -13,6 +13,7 @@ function setup(status: 'synced' | 'syncing' | 'pending') {
     status,
     notifyWrite: vi.fn(),
     notifySnapshot: vi.fn(),
+    notifySynced: vi.fn(),
   });
 }
 

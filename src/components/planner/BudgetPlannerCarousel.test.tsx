@@ -8,12 +8,15 @@ vi.mock('../../context/PlannerContext', () => ({
     planners: [],
     loading: false,
     error: null,
-    hasPendingWrites: false,
+    addPlanner: vi.fn(() => 'id'),
+    updatePlanner: vi.fn(),
+    archivePlanner: vi.fn(),
+    deletePlanner: vi.fn(),
   })),
 }));
 
 vi.mock('../../context/TransactionContext', () => ({
-  useTransactionContext: vi.fn(() => ({ transactions: [], loading: false, error: null, hasPendingWrites: false })),
+  useTransactionContext: vi.fn(() => ({ transactions: [], loading: false, error: null, addTransaction: vi.fn(), updateTransaction: vi.fn(), deleteTransaction: vi.fn(), loadYear: vi.fn() })),
 }));
 
 vi.mock('../../hooks/usePlannerAggregation', () => ({
@@ -74,7 +77,10 @@ describe('BudgetPlannerCarousel', () => {
       planners: [makePlanner('p1', 'Monthly SGD'), makePlanner('p2', 'Weekly Cash')],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByText('Monthly SGD')).toBeTruthy();
@@ -86,7 +92,10 @@ describe('BudgetPlannerCarousel', () => {
       planners: [],
       loading: true,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByRole('status')).toBeTruthy();
@@ -101,7 +110,10 @@ describe('BudgetPlannerCarousel', () => {
       ],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<MemoryRouter><BudgetPlannerCarousel /></MemoryRouter>);
     expect(screen.getByText('Active')).toBeTruthy();

@@ -3,7 +3,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 
 vi.mock('../../context/PlannerContext', () => ({
-  usePlannerContext: vi.fn(() => ({ planners: [], loading: false, error: null, hasPendingWrites: false })),
+  usePlannerContext: vi.fn(() => ({
+    planners: [],
+    loading: false,
+    error: null,
+    addPlanner: vi.fn(() => 'id'),
+    updatePlanner: vi.fn(),
+    archivePlanner: vi.fn(),
+    deletePlanner: vi.fn(),
+  })),
 }));
 
 vi.mock('../../context/LayoutContext', () => ({
@@ -75,7 +83,10 @@ describe('PlannerSettings', () => {
       planners: [makePlanner()],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<PlannerSettings uid="u1" />);
     expect(screen.getByText('Monthly SGD')).toBeTruthy();
@@ -94,7 +105,10 @@ describe('PlannerSettings', () => {
       planners: [makePlanner()],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<PlannerSettings uid="u1" />);
     fireEvent.click(screen.getByRole('button', { name: /archive/i }));
@@ -108,7 +122,10 @@ describe('PlannerSettings', () => {
       planners: [makePlanner()],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<PlannerSettings uid="u1" />);
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
@@ -120,7 +137,10 @@ describe('PlannerSettings', () => {
       planners: [makePlanner({ id: 'p2', name: 'Old Plan', archived: true, active: false })],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addPlanner: vi.fn(() => 'id'),
+      updatePlanner: vi.fn(),
+      archivePlanner: vi.fn(),
+      deletePlanner: vi.fn(),
     });
     render(<PlannerSettings uid="u1" />);
     expect(screen.getByText(/archived/i)).toBeTruthy();

@@ -17,7 +17,7 @@ vi.mock('firebase/firestore', () => ({
 import TransactionList from './TransactionList';
 
 const prefCtx = { preference: null, loading: false, error: null, applyPreferenceUpdate: vi.fn() };
-const emptyTxCtx = { transactions: [], loading: false, error: null, hasPendingWrites: false };
+const emptyTxCtx = { transactions: [], loading: false, error: null, addTransaction: vi.fn(), updateTransaction: vi.fn(), deleteTransaction: vi.fn(), loadYear: vi.fn() };
 
 const today = new Date();
 
@@ -75,7 +75,10 @@ describe('TransactionList', () => {
       transactions: [matchingTx, nonMatchingTx],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addTransaction: vi.fn(),
+      updateTransaction: vi.fn(),
+      deleteTransaction: vi.fn(),
+      loadYear: vi.fn(),
     });
     await userEvent.type(screen.getByPlaceholderText(/search transactions/i), 'basket');
     expect(screen.getByText('Big Basket')).toBeInTheDocument();
@@ -91,7 +94,10 @@ describe('TransactionList', () => {
       transactions: [matchingTx, txWithDifferentAccount],
       loading: false,
       error: null,
-      hasPendingWrites: false,
+      addTransaction: vi.fn(),
+      updateTransaction: vi.fn(),
+      deleteTransaction: vi.fn(),
+      loadYear: vi.fn(),
     });
     await userEvent.type(screen.getByPlaceholderText(/search transactions/i), 'HDFC');
     expect(screen.getByText('Big Basket')).toBeInTheDocument();
