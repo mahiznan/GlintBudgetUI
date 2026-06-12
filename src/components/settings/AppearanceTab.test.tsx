@@ -3,17 +3,29 @@ import { vi, describe, it, expect } from 'vitest';
 
 vi.mock('../../context/ThemeContext', () => ({ useTheme: vi.fn() }));
 vi.mock('../../context/LayoutContext', () => ({ useLayout: vi.fn() }));
+vi.mock('../../context/ColorModeContext', () => ({ useColorMode: vi.fn() }));
 
 import { useTheme } from '../../context/ThemeContext';
 import { useLayout } from '../../context/LayoutContext';
+import { useColorMode } from '../../context/ColorModeContext';
 import AppearanceTab from './AppearanceTab';
 
-function setup(themeId = 'lime', layoutWidth: 'fixed' | 'full' = 'fixed') {
+function setup(
+  themeId = 'lime',
+  layoutWidth: 'fixed' | 'full' = 'fixed',
+  mode: 'system' | 'light' | 'dark' = 'light',
+) {
   const setTheme = vi.fn().mockResolvedValue(undefined);
   const setLayoutWidth = vi.fn().mockResolvedValue(undefined);
+  const setMode = vi.fn();
   vi.mocked(useTheme).mockReturnValue({ themeId, setTheme });
   vi.mocked(useLayout).mockReturnValue({ layoutWidth, setLayoutWidth });
-  return { setTheme, setLayoutWidth };
+  vi.mocked(useColorMode).mockReturnValue({
+    mode,
+    resolvedMode: mode === 'dark' ? 'dark' : 'light',
+    setMode,
+  });
+  return { setTheme, setLayoutWidth, setMode };
 }
 
 describe('AppearanceTab — theme', () => {
@@ -75,5 +87,31 @@ describe('AppearanceTab — layout width', () => {
     render(<AppearanceTab />);
     fireEvent.click(screen.getByText('Full width').closest('button')!);
     expect(setLayoutWidth).toHaveBeenCalledWith('full');
+  });
+});
+
+describe('AppearanceTab — color mode', () => {
+  it('renders System, Light, and Dark options', () => {
+    setup();
+    render(<AppearanceTab />);
+    expect(screen.getByText('System')).toBeInTheDocument();
+    expect(screen.getByText('Light')).toBeInTheDocument();
+    expect(screen.getByText('Dark')).toBeInTheDocument();
+  });
+
+  it('marks the active mode with the ✓ indicator', () => {
+    setup('lime', 'fixed', 'dark');
+    render(<AppearanceTab />);
+    const darkBtn = screen.getByText('Dark').closest('button')!;
+    expect(darkBtn).toHaveTextContent('✓');
+    const lightBtn = screen.getByText('Light').closest('button')!;
+    expect(lightBtn).not.toHaveTextContent('✓');
+  });
+
+  it('clicking a mode calls setMode with its id', () => {
+    const { setMode } = setup('lime', 'fixed', 'light');
+    render(<AppearanceTab />);
+    fireEvent.click(screen.getByText('Dark').closest('button')!);
+    expect(setMode).toHaveBeenCalledWith('dark');
   });
 });
