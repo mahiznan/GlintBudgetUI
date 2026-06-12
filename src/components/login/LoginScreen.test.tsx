@@ -23,7 +23,7 @@ function renderScreen() {
 describe('LoginScreen', () => {
   it('renders the brand wordmark', () => {
     renderScreen();
-    expect(screen.getByText('GlintBudget')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /glintbudget logo/i })).toBeInTheDocument();
   });
 
   it('renders the persistent Google sign-in button', () => {

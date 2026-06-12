@@ -33,7 +33,7 @@ describe('App', () => {
   it('renders the login screen at root route', () => {
     render(<App />);
     // Landing now renders the onboarding login screen: wordmark, hero heading, sign-in button.
-    expect(screen.getByText('GlintBudget')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /glintbudget logo/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: /see your money/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in with google/i })).toBeInTheDocument();
   });

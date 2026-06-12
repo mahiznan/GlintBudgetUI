@@ -21,7 +21,7 @@ function renderLanding() {
 describe('Landing route', () => {
   it('renders the GlintBudget wordmark', () => {
     renderLanding();
-    expect(screen.getByText('GlintBudget')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /glintbudget logo/i })).toBeInTheDocument();
   });
 
   it('renders the hero heading', () => {
