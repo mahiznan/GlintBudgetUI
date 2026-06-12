@@ -7,6 +7,7 @@ import { TransactionProvider } from './context/TransactionContext';
 import { PlannerProvider } from './context/PlannerContext';
 import { SyncStatusProvider } from './context/SyncStatusContext';
 import { ThemeProvider } from './context/ThemeProvider';
+import { ColorModeProvider } from './context/ColorModeProvider';
 import { LayoutProvider } from './context/LayoutProvider';
 import Landing from './routes/Landing';
 
@@ -96,9 +97,11 @@ export default function App() {
           <TransactionProvider>
             <PlannerProvider>
             <ThemeProvider>
-              <LayoutProvider>
-                <RouterProvider router={router} />
-              </LayoutProvider>
+              <ColorModeProvider>
+                <LayoutProvider>
+                  <RouterProvider router={router} />
+                </LayoutProvider>
+              </ColorModeProvider>
             </ThemeProvider>
             </PlannerProvider>
           </TransactionProvider>
