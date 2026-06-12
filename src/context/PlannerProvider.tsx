@@ -77,6 +77,7 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!uid) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlanners([]);
       archivedThisSession.current.clear();
       return;

@@ -108,6 +108,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
       navigate('/app/transactions');
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({
       type: tx.amount < 0 ? 'expense' : 'income',
       amount: String(Math.abs(tx.amount)),

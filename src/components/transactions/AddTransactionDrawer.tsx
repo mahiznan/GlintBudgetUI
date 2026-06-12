@@ -150,6 +150,7 @@ export default function AddTransactionDrawer({
     if (!open || !editId) return;
     const tx = transactions.find((t) => t.id === editId);
     if (!tx) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({
       type: tx.amount < 0 ? 'expense' : 'income',
       amount: String(Math.abs(tx.amount)),

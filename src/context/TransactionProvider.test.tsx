@@ -90,7 +90,7 @@ describe('TransactionProvider', () => {
 
   it('updateTransaction patches transaction in list', async () => {
     const txRecord = { ...baseTx, id: 'tx-1' };
-    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]) as any);
+    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]));
     const { result } = renderHook(() => useTransactionContext(), { wrapper });
     await waitFor(() => expect(result.current.transactions).toHaveLength(1));
     act(() => { result.current.updateTransaction('tx-1', { amount: -999 }); });
@@ -101,7 +101,7 @@ describe('TransactionProvider', () => {
 
   it('deleteTransaction removes from list', async () => {
     const txRecord = { ...baseTx, id: 'tx-1' };
-    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]) as any);
+    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]));
     const { result } = renderHook(() => useTransactionContext(), { wrapper });
     await waitFor(() => expect(result.current.transactions).toHaveLength(1));
     act(() => { result.current.deleteTransaction('tx-1'); });
@@ -114,7 +114,7 @@ describe('TransactionProvider', () => {
     await act(async () => { await result.current.loadYear(2025); });
     // Check that one of the calls matches our expectation
     const yearCall = mockFetchFn.mock.calls.find((call) => {
-      const arg = (call as any)?.[0];
+      const arg = (call[0] as { start?: Date } | undefined);
       return arg?.start?.getFullYear?.() === 2025;
     });
     expect(yearCall).toBeDefined();

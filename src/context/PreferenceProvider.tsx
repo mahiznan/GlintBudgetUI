@@ -21,6 +21,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!uid) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreference(null);
       return;
     }

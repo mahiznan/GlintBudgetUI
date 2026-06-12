@@ -83,6 +83,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!uid) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTransactions([]);
       return;
     }
