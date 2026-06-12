@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth } from '../firebase/client';
@@ -30,12 +30,16 @@ async function toBudgetUser(user: User): Promise<BudgetUser> {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading', user: null });
+  const lastUid = useRef<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user === null) {
+        lastUid.current = null;
         setState({ status: 'anonymous', user: null });
       } else {
+        if (lastUid.current === user.uid) return; // UID guard: skip redundant Firestore read
+        lastUid.current = user.uid;
         const budgetUser = await toBudgetUser(user);
         setState({ status: 'authenticated', user: budgetUser });
       }

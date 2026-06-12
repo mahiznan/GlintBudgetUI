@@ -32,8 +32,10 @@ vi.mock('firebase/firestore', () => ({
 import { AuthProvider } from './AuthProvider';
 import { useAuth } from './AuthContext';
 import { onAuthStateChanged as onAuthStateChangedFn } from 'firebase/auth';
+import { getDoc as getDocFn } from 'firebase/firestore';
 
 const onAuthStateChanged = vi.mocked(onAuthStateChangedFn);
+const getDoc = vi.mocked(getDocFn);
 
 function Probe() {
   const auth = useAuth();
@@ -110,5 +112,34 @@ describe('AuthProvider', () => {
     );
     unmount();
     expect(unsubscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call getDoc again when the same UID fires a second auth event', async () => {
+    let cb: (u: User | null) => Promise<void> = async () => {};
+    onAuthStateChanged.mockImplementation((_, fn) => {
+      cb = fn as (u: User | null) => Promise<void>;
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+
+    const testUser = {
+      uid: 'u1',
+      displayName: 'Alice',
+      email: 'alice@example.com',
+      photoURL: null,
+    } as User;
+
+    // First auth event
+    await act(async () => cb(testUser));
+    const firstCallCount = getDoc.mock.calls.length;
+
+    // Second auth event with same UID
+    await act(async () => cb(testUser));
+    expect(getDoc.mock.calls.length).toBe(firstCallCount);
   });
 });
