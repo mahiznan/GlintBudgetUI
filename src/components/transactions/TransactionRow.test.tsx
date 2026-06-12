@@ -67,6 +67,20 @@ describe('TransactionRow', () => {
     expect(amountEl).toHaveClass('text-green-600');
   });
 
+  it('row hover highlight uses a dark-aware token, not hardcoded slate', () => {
+    renderRow();
+    const row = screen.getByText('Food').closest('tr')!;
+    expect(row).toHaveClass('hover:bg-border');
+    expect(row).not.toHaveClass('hover:bg-slate-100');
+  });
+
+  it('category badge uses a theme-aware tint that adapts to dark mode', () => {
+    renderRow();
+    const badge = screen.getByText('Food');
+    expect(badge).toHaveClass('bg-brand/10');
+    expect(badge).not.toHaveClass('bg-green-50');
+  });
+
   it('has correct aria-labels on edit and delete buttons', () => {
     renderRow();
     expect(screen.getByRole('button', { name: /edit zepto/i })).toBeInTheDocument();

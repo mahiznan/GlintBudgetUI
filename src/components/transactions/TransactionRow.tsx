@@ -19,7 +19,7 @@ export default function TransactionRow({
 }: TransactionRowProps) {
   const currencySymbol = SYMBOL[tx.currency] ?? tx.currency;
   return (
-    <tr className="border-b border-border even:bg-surface-alt hover:bg-slate-100 transition-colors">
+    <tr className="border-b border-border even:bg-surface-alt hover:bg-border transition-colors">
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
           <span className="text-xl">{tx.icon || '💸'}</span>
@@ -30,7 +30,7 @@ export default function TransactionRow({
         </div>
       </td>
       <td className="py-3 px-4">
-        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-50 text-brand border border-green-200">
+        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-brand/10 text-brand border border-brand/20">
           {tx.category}
         </span>
       </td>
