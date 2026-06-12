@@ -343,6 +343,42 @@ body {
   -webkit-backdrop-filter: blur(14px);
   box-shadow: var(--login-shadow);
 }
+
+/* Phone frame used in onboarding slides */
+.login-phone-frame {
+  flex-shrink: 0;
+  border-radius: 18px;
+  border: 3px solid rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.login-phone-img {
+  width: 100%;
+  display: block;
+}
+
+/* Slide inner: row layout when a phone frame is present */
+.login-slide-inner--with-phone {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  text-align: left;
+}
+.login-slide-inner--with-phone .login-phone-frame {
+  flex-shrink: 0;
+}
+/* Hide phone on narrow viewports */
+@media (max-width: 639px) {
+  .login-slide-inner--with-phone .login-phone-frame {
+    display: none;
+  }
+  .login-slide-inner--with-phone {
+    text-align: center;
+  }
+}
+
 .login-chip {
   display: inline-flex;
   align-items: center;
