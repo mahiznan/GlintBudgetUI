@@ -10,12 +10,11 @@ interface Props {
 /** Donut chart drawn with a CSS conic-gradient — no charting library. */
 export default function CategoryDonut({ data, total }: Props) {
   const sum = data.reduce((acc, d) => acc + d.amount, 0) || 1;
-  let cursor = 0;
   const stops = data
     .map((d, i) => {
-      const start = (cursor / sum) * 100;
-      cursor += d.amount;
-      const end = (cursor / sum) * 100;
+      const before = data.slice(0, i).reduce((acc, x) => acc + x.amount, 0);
+      const start = (before / sum) * 100;
+      const end = ((before + d.amount) / sum) * 100;
       return `${SEGMENT_COLORS[i % SEGMENT_COLORS.length]} ${start}% ${end}%`;
     })
     .join(', ');

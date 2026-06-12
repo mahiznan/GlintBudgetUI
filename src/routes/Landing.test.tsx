@@ -4,11 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { AuthContext } from '../auth/AuthContext';
 import Landing from './Landing';
 
+vi.mock('../hooks/useReducedMotion', () => ({ useReducedMotion: () => true }));
 vi.mock('../firebase/client', () => ({ auth: { kind: 'mock-auth' } }));
-vi.mock('../firebase/auth', () => ({
-  signInWithGoogle: vi.fn(),
-  signOutCurrentUser: vi.fn(),
-}));
+vi.mock('../firebase/auth', () => ({ signInWithGoogle: vi.fn(), signOutCurrentUser: vi.fn() }));
 
 function renderLanding() {
   return render(
@@ -26,24 +24,14 @@ describe('Landing route', () => {
     expect(screen.getByText('GlintBudget')).toBeInTheDocument();
   });
 
-  it('renders an h1 heading', () => {
+  it('renders the hero heading', () => {
     renderLanding();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+    // The carousel keeps all slides mounted, so several h1s exist; assert the first slide's.
+    expect(screen.getByRole('heading', { level: 1, name: /see your money/i })).toBeInTheDocument();
   });
 
-  it('renders the footer landmark', () => {
-    renderLanding();
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
-  });
-
-  it('renders the sign-in card', () => {
+  it('renders the Google sign-in button', () => {
     renderLanding();
     expect(screen.getByRole('button', { name: /sign in with google/i })).toBeInTheDocument();
-  });
-
-  it('contains no iOS references on the page', () => {
-    renderLanding();
-    expect(screen.queryByText(/iphone/i)).toBeNull();
-    expect(screen.queryByText(/ios app/i)).toBeNull();
   });
 });

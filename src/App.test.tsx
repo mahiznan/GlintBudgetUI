@@ -23,14 +23,18 @@ vi.mock('firebase/firestore', () => ({
   getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
 }));
 
+// Reduced motion ON disables the login carousel's auto-advance timer so the
+// root-route render is deterministic and leaves no timer running.
+vi.mock('./hooks/useReducedMotion', () => ({ useReducedMotion: () => true }));
+
 import App from './App';
 
 describe('App', () => {
-  it('renders the landing page at root route', () => {
+  it('renders the login screen at root route', () => {
     render(<App />);
-    // Landing route renders: wordmark, h1 heading, footer
+    // Landing now renders the onboarding login screen: wordmark, hero heading, sign-in button.
     expect(screen.getByText('GlintBudget')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /see your money/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in with google/i })).toBeInTheDocument();
   });
 });
