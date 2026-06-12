@@ -4,7 +4,7 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot,
+  getDocs,
   doc,
   updateDoc,
   Timestamp,
@@ -24,7 +24,7 @@ interface State {
 
 type Action =
   | { type: 'fetch' }
-  | { type: 'success'; planners: BudgetPlanner[]; hasPendingWrites: boolean }
+  | { type: 'success'; planners: BudgetPlanner[] }
   | { type: 'error'; error: Error };
 
 function reducer(state: State, action: Action): State {
@@ -32,7 +32,7 @@ function reducer(state: State, action: Action): State {
     case 'fetch':
       return { ...state, loading: true, error: null };
     case 'success':
-      return { ...state, loading: false, planners: action.planners, hasPendingWrites: action.hasPendingWrites };
+      return { ...state, loading: false, planners: action.planners, hasPendingWrites: false };
     case 'error':
       return { ...state, loading: false, error: action.error };
   }
@@ -58,11 +58,23 @@ function docToPlanner(id: string, raw: DocumentData): BudgetPlanner {
     filterAccounts: (raw['filter_accounts'] as string[]) ?? [],
     filterVendors: (raw['filter_vendors'] as string[]) ?? [],
     filterPayments: (raw['filter_payments'] as string[]) ?? [],
-    categoryBudgets: (raw['category_budgets'] as Array<{ category: string; amount: number }>) ?? [],
+    categoryBudgets:
+      (raw['category_budgets'] as Array<{ category: string; amount: number }>) ?? [],
     chartView: (raw['chart_view'] as BudgetPlanner['chartView']) ?? 'bar',
     createdAt: (raw['created_at'] as { toDate(): Date }).toDate(),
     updatedAt: (raw['updated_at'] as { toDate(): Date }).toDate(),
   };
+}
+
+export async function fetchPlanners(uid: string): Promise<BudgetPlanner[]> {
+  if (!uid) return [];
+  const q = query(
+    collection(db, 'budget_planners'),
+    where('user_id', '==', uid),
+    orderBy('created_at', 'desc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => docToPlanner(d.id, d.data()));
 }
 
 export function usePlanners(uid: string): State {
@@ -75,20 +87,17 @@ export function usePlanners(uid: string): State {
   });
 
   useEffect(() => {
-    if (!uid) return;
+    if (!uid) {
+      dispatch({ type: 'success', planners: [] });
+      return;
+    }
     dispatch({ type: 'fetch' });
 
-    const q = query(
-      collection(db, 'budget_planners'),
-      where('user_id', '==', uid),
-      orderBy('created_at', 'desc'),
-    );
+    let isMounted = true;
 
-    return onSnapshot(
-      q,
-      { includeMetadataChanges: true },
-      (snap) => {
-        const planners = snap.docs.map((d) => docToPlanner(d.id, d.data()));
+    const loadPlanners = async () => {
+      try {
+        const planners = await fetchPlanners(uid);
 
         // Auto-archive expired non-repeatable planners
         for (const planner of planners) {
@@ -102,14 +111,21 @@ export function usePlanners(uid: string): State {
           }
         }
 
-        dispatch({
-          type: 'success',
-          planners,
-          hasPendingWrites: snap.metadata.hasPendingWrites,
-        });
-      },
-      (err) => dispatch({ type: 'error', error: err }),
-    );
+        if (isMounted) {
+          dispatch({ type: 'success', planners });
+        }
+      } catch (err) {
+        if (isMounted) {
+          dispatch({ type: 'error', error: err as Error });
+        }
+      }
+    };
+
+    void loadPlanners();
+
+    return () => {
+      isMounted = false;
+    };
   }, [uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return state;

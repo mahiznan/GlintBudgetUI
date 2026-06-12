@@ -8,6 +8,7 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(() => 'q'),
   where: vi.fn(() => 'w'),
   orderBy: vi.fn(() => 'o'),
+  getDocs: vi.fn(() => Promise.resolve({ docs: [] })),
   onSnapshot: vi.fn(() => () => {}),
   doc: vi.fn(() => 'doc-ref'),
   updateDoc: vi.fn(),
