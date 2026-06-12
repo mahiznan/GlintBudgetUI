@@ -76,4 +76,12 @@ describe('SyncStatusContext', () => {
     });
     expect(result.current.status).toBe('synced');
   });
+
+  it('notifySynced clears pending state set by notifyWrite', () => {
+    const { result } = renderHook(() => useSyncStatus(), { wrapper });
+    act(() => result.current.notifyWrite());
+    expect(result.current.status).toBe('syncing');
+    act(() => result.current.notifySynced());
+    expect(result.current.status).toBe('synced');
+  });
 });

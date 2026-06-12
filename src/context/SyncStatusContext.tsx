@@ -15,6 +15,7 @@ interface SyncStatusContextValue {
   status: SyncStatus;
   notifyWrite: () => void;
   notifySnapshot: (hasPendingWrites: boolean) => void;
+  notifySynced: () => void;
 }
 
 const SyncStatusContext = createContext<SyncStatusContextValue | null>(null);
@@ -33,6 +34,8 @@ export function SyncStatusProvider({ children }: { children: ReactNode }) {
     if (!pendingWrites) setHasPending(false);
   }, []);
 
+  const notifySynced = useCallback(() => setHasPending(false), []);
+
   useEffect(() => {
     const evaluate = () => {
       if (!hasPending) {
@@ -50,7 +53,7 @@ export function SyncStatusProvider({ children }: { children: ReactNode }) {
   }, [hasPending]);
 
   return (
-    <SyncStatusContext.Provider value={{ status, notifyWrite, notifySnapshot }}>
+    <SyncStatusContext.Provider value={{ status, notifyWrite, notifySnapshot, notifySynced }}>
       {children}
     </SyncStatusContext.Provider>
   );
