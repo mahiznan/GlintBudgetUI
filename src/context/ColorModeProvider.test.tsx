@@ -112,6 +112,7 @@ describe('ColorModeProvider', () => {
     setupMocks(undefined);
     let setMode!: (m: ColorMode) => void;
     function Capture() {
+      // eslint-disable-next-line react-hooks/globals
       setMode = useColorMode().setMode;
       return null;
     }

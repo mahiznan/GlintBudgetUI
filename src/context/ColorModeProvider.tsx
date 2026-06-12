@@ -38,7 +38,6 @@ export function ColorModeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const apply = () => {
       const r = resolveMode(mode);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResolvedMode(r);
       applyMode(r);
     };
