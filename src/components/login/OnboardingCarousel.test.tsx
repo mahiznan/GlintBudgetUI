@@ -51,4 +51,11 @@ describe('OnboardingCarousel', () => {
     });
     expect(activeSlide().textContent).toContain('See your money');
   });
+
+  it('navigates to the app-store slide via its dot', () => {
+    render(<OnboardingCarousel />);
+    // app-store is slide 6 (index 5) — 7 slides total after insertion
+    fireEvent.click(screen.getByRole('button', { name: /go to slide 6/i }));
+    expect(activeSlide().textContent).toContain('App Store');
+  });
 });
