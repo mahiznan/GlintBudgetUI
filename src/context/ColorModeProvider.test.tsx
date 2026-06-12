@@ -94,6 +94,7 @@ describe('ColorModeProvider', () => {
     );
     expect(getByTestId('v').textContent).toBe('dark:dark');
     expect(localStorage.getItem(COLOR_MODE_STORAGE_KEY)).toBe('dark');
+    expect(document.documentElement.dataset.mode).toBe('dark');
   });
 
   it('resolves system against matchMedia', () => {
@@ -104,6 +105,41 @@ describe('ColorModeProvider', () => {
         <Display />
       </ColorModeProvider>,
     );
+    expect(getByTestId('v').textContent).toBe('system:dark');
+    expect(document.documentElement.dataset.mode).toBe('dark');
+  });
+
+  it('reacts to OS changes while on system', () => {
+    let prefersDark = false;
+    const listeners: Array<() => void> = [];
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      get matches() {
+        return prefersDark;
+      },
+      media: query,
+      addEventListener: (_event: string, cb: () => void) => {
+        listeners.push(cb);
+      },
+      removeEventListener: (_event: string, cb: () => void) => {
+        const i = listeners.indexOf(cb);
+        if (i >= 0) listeners.splice(i, 1);
+      },
+    }));
+    setupMocks('system');
+    const { getByTestId } = render(
+      <ColorModeProvider>
+        <Display />
+      </ColorModeProvider>,
+    );
+    expect(getByTestId('v').textContent).toBe('system:light');
+    expect(document.documentElement.dataset.mode).toBe('light');
+
+    // OS flips to dark: the registered change handler re-resolves and re-applies.
+    act(() => {
+      prefersDark = true;
+      listeners.forEach((cb) => cb());
+    });
+
     expect(getByTestId('v').textContent).toBe('system:dark');
     expect(document.documentElement.dataset.mode).toBe('dark');
   });
