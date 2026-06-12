@@ -182,17 +182,47 @@ body {
    Scoped under .login-root so it never leaks into the light /app shell.
    ════════════════════════════════════════════════════════════════════ */
 .login-root {
+  /* Fixed brand accents (identical in both modes) */
   --login-green: #4caf50;
   --login-lime: #8bc34a;
   --login-teal: #4ecdc4;
-  --login-ink: #0b0f0d;
-  --login-muted: #94a3b8;
+
+  /* Mode-scoped surfaces/text — LIGHT defaults (overridden for dark below) */
+  --login-bg: #f8fafc; /* slate-50 */
+  --login-fg: #0f172a; /* slate-900 */
+  --login-muted: #475569; /* slate-600 */
+  --login-surface: rgba(15, 23, 42, 0.04);
+  --login-surface-strong: rgba(15, 23, 42, 0.06);
+  --login-border: rgba(15, 23, 42, 0.1);
+  --login-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --login-track: rgba(15, 23, 42, 0.08);
+  --login-dot: rgba(15, 23, 42, 0.2);
+  --login-panel-bg: rgba(255, 255, 255, 0.55);
+  --login-panel-border: rgba(15, 23, 42, 0.08);
+  --login-orb-opacity: 0.22;
+
   position: relative;
   display: flex;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--login-ink);
-  color: #f8fafc;
+  background: var(--login-bg);
+  color: var(--login-fg);
+}
+
+/* Dark variant restores the original onboarding look. */
+[data-mode='dark'] .login-root {
+  --login-bg: #0b0f0d;
+  --login-fg: #f8fafc;
+  --login-muted: #94a3b8;
+  --login-surface: rgba(255, 255, 255, 0.07);
+  --login-surface-strong: rgba(255, 255, 255, 0.08);
+  --login-border: rgba(255, 255, 255, 0.15);
+  --login-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  --login-track: rgba(255, 255, 255, 0.08);
+  --login-dot: rgba(255, 255, 255, 0.25);
+  --login-panel-bg: rgba(255, 255, 255, 0.04);
+  --login-panel-border: rgba(255, 255, 255, 0.08);
+  --login-orb-opacity: 0.45;
 }
 
 /* Background orbs */
@@ -201,7 +231,7 @@ body {
   display: block;
   border-radius: 50%;
   filter: blur(90px);
-  opacity: 0.45;
+  opacity: var(--login-orb-opacity);
   z-index: 0;
   pointer-events: none;
 }
@@ -306,19 +336,19 @@ body {
 
 /* Glass surfaces */
 .login-glass {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--login-surface);
+  border: 1px solid var(--login-border);
   border-radius: 20px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--login-shadow);
 }
 .login-chip {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--login-surface-strong);
+  border: 1px solid var(--login-border);
   border-radius: 13px;
   padding: 11px 15px;
   font-weight: 600;
@@ -365,7 +395,7 @@ body {
   flex: 1;
   height: 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--login-track);
   overflow: hidden;
 }
 .login-bar-fill {
@@ -390,7 +420,7 @@ body {
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--login-dot);
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -412,8 +442,8 @@ body {
   align-items: center;
   text-align: center;
   padding: 40px 36px;
-  background: rgba(255, 255, 255, 0.04);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--login-panel-bg);
+  border-left: 1px solid var(--login-panel-border);
   backdrop-filter: blur(16px);
 }
 .login-panel-mark {
@@ -451,7 +481,7 @@ body {
     min-height: auto;
     order: -1;
     border-left: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--login-panel-border);
   }
   .login-brand {
     left: 24px;
