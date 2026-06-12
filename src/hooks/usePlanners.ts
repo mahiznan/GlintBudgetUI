@@ -1,42 +1,13 @@
-import { useEffect, useReducer } from 'react';
 import {
   collection,
   query,
   where,
   orderBy,
   getDocs,
-  doc,
-  updateDoc,
-  Timestamp,
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase/db';
-import { useSyncStatus } from '../context/SyncStatusContext';
-import { isPlannerExpired } from '../lib/plannerUtils';
 import type { BudgetPlanner } from '../firestore/types';
-
-interface State {
-  planners: BudgetPlanner[];
-  loading: boolean;
-  error: Error | null;
-  hasPendingWrites: boolean;
-}
-
-type Action =
-  | { type: 'fetch' }
-  | { type: 'success'; planners: BudgetPlanner[] }
-  | { type: 'error'; error: Error };
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'fetch':
-      return { ...state, loading: true, error: null };
-    case 'success':
-      return { ...state, loading: false, planners: action.planners, hasPendingWrites: false };
-    case 'error':
-      return { ...state, loading: false, error: action.error };
-  }
-}
 
 function docToPlanner(id: string, raw: DocumentData): BudgetPlanner {
   return {
@@ -75,58 +46,4 @@ export async function fetchPlanners(uid: string): Promise<BudgetPlanner[]> {
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => docToPlanner(d.id, d.data()));
-}
-
-export function usePlanners(uid: string): State {
-  const { notifyWrite } = useSyncStatus();
-  const [state, dispatch] = useReducer(reducer, {
-    planners: [],
-    loading: !!uid,
-    error: null,
-    hasPendingWrites: false,
-  });
-
-  useEffect(() => {
-    if (!uid) {
-      dispatch({ type: 'success', planners: [] });
-      return;
-    }
-    dispatch({ type: 'fetch' });
-
-    let isMounted = true;
-
-    const loadPlanners = async () => {
-      try {
-        const planners = await fetchPlanners(uid);
-
-        // Auto-archive expired non-repeatable planners
-        for (const planner of planners) {
-          if (!planner.archived && isPlannerExpired(planner)) {
-            notifyWrite();
-            void updateDoc(doc(db, 'budget_planners', planner.id), {
-              archived: true,
-              active: false,
-              updated_at: Timestamp.now(),
-            });
-          }
-        }
-
-        if (isMounted) {
-          dispatch({ type: 'success', planners });
-        }
-      } catch (err) {
-        if (isMounted) {
-          dispatch({ type: 'error', error: err as Error });
-        }
-      }
-    };
-
-    void loadPlanners();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [uid]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return state;
 }
