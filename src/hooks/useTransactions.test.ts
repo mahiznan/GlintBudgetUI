@@ -1,31 +1,18 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase/db', () => ({ db: {} }));
 
-const mockUnsub = vi.fn();
-let capturedCallback: ((snap: unknown) => void) | null = null;
-let capturedErrorCallback: ((err: Error) => void) | null = null;
-
+const mockGetDocs = vi.fn();
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(() => 'col'),
-  query: vi.fn(() => 'q'),
-  where: vi.fn(() => 'w'),
-  orderBy: vi.fn(() => 'o'),
-  limit: vi.fn(() => 'l'),
-  onSnapshot: vi.fn((_q, _opts, cb, errCb) => {
-    capturedCallback = cb as (snap: unknown) => void;
-    capturedErrorCallback = errCb as (err: Error) => void;
-    return mockUnsub;
-  }),
+  query: vi.fn((_col: unknown, ...constraints: unknown[]) => ({ col: _col, constraints })),
+  where: vi.fn((...args: unknown[]) => ({ type: 'where', args })),
+  orderBy: vi.fn((...args: unknown[]) => ({ type: 'orderBy', args })),
+  limit: vi.fn((...args: unknown[]) => ({ type: 'limit', args })),
+  getDocs: (q: unknown) => mockGetDocs(q),
 }));
 
-import { onSnapshot } from 'firebase/firestore';
-import { useTransactions } from './useTransactions';
-
-function makeSnap(docs: unknown[], hasPendingWrites = false) {
-  return { docs, metadata: { hasPendingWrites } };
-}
+import { fetchTransactions } from './useTransactions';
 
 function makeDoc(overrides: Record<string, unknown> = {}) {
   return {
@@ -47,62 +34,57 @@ function makeDoc(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe('useTransactions', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    capturedCallback = null;
-    capturedErrorCallback = null;
-    vi.mocked(onSnapshot).mockImplementation((_q, _opts, cb, errCb) => {
-      capturedCallback = cb as (snap: unknown) => void;
-      capturedErrorCallback = errCb as (err: Error) => void;
-      return mockUnsub;
+describe('fetchTransactions', () => {
+  beforeEach(() => vi.resetAllMocks());
+
+  it('returns [] without calling getDocs when uid is empty', async () => {
+    const result = await fetchTransactions({ uid: '' });
+    expect(result).toEqual([]);
+    expect(mockGetDocs).not.toHaveBeenCalled();
+  });
+
+  it('maps sub_category → subCategory and Timestamp.toDate() → Date', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [makeDoc()] });
+    const result = await fetchTransactions({ uid: 'u1' });
+    expect(result).toHaveLength(1);
+    expect(result[0]!.subCategory).toBe('Groceries');
+    expect(result[0]!.date).toBeInstanceOf(Date);
+    expect(result[0]!.id).toBe('tx1');
+  });
+
+  it('defaults notes and icon to empty string when absent', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [makeDoc({ notes: undefined, icon: undefined })],
     });
+    const result = await fetchTransactions({ uid: 'u1' });
+    expect(result[0]!.notes).toBe('');
+    expect(result[0]!.icon).toBe('');
   });
 
-  it('returns loading=true and empty data initially', () => {
-    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
-    expect(result.current.loading).toBe(true);
-    expect(result.current.data).toEqual([]);
+  it('includes start constraint when provided', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    const start = new Date('2026-01-01');
+    await fetchTransactions({ uid: 'u1', start });
+    const q = mockGetDocs.mock.calls[0]![0] as { constraints: Array<{ type: string; args: unknown[] }> };
+    const whereConstraints = q.constraints.filter(c => c.type === 'where');
+    expect(whereConstraints).toContainEqual(
+      expect.objectContaining({ args: ['date', '>=', start] }),
+    );
   });
 
-  it('maps sub_category → subCategory and date Timestamp → Date on snapshot', async () => {
-    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
-    act(() => { capturedCallback!(makeSnap([makeDoc()])); });
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    const tx = result.current.data[0]!;
-    expect(tx.subCategory).toBe('Groceries');
-    expect(tx.date).toBeInstanceOf(Date);
-    expect(tx.id).toBe('tx1');
+  it('includes end constraint when provided', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    const end = new Date('2026-12-31');
+    await fetchTransactions({ uid: 'u1', end });
+    const q = mockGetDocs.mock.calls[0]![0] as { constraints: Array<{ type: string; args: unknown[] }> };
+    const whereConstraints = q.constraints.filter(c => c.type === 'where');
+    expect(whereConstraints).toContainEqual(
+      expect.objectContaining({ args: ['date', '<=', end] }),
+    );
   });
 
-  it('exposes hasPendingWrites: true from snapshot metadata', async () => {
-    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
-    act(() => { capturedCallback!(makeSnap([makeDoc()], true)); });
-    await waitFor(() => expect(result.current.hasPendingWrites).toBe(true));
-  });
-
-  it('exposes hasPendingWrites: false when snapshot confirms', async () => {
-    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
-    act(() => { capturedCallback!(makeSnap([makeDoc()], true)); });
-    act(() => { capturedCallback!(makeSnap([makeDoc()], false)); });
-    await waitFor(() => expect(result.current.hasPendingWrites).toBe(false));
-  });
-
-  it('sets error when onSnapshot calls the error callback', async () => {
-    const { result } = renderHook(() => useTransactions({ uid: 'u1' }));
-    act(() => { capturedErrorCallback!(new Error('quota exceeded')); });
-    await waitFor(() => expect(result.current.error?.message).toBe('quota exceeded'));
-    expect(result.current.loading).toBe(false);
-  });
-
-  it('unsubscribes the listener on unmount', () => {
-    const { unmount } = renderHook(() => useTransactions({ uid: 'u1' }));
-    unmount();
-    expect(mockUnsub).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not subscribe when uid is empty', () => {
-    renderHook(() => useTransactions({ uid: '' }));
-    expect(onSnapshot).not.toHaveBeenCalled();
+  it('propagates getDocs errors', async () => {
+    mockGetDocs.mockRejectedValueOnce(new Error('quota exceeded'));
+    await expect(fetchTransactions({ uid: 'u1' })).rejects.toThrow('quota exceeded');
   });
 });
