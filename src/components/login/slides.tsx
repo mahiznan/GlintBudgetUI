@@ -29,10 +29,8 @@ export const SLIDES: Slide[] = [
           <br />
           <span className="login-grad-text">in a new light.</span>
         </h1>
-        <p className="login-lead">
-          GlintBudget turns everyday spending into clarity you can feel.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <p className="login-lead">GlintBudget turns everyday spending into clarity you can feel.</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <TransactionChip emoji="☕" label="Coffee" amount="-$4.20" />
           <TransactionChip emoji="🚇" label="Metro" amount="-$2.75" />
           <TransactionChip emoji="💰" label="Salary" amount="+$3,200" positive />
@@ -49,7 +47,7 @@ export const SLIDES: Slide[] = [
         <p className="login-lead">
           Auto-categorized transactions and insights you actually understand.
         </p>
-        <div className="mt-7 flex max-w-md flex-col gap-3">
+        <div className="mx-auto mt-7 flex max-w-md flex-col gap-3 text-left">
           <div className="login-glass flex items-center justify-between px-5 py-4">
             <span>🍴 Dining</span>
             <b className="text-[#4ecdc4]">↑ 12% this week</b>
@@ -58,7 +56,7 @@ export const SLIDES: Slide[] = [
             <span>You saved this month</span>
             <span className="text-2xl font-extrabold text-[#8bc34a]">$2,300</span>
           </div>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap justify-center gap-2.5">
             <span className="login-pill">🛒 Groceries</span>
             <span className="login-pill">🚆 Transport</span>
             <span className="login-pill">💡 Bills</span>
@@ -78,8 +76,8 @@ export const SLIDES: Slide[] = [
           <span className="login-grad-text">beautifully clear.</span>
         </h1>
         <p className="login-lead">Live reports that make every dollar visible.</p>
-        <div className="login-glass mt-7 p-7">
-          <div className="flex flex-wrap items-center gap-10">
+        <div className="login-glass mx-auto mt-7 inline-block p-7">
+          <div className="flex flex-wrap items-center justify-center gap-10 text-left">
             <CategoryDonut data={LOGIN_CATEGORIES} total={LOGIN_TOTAL} />
             <CategoryBars data={LOGIN_CATEGORIES} />
           </div>
@@ -95,7 +93,7 @@ export const SLIDES: Slide[] = [
         <h1 className="login-h1">
           Your money <span className="login-grad-text">superpowers.</span>
         </h1>
-        <div className="mt-8 grid max-w-2xl grid-cols-1 gap-3.5 sm:grid-cols-2">
+        <div className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-3.5 text-left sm:grid-cols-2">
           {BENEFITS.map((b) => (
             <div key={b.title} className="login-glass flex items-center gap-4 p-5">
               <span className="login-benefit-ic" aria-hidden="true">

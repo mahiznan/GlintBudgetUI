@@ -30,7 +30,11 @@
     #f87171,
     #dc2626
   ); /* intentionally theme-invariant: expense = always red */
-  --income-gradient: linear-gradient(135deg, #22c55e, #16a34a); /* intentionally theme-invariant: income = always green */
+  --income-gradient: linear-gradient(
+    135deg,
+    #22c55e,
+    #16a34a
+  ); /* intentionally theme-invariant: income = always green */
   --brand-glow: rgba(150, 191, 13, 0.45);
   --brand-gradient-text: linear-gradient(135deg, rgb(150, 191, 13), #22c55e);
 }
@@ -151,7 +155,7 @@ body {
    occupies an identical advance width, making all digit columns align. */
 .tabnum {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
+  font-feature-settings: 'tnum' 1;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -186,9 +190,16 @@ body {
   animation: login-drift 18s ease-in-out infinite;
 }
 @keyframes login-drift {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(40px, -30px); }
-  66% { transform: translate(-30px, 35px); }
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(40px, -30px);
+  }
+  66% {
+    transform: translate(-30px, 35px);
+  }
 }
 
 /* Left 75% carousel column */
@@ -210,23 +221,42 @@ body {
   font-weight: 700;
   font-size: 18px;
 }
-.login-brand img { width: 32px; height: 32px; border-radius: 9px; }
+.login-brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
 
 /* Slides */
-.login-stage { position: relative; min-height: 100vh; }
+.login-stage {
+  position: relative;
+  min-height: 100vh;
+}
 .login-slide {
   position: absolute;
   inset: 0;
   display: grid;
   align-content: center;
+  justify-items: center;
   padding: 0 48px;
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s, transform 0.7s;
+  transition:
+    opacity 0.7s,
+    transform 0.7s;
   pointer-events: none;
 }
-.login-slide--on { opacity: 1; transform: none; pointer-events: auto; }
-.login-slide-inner { width: 100%; max-width: 880px; }
+.login-slide--on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.login-slide-inner {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
 
 .login-eyebrow {
   font-size: 12px;
@@ -245,7 +275,7 @@ body {
 .login-lead {
   font-size: clamp(15px, 1.5vw, 20px);
   color: var(--login-muted);
-  margin-top: 16px;
+  margin: 16px auto 0;
   max-width: 560px;
 }
 .login-grad-text {
@@ -377,15 +407,26 @@ body {
 
 /* Reduced motion: kill drift + slide transitions */
 @media (prefers-reduced-motion: reduce) {
-  .login-orb--drift { animation: none; }
-  .login-slide { transition: none; }
+  .login-orb--drift {
+    animation: none;
+  }
+  .login-slide {
+    transition: none;
+  }
 }
 
 /* Mobile: stack, login panel on top */
 @media (max-width: 767px) {
-  .login-root { flex-direction: column; }
-  .login-left { width: 100%; min-height: 70vh; }
-  .login-stage { min-height: 70vh; }
+  .login-root {
+    flex-direction: column;
+  }
+  .login-left {
+    width: 100%;
+    min-height: 70vh;
+  }
+  .login-stage {
+    min-height: 70vh;
+  }
   .login-panel {
     width: 100%;
     min-height: auto;
@@ -393,7 +434,13 @@ body {
     border-left: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
-  .login-brand { left: 24px; }
-  .login-slide { padding: 0 24px; }
-  .login-dots { left: 24px; }
+  .login-brand {
+    left: 24px;
+  }
+  .login-slide {
+    padding: 0 24px;
+  }
+  .login-dots {
+    left: 24px;
+  }
 }
