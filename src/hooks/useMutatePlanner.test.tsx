@@ -2,20 +2,23 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../firebase/db', () => ({ db: {} }));
-vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => 'col'),
-  doc: vi.fn(() => 'doc-ref'),
-  setDoc: vi.fn(() => Promise.resolve()),
-  updateDoc: vi.fn(() => Promise.resolve()),
-  deleteDoc: vi.fn(() => Promise.resolve()),
-  Timestamp: {
-    fromDate: vi.fn((d: Date) => d),
-    now: vi.fn(() => new Date()),
-  },
+const mockAddPlanner = vi.fn(() => 'test-uuid');
+const mockUpdatePlanner = vi.fn();
+const mockArchivePlanner = vi.fn();
+const mockDeletePlanner = vi.fn();
+
+vi.mock('../context/usePlannerContext', () => ({
+  usePlannerContext: () => ({
+    planners: [],
+    loading: false,
+    error: null,
+    addPlanner: mockAddPlanner,
+    updatePlanner: mockUpdatePlanner,
+    archivePlanner: mockArchivePlanner,
+    deletePlanner: mockDeletePlanner,
+  }),
 }));
 
-import { setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import {
   useAddPlanner,
   useUpdatePlanner,
@@ -23,82 +26,62 @@ import {
   useDeletePlanner,
 } from './useMutatePlanner';
 import { SyncStatusProvider } from '../context/SyncStatusContext';
-import type { BudgetPlanner } from '../firestore/types';
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(SyncStatusProvider, null, children);
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const basePlanner: Omit<BudgetPlanner, 'id' | 'createdAt' | 'updatedAt'> = {
-  user_id: 'u1',
-  name: 'Monthly SGD',
-  description: '',
-  currency: 'SGD',
-  active: true,
-  archived: false,
-  period: 'monthly',
-  repeatable: true,
-  filterAccounts: [],
-  filterVendors: [],
-  filterPayments: [],
-  categoryBudgets: [{ category: 'Food', amount: 1000 }],
-  chartView: 'bar',
-};
-
 describe('useAddPlanner', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls setDoc and returns a UUID', () => {
+  it('calls context addPlanner and returns its id', () => {
+    mockAddPlanner.mockReturnValue('test-uuid');
     const { result } = renderHook(() => useAddPlanner(), { wrapper });
-    const id = result.current.mutate(basePlanner);
-    expect(id).toMatch(UUID_RE);
-    expect(setDoc).toHaveBeenCalledTimes(1);
-  });
-
-  it('encodes categoryBudgets and snake_case fields', () => {
-    const { result } = renderHook(() => useAddPlanner(), { wrapper });
-    result.current.mutate(basePlanner);
-    const payload = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(payload['user_id']).toBe('u1');
-    expect(payload['category_budgets']).toEqual([{ category: 'Food', amount: 1000 }]);
-    expect(payload['chart_view']).toBe('bar');
-    expect(payload['filter_accounts']).toEqual([]);
+    const id = result.current.mutate({
+      user_id: 'u1',
+      name: 'Monthly',
+      description: '',
+      currency: 'SGD',
+      active: true,
+      archived: false,
+      period: 'monthly',
+      repeatable: true,
+      filterAccounts: [],
+      filterVendors: [],
+      filterPayments: [],
+      categoryBudgets: [],
+      chartView: 'bar',
+    });
+    expect(mockAddPlanner).toHaveBeenCalledTimes(1);
+    expect(id).toBe('test-uuid');
   });
 });
 
 describe('useUpdatePlanner', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls updateDoc with encoded patch', () => {
+  it('calls context updatePlanner with id and patch', () => {
     const { result } = renderHook(() => useUpdatePlanner(), { wrapper });
-    result.current.mutate('p1', { name: 'Renamed', chartView: 'radial' });
-    expect(updateDoc).toHaveBeenCalledTimes(1);
-    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
-    expect(patch['name']).toBe('Renamed');
-    expect(patch['chart_view']).toBe('radial');
+    result.current.mutate('p1', { name: 'Renamed' });
+    expect(mockUpdatePlanner).toHaveBeenCalledWith('p1', { name: 'Renamed' });
   });
 });
 
 describe('useArchivePlanner', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls updateDoc with archived=true and active=false', () => {
+  it('calls context archivePlanner with id', () => {
     const { result } = renderHook(() => useArchivePlanner(), { wrapper });
     result.current.mutate('p1');
-    expect(updateDoc).toHaveBeenCalledTimes(1);
-    const patch = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
-    expect(patch['archived']).toBe(true);
-    expect(patch['active']).toBe(false);
+    expect(mockArchivePlanner).toHaveBeenCalledWith('p1');
   });
 });
 
 describe('useDeletePlanner', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls deleteDoc', () => {
+  it('calls context deletePlanner with id', () => {
     const { result } = renderHook(() => useDeletePlanner(), { wrapper });
     result.current.mutate('p1');
-    expect(deleteDoc).toHaveBeenCalledTimes(1);
+    expect(mockDeletePlanner).toHaveBeenCalledWith('p1');
   });
 });
