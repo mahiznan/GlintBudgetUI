@@ -32,6 +32,7 @@ export default function AppStoreSlide() {
           width={72}
           tilt={-8}
           yOffset={10}
+          className="hidden sm:block"
         />
         <PhoneFrame
           src="/onboarding/report-light.png"
@@ -44,6 +45,7 @@ export default function AppStoreSlide() {
           width={72}
           tilt={8}
           yOffset={10}
+          className="hidden sm:block"
         />
       </div>
 

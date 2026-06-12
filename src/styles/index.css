@@ -225,6 +225,10 @@ body {
   --login-orb-opacity: 0.45;
 }
 
+[data-mode='dark'] .login-phone-frame {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 /* Background orbs */
 .login-orb {
   position: absolute;
