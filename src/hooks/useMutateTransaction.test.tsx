@@ -2,17 +2,32 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
+const mockAddTransaction = vi.fn(() => 'test-uuid');
+const mockUpdateTransaction = vi.fn();
+const mockDeleteTransaction = vi.fn();
+
+vi.mock('../context/useTransactionContext', () => ({
+  useTransactionContext: vi.fn(() => ({
+    transactions: [],
+    loading: false,
+    error: null,
+    addTransaction: mockAddTransaction,
+    updateTransaction: mockUpdateTransaction,
+    deleteTransaction: mockDeleteTransaction,
+    loadYear: vi.fn(),
+  })),
+}));
+
 vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => 'col'),
-  doc: vi.fn(() => 'doc-ref'),
-  setDoc: vi.fn(() => Promise.resolve()),
-  updateDoc: vi.fn(() => Promise.resolve()),
-  deleteDoc: vi.fn(() => Promise.resolve()),
+  collection: vi.fn(),
+  doc: vi.fn(),
+  setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
 }));
 
-import { setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import {
   useAddTransaction,
   useUpdateTransaction,
@@ -24,8 +39,6 @@ import { SyncStatusProvider } from '../context/SyncStatusContext';
 import { PreferenceProvider } from '../context/PreferenceContext';
 import { AuthProvider } from '../auth/AuthProvider';
 import type { Transaction } from '../firestore/types';
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 describe('toTitleCase', () => {
   it('converts lowercase vendor name to title case', () => {
@@ -124,78 +137,52 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 const baseTx: Omit<Transaction, 'id'> = {
-  user_id: 'u1',
-  category: 'Food',
-  subCategory: 'Groceries',
-  date: new Date('2026-05-17'),
-  account: 'HDFC',
-  vendor: 'Zepto',
-  payment: 'UPI',
-  currency: 'INR',
-  notes: '',
-  amount: 500,
-  icon: '🛒',
+  user_id: 'u1', category: 'Food', subCategory: 'Groceries',
+  date: new Date('2026-05-17'), account: 'HDFC', vendor: 'Zepto',
+  payment: 'UPI', currency: 'INR', notes: '', amount: -500, icon: '🛒',
 };
 
 describe('useAddTransaction', () => {
-  beforeEach(() => vi.resetAllMocks());
+  beforeEach(() => { vi.resetAllMocks(); mockAddTransaction.mockReturnValue('test-uuid'); });
 
-  it('calls setDoc with snake_case sub_category and returns uuid synchronously', () => {
+  it('calls context addTransaction and returns its id', () => {
     const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
     const id = result.current.mutate(baseTx);
-    expect(id).toMatch(UUID_RE);
-    expect(setDoc).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(callArgs['sub_category']).toBe('Groceries');
-    expect(callArgs['subCategory']).toBeUndefined();
-    expect(callArgs['id']).toMatch(UUID_RE);
+    expect(mockAddTransaction).toHaveBeenCalledTimes(1);
+    expect(id).toBe('test-uuid');
   });
 
-  it('mutate returns the same id that was passed to setDoc', () => {
+  it('trims vendor whitespace before passing to addTransaction', () => {
     const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
-    const id = result.current.mutate(baseTx);
-    const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(id).toBe(callArgs['id']);
-  });
-
-  it('trims vendor name and preserves original casing', () => {
-    const { result } = renderHook(() => useAddTransaction('u1'), { wrapper });
-    const txWithSpacedVendor = { ...baseTx, vendor: '  zepto  ' };
-    result.current.mutate(txWithSpacedVendor);
-
-    const callArgs = vi.mocked(setDoc).mock.calls[0]![1] as Record<string, unknown>;
-    expect(callArgs['vendor']).toBe('zepto');
+    result.current.mutate({ ...baseTx, vendor: '  Zepto  ' });
+    const called = (mockAddTransaction.mock.calls as unknown as Array<[Omit<Transaction, 'id'>]>)[0]![0];
+    expect(called.vendor).toBe('Zepto');
   });
 });
 
 describe('useUpdateTransaction', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls updateDoc with snake_case fields synchronously', () => {
+  it('calls context updateTransaction with id and patch', () => {
     const { result } = renderHook(() => useUpdateTransaction('u1'), { wrapper });
-    result.current.mutate('tx-1', { amount: 999, subCategory: 'Dining' });
-    expect(updateDoc).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
-    expect(callArgs['amount']).toBe(999);
-    expect(callArgs['sub_category']).toBe('Dining');
+    result.current.mutate('tx-1', { amount: -999 });
+    expect(mockUpdateTransaction).toHaveBeenCalledWith('tx-1', expect.objectContaining({ amount: -999 }));
   });
 
-  it('trims vendor name and preserves original casing on update', () => {
+  it('trims vendor whitespace in patch before calling updateTransaction', () => {
     const { result } = renderHook(() => useUpdateTransaction('u1'), { wrapper });
     result.current.mutate('tx-1', { vendor: '  ZEPTO  ' });
-
-    expect(updateDoc).toHaveBeenCalledTimes(1);
-    const callArgs = vi.mocked(updateDoc).mock.calls[0]![1] as unknown as Record<string, unknown>;
-    expect(callArgs['vendor']).toBe('ZEPTO');
+    const patch = (mockUpdateTransaction.mock.calls as unknown as Array<[string, { vendor: string }]>)[0]![1];
+    expect(patch.vendor).toBe('ZEPTO');
   });
 });
 
 describe('useDeleteTransaction', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('calls deleteDoc synchronously', () => {
+  it('calls context deleteTransaction with id', () => {
     const { result } = renderHook(() => useDeleteTransaction(), { wrapper });
     result.current.mutate('tx-1');
-    expect(deleteDoc).toHaveBeenCalledTimes(1);
+    expect(mockDeleteTransaction).toHaveBeenCalledWith('tx-1');
   });
 });

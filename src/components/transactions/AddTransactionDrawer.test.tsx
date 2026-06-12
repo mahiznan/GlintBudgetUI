@@ -7,6 +7,17 @@ vi.mock('../../firebase/client', () => ({ auth: {}, app: {} }));
 vi.mock('../../firebase/db', () => ({ db: {} }));
 vi.mock('../../auth/AuthContext', () => ({ useAuth: vi.fn() }));
 vi.mock('../../context/PreferenceContext', () => ({ usePreferenceContext: vi.fn() }));
+vi.mock('../../context/useTransactionContext', () => ({
+  useTransactionContext: vi.fn(() => ({
+    transactions: [],
+    loading: false,
+    error: null,
+    addTransaction: vi.fn(),
+    updateTransaction: vi.fn(),
+    deleteTransaction: vi.fn(),
+    loadYear: vi.fn(),
+  })),
+}));
 vi.mock('../../hooks/useMutateTransaction', () => ({
   useAddTransaction: vi.fn(),
   useUpdateTransaction: vi.fn(),

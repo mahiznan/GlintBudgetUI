@@ -4,8 +4,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { usePreferenceContext } from '../../context/PreferenceContext';
 import { useAddTransaction, useUpdateTransaction } from '../../hooks/useMutateTransaction';
-import { getDoc, doc, type Timestamp } from 'firebase/firestore';
-import { db } from '../../firebase/db';
+import { useTransactionContext } from '../../context/useTransactionContext';
 import TypeToggle from '../form/TypeToggle';
 import AmountInput from '../form/AmountInput';
 import FieldPicker from '../form/FieldPicker';
@@ -118,6 +117,7 @@ export default function AddTransactionDrawer({
   const auth = useAuth();
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
+  const { transactions } = useTransactionContext();
   const { mutate: addTx } = useAddTransaction(uid);
   const { mutate: updateTx } = useUpdateTransaction(uid);
 
@@ -145,26 +145,24 @@ export default function AddTransactionDrawer({
     );
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Pre-fill form from Firestore when editing an existing transaction
+  // Pre-fill form from context when editing an existing transaction
   useEffect(() => {
     if (!open || !editId) return;
-    getDoc(doc(db, 'transactions', editId)).then((snap) => {
-      if (!snap.exists()) return;
-      const d = snap.data();
-      setForm({
-        type: (d['amount'] as number) < 0 ? 'expense' : 'income',
-        amount: String(Math.abs(d['amount'] as number)),
-        currency: d['currency'] as string,
-        category: d['category'] as string,
-        subCategory: d['sub_category'] as string,
-        vendor: d['vendor'] as string,
-        account: d['account'] as string,
-        payment: d['payment'] as string,
-        date: toLocalDateStr((d['date'] as Timestamp).toDate()),
-        notes: (d['notes'] as string) ?? '',
-      });
+    const tx = transactions.find((t) => t.id === editId);
+    if (!tx) return;
+    setForm({
+      type: tx.amount < 0 ? 'expense' : 'income',
+      amount: String(Math.abs(tx.amount)),
+      currency: tx.currency,
+      category: tx.category,
+      subCategory: tx.subCategory,
+      vendor: tx.vendor,
+      account: tx.account,
+      payment: tx.payment,
+      date: toLocalDateStr(tx.date),
+      notes: tx.notes ?? '',
     });
-  }, [open, editId]);
+  }, [open, editId, transactions]);
 
   // Seed preference defaults on open
   useEffect(() => {

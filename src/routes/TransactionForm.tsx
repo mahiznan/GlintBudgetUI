@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc, type Timestamp } from 'firebase/firestore';
-import { db } from '../firebase/db';
 import { useAuth } from '../auth/AuthContext';
 import { usePreferenceContext } from '../context/PreferenceContext';
+import { useTransactionContext } from '../context/TransactionContext';
 import { useAddTransaction, useUpdateTransaction } from '../hooks/useMutateTransaction';
 import AmountInput from '../components/form/AmountInput';
 import TypeToggle from '../components/form/TypeToggle';
@@ -79,6 +78,7 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
   const uid = auth.status === 'authenticated' ? auth.user.uid : '';
   const { preference } = usePreferenceContext();
 
+  const { transactions } = useTransactionContext();
   const { mutate: addTx } = useAddTransaction(uid);
   const { mutate: updateTx } = useUpdateTransaction(uid);
 
@@ -103,28 +103,25 @@ export default function TransactionForm({ mode }: TransactionFormProps) {
 
   useEffect(() => {
     if (mode !== 'edit' || !id) return;
-    getDoc(doc(db, 'transactions', id))
-      .then((snap) => {
-        if (!snap.exists()) {
-          navigate('/app/transactions');
-          return;
-        }
-        const d = snap.data();
-        setForm({
-          type: (d['amount'] as number) < 0 ? 'expense' : 'income',
-          amount: String(Math.abs(d['amount'] as number)),
-          currency: d['currency'] as string,
-          category: d['category'] as string,
-          subCategory: d['sub_category'] as string,
-          vendor: d['vendor'] as string,
-          account: d['account'] as string,
-          payment: d['payment'] as string,
-          date: toLocalDateString((d['date'] as Timestamp).toDate()),
-          notes: (d['notes'] as string) ?? '',
-        });
-      })
-      .finally(() => setLoadingTx(false));
-  }, [mode, id, navigate]);
+    const tx = transactions.find((t) => t.id === id);
+    if (!tx) {
+      navigate('/app/transactions');
+      return;
+    }
+    setForm({
+      type: tx.amount < 0 ? 'expense' : 'income',
+      amount: String(Math.abs(tx.amount)),
+      currency: tx.currency,
+      category: tx.category,
+      subCategory: tx.subCategory,
+      vendor: tx.vendor,
+      account: tx.account,
+      payment: tx.payment,
+      date: toLocalDateString(tx.date),
+      notes: tx.notes ?? '',
+    });
+    setLoadingTx(false);
+  }, [mode, id, navigate, transactions]);
 
   function set(field: keyof FormState) {
     return (value: string) =>

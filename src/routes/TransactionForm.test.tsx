@@ -11,28 +11,45 @@ vi.mock('../firebase/db', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(() => 'col'),
   doc: vi.fn(() => 'doc-ref'),
-  getDoc: vi.fn(() =>
-    Promise.resolve({
-      exists: () => true,
-      id: 'tx1',
-      data: () => ({
-        user_id: 'u1',
-        category: 'Food',
-        sub_category: 'Groceries',
-        date: { toDate: () => new Date('2026-05-17') },
-        account: 'HDFC',
-        vendor: 'Zepto',
-        payment: 'UPI',
-        currency: 'INR',
-        notes: '',
-        amount: -500,
-        icon: '🛒',
-      }),
-    }),
-  ),
   setDoc: vi.fn(() => Promise.resolve()),
   updateDoc: vi.fn(() => Promise.resolve()),
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
+}));
+const stubTransactions = [
+  {
+    id: 'tx1',
+    user_id: 'u1',
+    category: 'Food',
+    subCategory: 'Groceries',
+    date: new Date('2026-05-17'),
+    account: 'HDFC',
+    vendor: 'Zepto',
+    payment: 'UPI',
+    currency: 'INR',
+    notes: '',
+    amount: -500,
+    icon: '🛒',
+  },
+];
+
+const stubTxCtx = {
+  transactions: stubTransactions,
+  loading: false,
+  error: null,
+  addTransaction: vi.fn(),
+  updateTransaction: vi.fn(),
+  deleteTransaction: vi.fn(),
+  loadYear: vi.fn(),
+};
+
+vi.mock('../context/TransactionContext', () => ({
+  TransactionContext: {},
+  TransactionProvider: ({ children }: { children: React.ReactNode }) => children,
+  useTransactionContext: vi.fn(() => stubTxCtx),
+}));
+
+vi.mock('../context/useTransactionContext', () => ({
+  useTransactionContext: vi.fn(() => stubTxCtx),
 }));
 
 import TransactionForm from './TransactionForm';
