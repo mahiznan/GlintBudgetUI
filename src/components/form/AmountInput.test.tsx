@@ -51,4 +51,18 @@ describe('AmountInput', () => {
     render(<AmountInput {...baseProps} error="Amount is required" />);
     expect(screen.getByText('Amount is required')).toBeInTheDocument();
   });
+
+  it('amount row uses semantic surface token, not hardcoded hex', () => {
+    const { container } = render(<AmountInput {...baseProps} />);
+    const row = container.querySelector('.bg-surface-alt');
+    expect(row).not.toBeNull();
+    expect(container.innerHTML).not.toContain('#fafcff');
+    expect(container.innerHTML).not.toContain('#f1f5f9');
+  });
+
+  it('amount input color uses CSS variable, not hardcoded hex', () => {
+    render(<AmountInput {...baseProps} value="100" />);
+    const input = screen.getByPlaceholderText('0.00');
+    expect((input as HTMLInputElement).style.color).toBe('var(--color-text)');
+  });
 });

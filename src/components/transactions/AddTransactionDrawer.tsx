@@ -369,7 +369,7 @@ export default function AddTransactionDrawer({
               value={form.vendor}
               onChange={set('vendor')}
               options={moveDefaultToFirst(vendorOptions, form.vendor)}
-              iconBg="#eff6ff"
+              iconBg="rgba(59,130,246,0.12)"
               icon="🏪"
               isOpen={activeField === 'vendor'}
               onOpen={() => open_(activeField === 'vendor' ? null : 'vendor')}
@@ -386,7 +386,7 @@ export default function AddTransactionDrawer({
               value={form.category}
               onChange={set('category')}
               options={moveDefaultToFirst(preference?.categories ?? [], form.category)}
-              iconBg="#fdf4ff"
+              iconBg="rgba(168,85,247,0.12)"
               icon="📂"
               isOpen={activeField === 'category'}
               onOpen={() => open_(activeField === 'category' ? null : 'category')}
@@ -405,7 +405,7 @@ export default function AddTransactionDrawer({
               value={form.subCategory}
               onChange={set('subCategory')}
               options={moveDefaultToFirst(filteredSubCats, form.subCategory)}
-              iconBg="#fdf4ff"
+              iconBg="rgba(168,85,247,0.12)"
               icon="🏷️"
               isOpen={activeField === 'subCategory'}
               onOpen={() => open_(activeField === 'subCategory' ? null : 'subCategory')}
@@ -417,9 +417,9 @@ export default function AddTransactionDrawer({
             <button
               type="button"
               onClick={() => open_(activeField === 'date' ? null : 'date')}
-              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-border text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#ecfdf5] flex items-center justify-center text-[16px] flex-shrink-0">
+              <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] flex-shrink-0" style={{ background: 'rgba(16,185,129,0.12)' }}>
                 📅
               </div>
               <div className="flex-1 min-w-0">
@@ -430,7 +430,7 @@ export default function AddTransactionDrawer({
                   {formatPickerDate(form.date)}
                 </div>
               </div>
-              <span className="text-[14px] text-[#cbd5e1]">›</span>
+              <span className="text-[14px] text-text-muted">›</span>
             </button>
             {activeField === 'date' && (
               <MiniCalendar
@@ -448,9 +448,9 @@ export default function AddTransactionDrawer({
             <button
               type="button"
               onClick={() => open_(activeField === 'account' ? null : 'account')}
-              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-border text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff7ed] flex items-center justify-center text-[16px] flex-shrink-0">
+              <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] flex-shrink-0" style={{ background: 'rgba(249,115,22,0.12)' }}>
                 🏦
               </div>
               <div className="flex-1 min-w-0">
@@ -459,12 +459,12 @@ export default function AddTransactionDrawer({
                 </div>
                 <div
                   className="text-[16px] font-medium mt-[1px] truncate"
-                  style={{ color: form.account ? '#0f172a' : '#cbd5e1' }}
+                  style={{ color: form.account ? 'var(--color-text)' : 'var(--color-text-muted)' }}
                 >
                   {form.account || 'Select…'}
                 </div>
               </div>
-              <span className="text-[14px] text-[#cbd5e1]">›</span>
+              <span className="text-[14px] text-text-muted">›</span>
             </button>
             {activeField === 'account' && (
               <SearchPicker
@@ -484,9 +484,9 @@ export default function AddTransactionDrawer({
             <button
               type="button"
               onClick={() => open_(activeField === 'payment' ? null : 'payment')}
-              className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+              className="w-full flex items-center gap-[10px] py-[14px] border-b border-border text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#fff1f2] flex items-center justify-center text-[16px] flex-shrink-0">
+              <div className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] flex-shrink-0" style={{ background: 'rgba(244,63,94,0.12)' }}>
                 💳
               </div>
               <div className="flex-1 min-w-0">
@@ -495,12 +495,12 @@ export default function AddTransactionDrawer({
                 </div>
                 <div
                   className="text-[16px] font-medium mt-[1px] truncate"
-                  style={{ color: form.payment ? '#0f172a' : '#cbd5e1' }}
+                  style={{ color: form.payment ? 'var(--color-text)' : 'var(--color-text-muted)' }}
                 >
                   {form.payment || 'Select…'}
                 </div>
               </div>
-              <span className="text-[14px] text-[#cbd5e1]">›</span>
+              <span className="text-[14px] text-text-muted">›</span>
             </button>
             {activeField === 'payment' && (
               <SearchPicker
@@ -522,7 +522,7 @@ export default function AddTransactionDrawer({
               onClick={() => open_(activeField === 'notes' ? null : 'notes')}
               className="w-full flex items-center gap-[10px] py-[14px] text-left"
             >
-              <div className="w-[36px] h-[36px] rounded-[10px] bg-[#f8fafc] flex items-center justify-center text-[16px] flex-shrink-0">
+              <div className="w-[36px] h-[36px] rounded-[10px] bg-surface-alt flex items-center justify-center text-[16px] flex-shrink-0">
                 📝
               </div>
               <div className="flex-1 min-w-0">
@@ -531,14 +531,14 @@ export default function AddTransactionDrawer({
                 </div>
                 <div
                   className="text-[16px] font-medium mt-[1px] truncate"
-                  style={{ color: form.notes ? '#0f172a' : '#cbd5e1' }}
+                  style={{ color: form.notes ? 'var(--color-text)' : 'var(--color-text-muted)' }}
                 >
                   {form.notes || 'Optional notes…'}
                 </div>
               </div>
             </button>
             {activeField === 'notes' && (
-              <div className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[10px]">
+              <div className="-mx-[18px] bg-surface-alt border-y-[1.5px] border-border px-[18px] py-[10px]">
                 <textarea
                   autoFocus
                   value={form.notes}

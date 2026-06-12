@@ -19,13 +19,13 @@ export default function AmountInput({
 }: AmountInputProps) {
   return (
     <div>
-      <div className="flex items-center gap-[12px] px-[18px] py-[20px] bg-[#fafcff] border-b border-[#f1f5f9]">
+      <div className="flex items-center gap-[12px] px-[18px] py-[20px] bg-surface-alt border-b border-border">
         {/* Currency badge */}
         <button
           type="button"
           aria-label="Currency selector"
           onClick={onCurrencyClick}
-          className="inline-flex items-center gap-[4px] bg-[#f1f5f9] border border-border rounded-[20px] px-[14px] py-[8px] text-[15px] font-bold text-text-muted flex-shrink-0 whitespace-nowrap hover:bg-border transition-colors"
+          className="inline-flex items-center gap-[4px] bg-surface-alt border border-border rounded-[20px] px-[14px] py-[8px] text-[15px] font-bold text-text-muted flex-shrink-0 whitespace-nowrap hover:bg-border transition-colors"
         >
           {currencySymbol} {currencyCode} <span className="text-[10px] opacity-60">▾</span>
         </button>
@@ -50,7 +50,7 @@ export default function AmountInput({
           }}
           className="flex-1 min-w-0 text-right text-[48px] font-bold bg-transparent border-none outline-none"
           style={{
-            color: value ? '#0f172a' : '#cbd5e1',
+            color: value ? 'var(--color-text)' : 'var(--color-text-muted)',
             fontVariantNumeric: 'tabular-nums',
             fontFeatureSettings: '"tnum" 1',
             letterSpacing: '-1px',

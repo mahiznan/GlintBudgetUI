@@ -79,7 +79,7 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand', co
 
   return (
     <div
-      className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[12px] pb-[14px] outline-none focus-visible:ring-2 focus-visible:ring-brand/30 rounded-sm"
+      className="-mx-[18px] bg-surface-alt border-y-[1.5px] border-border px-[18px] py-[12px] pb-[14px] outline-none focus-visible:ring-2 focus-visible:ring-brand/30 rounded-sm"
       tabIndex={0}
       autoFocus
       onKeyDown={(e) => {
@@ -148,7 +148,7 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand', co
               className={`aspect-square flex items-center justify-center ${compact ? 'text-[11px]' : 'text-[22px]'} font-medium rounded-[6px] disabled:cursor-not-allowed`}
               style={
                 isFuture
-                  ? { color: '#cbd5e1', opacity: 0.4 }
+                  ? { color: 'var(--color-text-muted)', opacity: 0.4 }
                   : isSelected
                     ? {
                         background: selGradient,
@@ -157,8 +157,8 @@ export default function MiniCalendar({ value, onChange, activeType = 'brand', co
                         boxShadow: selShadow,
                       }
                     : isToday
-                      ? { background: '#f1f5f9', fontWeight: 700, color: '#475569' }
-                      : { color: isCurrentMonth ? '#0f172a' : '#cbd5e1' }
+                      ? { background: 'var(--color-surface-alt)', fontWeight: 700, color: 'var(--color-text-muted)' }
+                      : { color: isCurrentMonth ? 'var(--color-text)' : 'var(--color-text-muted)' }
               }
             >
               {d.getDate()}

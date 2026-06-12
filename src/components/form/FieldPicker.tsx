@@ -39,7 +39,7 @@ export default function FieldPicker({
         type="button"
         aria-label={label}
         onClick={onOpen}
-        className="w-full flex items-center gap-[10px] py-[14px] border-b border-[#f1f5f9] text-left"
+        className="w-full flex items-center gap-[10px] py-[14px] border-b border-border text-left"
       >
         <div
           className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] flex-shrink-0"
@@ -54,12 +54,12 @@ export default function FieldPicker({
           </div>
           <div
             className="text-[16px] font-medium mt-[1px] truncate"
-            style={{ color: value ? '#0f172a' : '#cbd5e1' }}
+            style={{ color: value ? 'var(--color-text)' : 'var(--color-text-muted)' }}
           >
             {value || `Select ${label.toLowerCase()}…`}
           </div>
         </div>
-        <span className="text-[14px] text-[#cbd5e1]">›</span>
+        <span className="text-[14px] text-text-muted">›</span>
       </button>
 
       {/* Inline picker — only when open */}

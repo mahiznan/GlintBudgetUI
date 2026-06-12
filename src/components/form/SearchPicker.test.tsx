@@ -175,6 +175,16 @@ describe('SearchPicker', () => {
     expect(onSelect).toHaveBeenCalledWith('Amazon');
   });
 
+  it('container uses semantic surface token, not hardcoded hex', () => {
+    const { container } = render(
+      <SearchPicker label="Vendor" value="" options={OPTIONS} onSelect={vi.fn()} onClose={vi.fn()} />,
+    );
+    const picker = container.firstChild as HTMLElement;
+    expect(picker.className).toContain('bg-surface-alt');
+    expect(picker.className).not.toContain('#f8fafc');
+    expect(picker.className).not.toContain('#e2e8f0');
+  });
+
   it('ArrowUp clamps at the first item and Enter still selects it', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();

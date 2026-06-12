@@ -78,4 +78,16 @@ describe('FieldPicker', () => {
     render(<FieldPicker {...baseProps} error="Category is required" />);
     expect(screen.getByText('Category is required')).toBeInTheDocument();
   });
+
+  it('row divider uses border-border token, not hardcoded hex', () => {
+    render(<FieldPicker {...baseProps} />);
+    const btn = screen.getByRole('button', { name: /category/i });
+    expect(btn).toHaveClass('border-border');
+    expect(btn.className).not.toContain('#f1f5f9');
+  });
+
+  it('chevron uses text-text-muted token, not hardcoded hex', () => {
+    const { container } = render(<FieldPicker {...baseProps} />);
+    expect(container.innerHTML).not.toContain('text-[#cbd5e1]');
+  });
 });

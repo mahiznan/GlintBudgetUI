@@ -78,7 +78,7 @@ export default function SearchPicker({
   const showAddOption = allowFreeText && query.trim() && filtered.length === 0;
 
   return (
-    <div className="-mx-[18px] bg-[#f8fafc] border-y-[1.5px] border-[#e2e8f0] px-[18px] py-[10px] pb-[12px]">
+    <div className="-mx-[18px] bg-surface-alt border-y-[1.5px] border-border px-[18px] py-[10px] pb-[12px]">
       {/* Search input */}
       <div className="flex items-center gap-[7px] bg-surface border-[1.5px] border-brand rounded-[10px] px-[11px] py-[8px] mb-[8px]">
         <span className="text-[13px] text-brand">🔍</span>
@@ -92,7 +92,7 @@ export default function SearchPicker({
             setHlIdx(0);
           }}
           onKeyDown={handleKeyDown}
-          className="flex-1 text-[13px] font-semibold text-text bg-transparent outline-none placeholder:text-[#cbd5e1]"
+          className="flex-1 text-[13px] font-semibold text-text bg-transparent outline-none placeholder:text-text-muted"
         />
       </div>
 
@@ -105,7 +105,7 @@ export default function SearchPicker({
             onClick={() => select(o.name)}
             className={[
               'flex items-center gap-[9px] px-[8px] py-[8px] rounded-[9px] text-left w-full',
-              i === hlIdx ? 'bg-brand/10' : 'hover:bg-[#f1f5f9]',
+              i === hlIdx ? 'bg-brand/10' : 'hover:bg-surface-alt',
             ].join(' ')}
           >
             {o.emoji && (
@@ -122,7 +122,7 @@ export default function SearchPicker({
           <button
             type="button"
             onClick={() => select(query.trim())}
-            className="flex items-center gap-[9px] px-[8px] py-[8px] rounded-[9px] text-left w-full hover:bg-[#f1f5f9]"
+            className="flex items-center gap-[9px] px-[8px] py-[8px] rounded-[9px] text-left w-full hover:bg-surface-alt"
           >
             <span className="text-[13px] text-text-muted">
               Add &ldquo;<span className="font-semibold text-text">{query.trim()}</span>&rdquo;
