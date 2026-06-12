@@ -6,7 +6,10 @@ export interface TransactionContextValue {
   transactions: Transaction[];
   loading: boolean;
   error: Error | null;
-  hasPendingWrites: boolean;
+  addTransaction: (tx: Omit<Transaction, 'id'>) => string;
+  updateTransaction: (id: string, patch: Partial<Omit<Transaction, 'id'>>) => void;
+  deleteTransaction: (id: string) => void;
+  loadYear: (year: number) => Promise<void>;
 }
 
 export const TransactionContext = createContext<TransactionContextValue | null>(null);
