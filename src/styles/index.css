@@ -449,7 +449,8 @@ body {
 .login-dots {
   position: absolute;
   bottom: 30px;
-  left: 48px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 6;
   display: flex;
   gap: 10px;
@@ -528,8 +529,5 @@ body {
   }
   .login-slide {
     padding: 0 24px;
-  }
-  .login-dots {
-    left: 24px;
   }
 }

@@ -45,7 +45,7 @@ export default function OnboardingCarousel() {
                 <PhoneFrame
                   src={slide.screenshot.src}
                   alt={slide.screenshot.alt}
-                  width={110}
+                  width={220}
                   tilt={slide.screenshot.tilt}
                   yOffset={slide.screenshot.yOffset}
                 />
