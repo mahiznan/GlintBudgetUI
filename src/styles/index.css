@@ -78,6 +78,17 @@
   --brand-gradient-text: linear-gradient(135deg, #b45309, #f59e0b);
 }
 
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+/* Overrides the semantic surface/text/border tokens. Orthogonal to        */
+/* [data-theme]; brand/accent colors continue to come from the theme.       */
+[data-mode='dark'] {
+  --color-text: #f1f5f9; /* slate-100 */
+  --color-text-muted: #94a3b8; /* slate-400 */
+  --color-surface: #0f172a; /* slate-900 */
+  --color-surface-alt: #1e293b; /* slate-800 */
+  --color-border: #334155; /* slate-700 */
+}
+
 /* ── Layout ─────────────────────────────────────────────────────────── */
 html,
 body,
@@ -134,6 +145,14 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark variants of the only hardcoded-white surfaces. */
+[data-mode='dark'] .glass,
+[data-mode='dark'] .card-surface {
+  background: rgba(30, 41, 59, 0.6); /* slate-800 translucent */
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
 }
 
 /* Prevent iOS Safari auto-zoom on input focus.
