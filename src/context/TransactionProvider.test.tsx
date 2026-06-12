@@ -12,10 +12,7 @@ vi.mock('firebase/firestore', () => ({
   Timestamp: { fromDate: vi.fn((d: Date) => d) },
 }));
 
-const { mockFetchFn } = vi.hoisted(() => {
-  const fn = vi.fn(() => Promise.resolve([]));
-  return { mockFetchFn: fn };
-});
+const { mockFetchFn } = vi.hoisted(() => ({ mockFetchFn: vi.fn() }));
 
 vi.mock('../hooks/useTransactions', () => ({
   fetchTransactions: mockFetchFn,
@@ -90,7 +87,7 @@ describe('TransactionProvider', () => {
 
   it('updateTransaction patches transaction in list', async () => {
     const txRecord = { ...baseTx, id: 'tx-1' };
-    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]));
+    mockFetchFn.mockResolvedValueOnce([txRecord]);
     const { result } = renderHook(() => useTransactionContext(), { wrapper });
     await waitFor(() => expect(result.current.transactions).toHaveLength(1));
     act(() => { result.current.updateTransaction('tx-1', { amount: -999 }); });
@@ -101,7 +98,7 @@ describe('TransactionProvider', () => {
 
   it('deleteTransaction removes from list', async () => {
     const txRecord = { ...baseTx, id: 'tx-1' };
-    mockFetchFn.mockResolvedValueOnce(Promise.resolve([txRecord]));
+    mockFetchFn.mockResolvedValueOnce([txRecord]);
     const { result } = renderHook(() => useTransactionContext(), { wrapper });
     await waitFor(() => expect(result.current.transactions).toHaveLength(1));
     act(() => { result.current.deleteTransaction('tx-1'); });
@@ -114,7 +111,7 @@ describe('TransactionProvider', () => {
     await act(async () => { await result.current.loadYear(2025); });
     // Check that one of the calls matches our expectation
     const yearCall = mockFetchFn.mock.calls.find((call) => {
-      const arg = (call[0] as { start?: Date } | undefined);
+      const arg = (call as unknown[])[0] as { start?: Date } | undefined;
       return arg?.start?.getFullYear?.() === 2025;
     });
     expect(yearCall).toBeDefined();
