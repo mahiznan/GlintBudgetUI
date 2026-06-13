@@ -10,6 +10,8 @@ import { ThemeProvider } from './context/ThemeProvider';
 import { ColorModeProvider } from './context/ColorModeProvider';
 import { LayoutProvider } from './context/LayoutProvider';
 import Landing from './routes/Landing';
+import PrivacyPolicy from './routes/PrivacyPolicy';
+import Support from './routes/Support';
 
 const SignIn = lazy(() => import('./routes/SignIn'));
 const AppShell = lazy(() => import('./routes/AppShell'));
@@ -26,6 +28,8 @@ const RouteFallback = () => (
 
 const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
+  { path: '/privacy-policy', element: <PrivacyPolicy /> },
+  { path: '/support', element: <Support /> },
   {
     path: '/signin',
     element: (
